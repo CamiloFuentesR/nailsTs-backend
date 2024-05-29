@@ -1,0 +1,38 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const sequelize_1 = require("sequelize");
+const conection_1 = __importDefault(require("../db/conection"));
+const user_1 = __importDefault(require("./user")); // Importa el modelo de User
+const appointment_1 = __importDefault(require("./appointment"));
+const Client = conection_1.default.define('Clients', {
+    id: {
+        type: sequelize_1.DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+    },
+    name: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
+    },
+    phone_number: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true
+    },
+    user_id: {
+        type: sequelize_1.DataTypes.UUID,
+        allowNull: false,
+        unique: true,
+        references: {
+            model: user_1.default,
+            key: 'id'
+        }
+    }
+});
+// Definir la relación con User
+// Client.belongsTo(User, { foreignKey: 'user_id' });
+Client.hasMany(appointment_1.default, { foreignKey: 'cliente_id' });
+exports.default = Client;
+//# sourceMappingURL=client.js.map
