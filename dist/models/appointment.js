@@ -11,7 +11,7 @@ const Appointment = conection_1.default.define('Appointments', {
         primaryKey: true,
         autoIncrement: true
     },
-    date: {
+    date_appointment: {
         type: sequelize_1.DataTypes.DATE,
         allowNull: false
     },
@@ -23,8 +23,8 @@ const Appointment = conection_1.default.define('Appointments', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true
     },
-    status: {
-        type: sequelize_1.DataTypes.STRING,
+    state: {
+        type: sequelize_1.DataTypes.INTEGER,
         allowNull: true
     }
 });

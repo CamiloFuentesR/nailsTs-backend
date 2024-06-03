@@ -27,27 +27,26 @@ const User = db.define('Users', {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
-  role_id:{
+  role_id: {
     type: DataTypes.INTEGER,
-    allowNull:false,
-    references:{
-      model:Role,
-      key:'id'
-    }
+    allowNull: false,
+    references: {
+      model: Role,
+      key: 'id'
+    },
 
+
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: DataTypes.NOW,
   }
 },
-  {
-    // defaultScope: {
-    //   attributes: { exclude: ['password'] },
-    // },
-    scopes: {
-      // Si alguna vez necesitas incluir el password
-      withPassword: {
-        // attributes: {},
-      },
-    },
-  }
+
 );
 
 // Sobrescribir el método toJSON en el prototipo del modelo

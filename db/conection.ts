@@ -2,6 +2,7 @@ import { Sequelize, Dialect } from 'sequelize';
 import dotenv from 'dotenv'
 dotenv.config();
 
+
 const dbDatabase = process.env.DB_DATABASE || 'nails';
 const dbUser = process.env.DB_USER || 'postgres';
 const dbPassword = process.env.DB_PASSWORD;
@@ -13,10 +14,15 @@ const db = new Sequelize(dbDatabase, dbUser, dbPassword, {
     host: dbHost,
     port: dbPort,
     dialect: dbDialect,
-    define:{
+    define: {
         timestamps: true,
         underscored: true,
-    }
+    },
+    timezone: 'America/Santiago',
+    dialectOptions: {
+        useUTC: false, // Para que no use UTC
+        timezone: 'America/Santiago'
+    },
     // logging: false
 });
 

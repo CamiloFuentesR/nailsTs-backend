@@ -12,24 +12,29 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUser = exports.createtUser = exports.getUser = exports.getUsers = void 0;
+exports.deleteUser = exports.updateUser = exports.createtUser = exports.getUserByid = exports.getUsersInactive = exports.getUsersActive = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
-const jwt_decode_1 = require("jwt-decode");
 const client_1 = __importDefault(require("../models/client"));
 const role_1 = __importDefault(require("../models/role"));
-const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteUserClient_1 = require("../services/deleteUserClient");
+const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield user_1.default.findAll({
-            include: [client_1.default,
+            where: { state: true },
+            include: [
+                {
+                    model: client_1.default,
+                    // attributes: ['id', 'name', 'phone_number', 'state'],
+                },
                 {
                     model: role_1.default,
                     attributes: ['name']
                 }
             ],
         });
-        if (!users) {
+        if (users.length === 0) {
             return res.status(400).json({
                 msg: 'No hay usuarios'
             });
@@ -46,12 +51,42 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
     }
 });
-exports.getUsers = getUsers;
-const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.getUsersActive = getUsersActive;
+const getUsersInactive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield user_1.default.findAll({
+            where: { state: false },
+            include: [
+                {
+                    model: client_1.default,
+                    // attributes: ['id', 'name', 'phone_number', 'state'],
+                },
+                {
+                    model: role_1.default,
+                    attributes: ['name']
+                }
+            ],
+        });
+        if (users.length === 0) {
+            return res.status(400).json({
+                msg: 'No hay usuarios'
+            });
+        }
+        res.json({
+            msg: 'getUsers',
+            users
+        });
+    }
+    catch (error) {
+        // throw new Error(error)
+        return res.status(500).json({
+            msg: error
+        });
+    }
+});
+exports.getUsersInactive = getUsersInactive;
+const getUserByid = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    // const clientWithUser = await Client.findByPk(id, {
-    //     include: Users
-    //   });
     const userWithClients = yield user_1.default.findByPk(id, {
         include: [client_1.default,
             {
@@ -60,20 +95,16 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             }
         ],
     });
+    console.log(userWithClients);
     res.json({
+        ok: true,
         msg: 'getUser',
         user: userWithClients
     });
 });
-exports.getUser = getUser;
+exports.getUserByid = getUserByid;
 const createtUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
-    if (email === '' && password === '') {
-        return res.status(401).json({
-            ok: false,
-            msg: 'No se pueden ingresar campos vacíos'
-        });
-    }
     try {
         let user = yield user_1.default.findOne({ where: { email } });
         if (user) {
@@ -89,13 +120,11 @@ const createtUser = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         user.dataValues.state = true;
         const userSave = yield user.save();
         const token = yield (0, generateJWT_1.default)(user.dataValues.id, user.dataValues.name, user.dataValues.role_id);
-        const decodedToken = (0, jwt_decode_1.jwtDecode)("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1OGIzMWJhLWI2YjUtNDQzMy05Y2FhLTc2NmNkZjhlMzNmOSIsIm5hbWUiOiIiLCJyb2xlIjoxLCJpYXQiOjE3MTY5MDcxODksImV4cCI6MTcxNjkxMDc4OX0.wpjkU-PtlTLV1ACkD-DwBk2PqhZsfYX1hZlxjWZP-nU");
         res.status(201).json({
-            ok: false,
+            ok: true,
             msg: 'usuario creado con éxito',
             user: userSave,
             token,
-            decodedToken
         });
     }
     catch (error) {
@@ -106,12 +135,57 @@ const createtUser = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.createtUser = createtUser;
-const updateUser = (req, res) => {
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
     const { body } = req;
-    res.json({
-        msg: 'postUser',
-        body,
-    });
-};
+    try {
+        const user = yield user_1.default.update(body, {
+            where: { id },
+            returning: true
+        });
+        console.log('user');
+        res.json({
+            msg: 'postUser',
+            user: user,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msj: error
+        });
+    }
+});
 exports.updateUser = updateUser;
+const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const client = yield client_1.default.findOne({ where: { user_id: id } });
+        if (client) {
+            yield (0, deleteUserClient_1.deleteUserAndClientState)(id);
+            const { name } = client;
+            res.status(200).json({
+                ok: true,
+                msg: `El cliente ' ${name} ' ha sido eliminado`
+            });
+        }
+        else {
+            yield user_1.default.update({ state: false }, { where: { id } });
+            res.status(400).json({
+                ok: true,
+                msg: 'El usuario ha sido eliminado'
+            });
+        }
+    }
+    catch (error) {
+        console.error('Error al eliminar cliente:', error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor',
+            error: error.message
+        });
+    }
+});
+exports.deleteUser = deleteUser;
 //# sourceMappingURL=user.js.map

@@ -8,7 +8,7 @@ const Appointment = db.define('Appointments', {
     primaryKey: true,
     autoIncrement: true
   },
-  date: {
+  date_appointment: {
     type: DataTypes.DATE,
     allowNull: false
   },
@@ -20,8 +20,8 @@ const Appointment = db.define('Appointments', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  status: {
-    type: DataTypes.STRING,
+  state: {
+    type: DataTypes.INTEGER,
     allowNull: true
   }
 });

@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { validateJWT } from "../middleware/validateJWT";
-import { createCategory, getServicesCategory } from "../controllers/servicesCategory";
+import { createServicesCategory, getServicesCategory, updateServicesCategory } from "../controllers/servicesCategory";
 
 const router = Router();
 
 
-router.get('/',validateJWT,getServicesCategory);
-router.post('/',validateJWT,createCategory)
+router.get('/', validateJWT, getServicesCategory);
+router.post('/', validateJWT, createServicesCategory)
+router.put('/:id', validateJWT, updateServicesCategory)
+
+
+export default router;

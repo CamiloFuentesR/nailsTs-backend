@@ -2,15 +2,19 @@ import { Request, Response } from "express"
 import Users from "../models/user"
 import bcrypt from 'bcrypt'
 import generateJWT from "../helpers/generateJWT"
-import { jwtDecode } from 'jwt-decode';
 import Client from "../models/client";
 import Role from "../models/role";
+import { deleteUserAndClientState } from "../services/deleteUserClient";
 
-export const getUsers = async (req: Request, res: Response) => {
-
+export const getUsersActive = async (req: Request, res: Response) => {
     try {
         const users = await Users.findAll({
-            include: [Client,
+            where: { state: true },
+            include: [
+                {
+                    model: Client,
+                    // attributes: ['id', 'name', 'phone_number', 'state'],
+                },
                 {
                     model: Role,
                     attributes: ['name']
@@ -18,7 +22,7 @@ export const getUsers = async (req: Request, res: Response) => {
             ],
         });
 
-        if (!users) {
+        if (users.length === 0) {
             return res.status(400).json({
                 msg: 'No hay usuarios'
             })
@@ -37,12 +41,45 @@ export const getUsers = async (req: Request, res: Response) => {
     }
 
 }
-export const getUser = async (req: Request, res: Response) => {
+export const getUsersInactive = async (req: Request, res: Response) => {
 
+    try {
+        const users = await Users.findAll({
+            where: { state: false },
+            include: [
+                {
+                    model: Client,
+
+                    // attributes: ['id', 'name', 'phone_number', 'state'],
+                },
+                {
+                    model: Role,
+                    attributes: ['name']
+                }
+            ],
+        });
+
+        if (users.length === 0) {
+            return res.status(400).json({
+                msg: 'No hay usuarios'
+            })
+        }
+
+        res.json({
+            msg: 'getUsers',
+            users
+        })
+    } catch (error: any) {
+        // throw new Error(error)
+
+        return res.status(500).json({
+            msg: error
+        })
+    }
+}
+
+export const getUserByid = async (req: Request, res: Response) => {
     const { id } = req.params;
-    // const clientWithUser = await Client.findByPk(id, {
-    //     include: Users
-    //   });
     const userWithClients = await Users.findByPk(id, {
         include: [Client,
             {
@@ -50,22 +87,17 @@ export const getUser = async (req: Request, res: Response) => {
                 attributes: ['name']
             }
         ],
-
     });
-
+    console.log(userWithClients);
     res.json({
+        ok: true,
         msg: 'getUser',
         user: userWithClients
     })
 }
+
 export const createtUser = async (req: Request, res: Response) => {
     const { email, password } = req.body;
-    if (email === '' && password === '') {
-        return res.status(401).json({
-            ok: false,
-            msg: 'No se pueden ingresar campos vacíos'
-        })
-    }
     try {
 
         let user = await Users.findOne({ where: { email } })
@@ -86,14 +118,12 @@ export const createtUser = async (req: Request, res: Response) => {
 
         const userSave = await user.save();
         const token = await generateJWT(user.dataValues.id, user.dataValues.name, user.dataValues.role_id);
-        const decodedToken = jwtDecode("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImI1OGIzMWJhLWI2YjUtNDQzMy05Y2FhLTc2NmNkZjhlMzNmOSIsIm5hbWUiOiIiLCJyb2xlIjoxLCJpYXQiOjE3MTY5MDcxODksImV4cCI6MTcxNjkxMDc4OX0.wpjkU-PtlTLV1ACkD-DwBk2PqhZsfYX1hZlxjWZP-nU");
 
         res.status(201).json({
-            ok: false,
+            ok: true,
             msg: 'usuario creado con éxito',
             user: userSave,
             token,
-            decodedToken
         })
     } catch (error: any) {
         res.status(500).json({
@@ -103,11 +133,63 @@ export const createtUser = async (req: Request, res: Response) => {
     }
 
 }
-export const updateUser = (req: Request, res: Response) => {
 
+export const updateUser = async (req: Request, res: Response) => {
+
+    const { id } = req.params;
     const { body } = req;
-    res.json({
-        msg: 'postUser',
-        body,
-    })
+    try {
+        const user = await Users.update(
+            body
+            , {
+                where: { id },
+                returning: true
+            })
+        console.log('user');
+        res.json({
+            msg: 'postUser',
+            user: user,
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msj: error
+        })
+    }
+
+}
+
+export const deleteUser = async (req: Request, res: Response) => {
+
+    const { id } = req.params;
+    try {
+        const client = await Client.findOne({ where: { user_id: id } });
+        if (client) {
+            await deleteUserAndClientState(id);
+            const { name } = client;
+            res.status(200).json({
+                ok: true,
+                msg: `El cliente ' ${name} ' ha sido eliminado`
+            })
+        } else {
+            await Users.update(
+                { state: false },
+                { where: { id } }
+            );
+            res.status(400).json({
+                ok: true,
+                msg: 'El usuario ha sido eliminado'
+            })
+
+        }
+
+    } catch (error: any) {
+        console.error('Error al eliminar cliente:', error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error en el servidor',
+            error: error.message
+        });
+    }
 }

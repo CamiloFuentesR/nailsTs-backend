@@ -12,13 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createCategory = exports.getServicesCategory = void 0;
+exports.updateServicesCategory = exports.createServicesCategory = exports.getServicesCategory = void 0;
 const servicesCategory_1 = __importDefault(require("../models/servicesCategory"));
 const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const serCat = yield servicesCategory_1.default.findAll();
-        if (!serCat) {
+        if (serCat.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Servicios_categorias - no se encontraron resultados'
+            });
         }
+        res.status(200).json({
+            ok: true,
+            serCat
+        });
     }
     catch (error) {
         console.error(error);
@@ -29,8 +37,8 @@ const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.getServicesCategory = getServicesCategory;
-const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name } = req.body;
+const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const name = req.body.name.toUpperCase();
     if (name === '') {
         return res.status(401).json({
             ok: false,
@@ -45,11 +53,35 @@ const createCategory = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 msg: 'Ya existe una categoría con ese nombre'
             });
         }
-        // category = 
+        const data = {
+            name
+        };
+        const category = yield servicesCategory_1.default.create(data);
+        res.status(201).json({
+            ok: true,
+            category
+        });
     }
     catch (error) {
         console.error(error);
     }
 });
-exports.createCategory = createCategory;
+exports.createServicesCategory = createServicesCategory;
+const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { body } = req;
+    const serCat = yield servicesCategory_1.default.findByPk(id);
+    if (!serCat) {
+        return res.status(401).json({
+            ok: false,
+            msg: 'Servicio_categoria - no exixte'
+        });
+    }
+    return res.status(200).json({
+        ok: true,
+        serCat,
+        body
+    });
+});
+exports.updateServicesCategory = updateServicesCategory;
 //# sourceMappingURL=servicesCategory.js.map

@@ -1,9 +1,21 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model } from 'sequelize';
 import db from '../db/conection';
 import User from './user'; // Importa el modelo de User
 import Appointment from './appointment';
+import { UUIDVersion } from 'express-validator/lib/options';
+interface ClientAttributes {
+  // Otras propiedades
+  id: number;
+  name: string;
+  phone_number: number;
+  user_id: UUIDVersion;
+  state: boolean;
+}
 
-const Client = db.define('Clients', {
+interface ClientInstance extends Model<ClientAttributes>, ClientAttributes {
+  // Otras definiciones si las hay
+}
+const Client = db.define<ClientInstance>('Clients', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -25,11 +37,13 @@ const Client = db.define('Clients', {
       model: User,
       key: 'id'
     }
-  }
+  },
+  state: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+  },
 });
 
-// Definir la relación con User
-// Client.belongsTo(User, { foreignKey: 'user_id' });
 Client.hasMany(Appointment, { foreignKey: 'cliente_id' });
 
 export default Client;

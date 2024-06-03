@@ -29,10 +29,12 @@ const Client = conection_1.default.define('Clients', {
             model: user_1.default,
             key: 'id'
         }
-    }
+    },
+    state: {
+        type: sequelize_1.DataTypes.BOOLEAN,
+        allowNull: false,
+    },
 });
-// Definir la relación con User
-// Client.belongsTo(User, { foreignKey: 'user_id' });
 Client.hasMany(appointment_1.default, { foreignKey: 'cliente_id' });
 exports.default = Client;
 //# sourceMappingURL=client.js.map

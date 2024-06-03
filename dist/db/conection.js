@@ -19,7 +19,12 @@ const db = new sequelize_1.Sequelize(dbDatabase, dbUser, dbPassword, {
     define: {
         timestamps: true,
         underscored: true,
-    }
+    },
+    timezone: 'America/Santiago',
+    dialectOptions: {
+        useUTC: false, // Para que no use UTC
+        timezone: 'America/Santiago'
+    },
     // logging: false
 });
 exports.default = db;
