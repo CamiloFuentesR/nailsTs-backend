@@ -9,24 +9,24 @@ const Appointment = conection_1.default.define('Appointments', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
     },
     date_appointment: {
         type: sequelize_1.DataTypes.DATE,
-        allowNull: false
+        allowNull: false,
     },
     time: {
         type: sequelize_1.DataTypes.TIME,
-        allowNull: false
+        allowNull: false,
     },
     service_type: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
     },
     state: {
         type: sequelize_1.DataTypes.INTEGER,
-        allowNull: true
-    }
+        allowNull: true,
+    },
 });
 // Definir la relación con Client
 // Appointment.belongsTo(Client, { foreignKey: 'client_id' });

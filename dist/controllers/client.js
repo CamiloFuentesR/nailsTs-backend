@@ -1,2 +1,154 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.updateClient = exports.createClient = exports.showClientById = exports.showAllCliens = exports.showAllClientInActive = exports.showAllClientActive = void 0;
+const client_1 = __importDefault(require("../models/client"));
+const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        if (!state) {
+            const client = yield client_1.default.findAll();
+            return !client
+                ? res.status(409).json({
+                    ok: false,
+                    msg: 'No se encontraron clientes registradios',
+                })
+                : res.status(200).json({
+                    ok: true,
+                    msg: 'Get Clients all',
+                    client,
+                });
+        }
+        const client = yield client_1.default.findAll({ where: { state } });
+        if (!client) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'No se encontraron clientes',
+            });
+        }
+        return res.status(200).json({
+            ok: true,
+            client,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+const showAllClientActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    showAllClient(req, res, true);
+});
+exports.showAllClientActive = showAllClientActive;
+const showAllClientInActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    showAllClient(req, res, false);
+});
+exports.showAllClientInActive = showAllClientInActive;
+const showAllCliens = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    showAllClient(req, res, null);
+});
+exports.showAllCliens = showAllCliens;
+const showClientById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const client = yield client_1.default.findAll({ where: { id } });
+        if (!client) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'No se encontraron clientes',
+            });
+        }
+        return res.status(200).json({
+            ok: true,
+            client,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.showClientById = showClientById;
+const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.user;
+    try {
+        let client = yield client_1.default.findOne({
+            where: { user_id: id },
+        });
+        if (client) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'El cliente ya existe',
+            });
+        }
+        client = client_1.default.build(req.body);
+        client.user_id = id;
+        const clientSave = yield client.save();
+        res.status(201).json({
+            ok: true,
+            msg: 'usuario creado con éxito',
+            client: clientSave,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({
+                ok: false,
+                msg: 'Este cliente ya existe',
+            });
+        }
+        res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.createClient = createClient;
+const updateClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { body } = req;
+    try {
+        const client = yield client_1.default.update(body, {
+            where: { id },
+            returning: true,
+        });
+        if (client[1]) {
+            return res.status(201).json({
+                ok: true,
+                msg: 'Cliente - editado con éxisto',
+                client,
+            });
+        }
+        console.log(client);
+        return res.status(409).json({
+            ok: false,
+            msg: 'Error al editar user',
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.updateClient = updateClient;
 //# sourceMappingURL=client.js.map

@@ -9,9 +9,6 @@ const express_validator_1 = require("express-validator");
 const auth_1 = require("../controllers/auth");
 const middleware_1 = __importDefault(require("../middleware"));
 const router = (0, express_1.Router)();
-router.post('/', [
-    (0, express_validator_1.check)('email').normalizeEmail(),
-    middleware_1.default.validateFields
-], auth_1.login);
+router.post('/', [(0, express_validator_1.check)('email').normalizeEmail(), middleware_1.default.validateFields], auth_1.login);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

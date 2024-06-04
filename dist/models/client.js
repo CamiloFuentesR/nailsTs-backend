@@ -15,11 +15,11 @@ const Client = conection_1.default.define('Clients', {
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     phone_number: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
     },
     user_id: {
         type: sequelize_1.DataTypes.UUID,
@@ -27,15 +27,16 @@ const Client = conection_1.default.define('Clients', {
         unique: true,
         references: {
             model: user_1.default,
-            key: 'id'
-        }
+            key: 'id',
+        },
     },
     state: {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
     },
 });
 Client.hasMany(appointment_1.default, { foreignKey: 'cliente_id' });
-Client.hasOne(user_1.default, { foreignKey: 'user_id' });
+// Client.belongsTo(User, { foreignKey: 'user_id' });
 exports.default = Client;
 //# sourceMappingURL=client.js.map

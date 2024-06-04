@@ -12,14 +12,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validUUID = exports.userByIdExist = exports.emailExist = exports.isValidRole = void 0;
+exports.validUUID = exports.clientByIdExist = exports.userByIdExist = exports.emailExist = exports.isValidRole = void 0;
 const role_1 = __importDefault(require("../models/role"));
 const user_1 = __importDefault(require("../models/user"));
 const uuid_1 = require("uuid");
-const isValidRole = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (role = '') {
-    const roleExist = yield role_1.default.findOne({ where: { role } });
+const client_1 = __importDefault(require("../models/client"));
+const isValidRole = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (name = '') {
+    const roleExist = yield role_1.default.findOne({ where: { name } });
     if (!roleExist) {
-        throw new Error(`El rol ${role}, no existe en la BD`);
+        throw new Error(`El rol ${name}, no existe en la BD`);
     }
 });
 exports.isValidRole = isValidRole;
@@ -41,6 +42,17 @@ const userByIdExist = (...args_3) => __awaiter(void 0, [...args_3], void 0, func
     }
 });
 exports.userByIdExist = userByIdExist;
+const clientByIdExist = (...args_4) => __awaiter(void 0, [...args_4], void 0, function* (id = '') {
+    // validUUID (id)
+    const clientByIdExist = yield client_1.default.findByPk(id);
+    if (!(0, uuid_1.validate)(id)) {
+        throw new Error('No es un UUID válido');
+    }
+    if (!clientByIdExist /* || userByIdExist.state === false */) {
+        throw new Error(`Este id de usuario: '${id}', no esta registrdo en la  bdd`);
+    }
+});
+exports.clientByIdExist = clientByIdExist;
 const validUUID = (value) => __awaiter(void 0, void 0, void 0, function* () {
     if (!(0, uuid_1.validate)(value)) {
         throw new Error('No es un UUID válido');

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../routes/user"));
 const auth_1 = __importDefault(require("../routes/auth"));
+const client_1 = __importDefault(require("../routes/client"));
 const services_category_1 = __importDefault(require("../routes/services_category"));
 const services_1 = __importDefault(require("../routes/services"));
 const cors_1 = __importDefault(require("cors"));
@@ -25,7 +26,8 @@ class Server {
             users: '/api/users',
             auth: '/api/login',
             serviceCategory: '/api/ser-cat',
-            category: '/api/services'
+            category: '/api/services',
+            client: '/api/clients',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -53,10 +55,11 @@ class Server {
         this.app.use(express_1.default.static('public'));
     }
     routes() {
-        this.app.use(this.apiPaths.users, user_1.default);
         this.app.use(this.apiPaths.auth, auth_1.default);
-        this.app.use(this.apiPaths.serviceCategory, services_category_1.default);
         this.app.use(this.apiPaths.category, services_1.default);
+        this.app.use(this.apiPaths.client, client_1.default);
+        this.app.use(this.apiPaths.serviceCategory, services_category_1.default);
+        this.app.use(this.apiPaths.users, user_1.default);
     }
     listen() {
         this.app.listen(this.port, () => {

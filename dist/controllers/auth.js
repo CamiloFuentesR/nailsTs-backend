@@ -23,33 +23,33 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const user = yield user_1.default.findOne({ where: { email } });
         if (!user) {
             return res.status(400).json({
-                msg: 'Se ha ingresado un Email no existente'
+                msg: 'Se ha ingresado un Email no existente',
             });
         }
         // Verificar usuario activo
         if (!user.state) {
             return res.status(400).json({
-                msg: 'Usuario inhabilitado'
+                msg: 'Usuario inhabilitado',
             });
         }
         // Verificar password
         const validatePassword = yield bcrypt_1.default.compare(password, user.password);
         if (!validatePassword) {
             return res.status(400).json({
-                msg: 'Password incorrecto'
+                msg: 'Password incorrecto',
             });
         }
         const { id, role_id } = user;
         const token = yield (0, generateJWT_1.default)(id, email, role_id);
         res.json({
             msg: 'Login ok',
-            token
+            token,
         });
     }
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg: 'Hable con el admin'
+            msg: 'Hable con el admin',
         });
     }
 });

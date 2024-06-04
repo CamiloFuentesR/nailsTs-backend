@@ -11,7 +11,7 @@ const dbUser = process.env.DB_USER || 'postgres';
 const dbPassword = process.env.DB_PASSWORD;
 const dbHost = process.env.DB_HOST;
 const dbPort = parseInt(process.env.DB_PORT || '5432', 10);
-const dbDialect = (process.env.DB_DIALECT);
+const dbDialect = process.env.DB_DIALECT;
 const db = new sequelize_1.Sequelize(dbDatabase, dbUser, dbPassword, {
     host: dbHost,
     port: dbPort,
@@ -23,7 +23,7 @@ const db = new sequelize_1.Sequelize(dbDatabase, dbUser, dbPassword, {
     timezone: 'America/Santiago',
     dialectOptions: {
         useUTC: false, // Para que no use UTC
-        timezone: 'America/Santiago'
+        timezone: 'America/Santiago',
     },
     // logging: false
 });

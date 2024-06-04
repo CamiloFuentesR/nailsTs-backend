@@ -5,12 +5,11 @@ import Service from './service';
 import User from './user';
 import Client from './client';
 
-
-export default{
-    Appointment,
-    Client,
-    Server,
-    Service,
-    Role,
-    User,
+export default {
+  Appointment,
+  Client,
+  Server,
+  Service,
+  Role,
+  User,
 };

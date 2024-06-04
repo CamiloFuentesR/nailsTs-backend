@@ -9,13 +9,12 @@ const Role = conection_1.default.define('Roles', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
-    }
+        allowNull: false,
+    },
 });
 exports.default = Role;
-// Role.belongsTo(User, { foreignKey: 'role_id' });
 //# sourceMappingURL=role.js.map

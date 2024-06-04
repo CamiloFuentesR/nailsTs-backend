@@ -21,19 +21,19 @@ const getServices = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (services.length === 0) {
             return res.status(404).json({
                 ok: false,
-                msg: 'Servicios - no se encontraron servicios'
+                msg: 'Servicios - no se encontraron servicios',
             });
         }
         return res.status(200).json({
             ok: true,
-            services
+            services,
         });
     }
     catch (error) {
         console.error(error);
         return res.status(500).json({
             ok: false,
-            msg: error
+            msg: error,
         });
     }
 });
@@ -43,19 +43,19 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     if (name === '') {
         return res.status(401).json({
             ok: false,
-            msg: 'El nombre no puede estar vacío'
+            msg: 'El nombre no puede estar vacío',
         });
     }
     else if (services_category_id === '') {
         return res.status(401).json({
             ok: false,
-            msg: 'La descripción no puede estar vacío'
+            msg: 'La descripción no puede estar vacío',
         });
     }
     else if (price === '') {
         return res.status(401).json({
             ok: false,
-            msg: 'El precio no puede estar vacío'
+            msg: 'El precio no puede estar vacío',
         });
     }
     try {
@@ -63,7 +63,7 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (categoryExist) {
             return res.status(404).json({
                 ok: false,
-                msg: 'Ya existe una categoría con ese nombre'
+                msg: 'Ya existe una categoría con ese nombre',
             });
         }
         const data = {
@@ -74,7 +74,7 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const service = yield service_1.default.create(data);
         res.status(201).json({
             ok: true,
-            service
+            service,
         });
     }
     catch (error) {
@@ -82,12 +82,12 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (error.name === 'SequelizeForeignKeyConstraintError') {
             return res.status(500).json({
                 ok: false,
-                msg: 'La categoria-servicio no existe, contacte con el administrador'
+                msg: 'La categoria-servicio no existe, contacte con el administrador',
             });
         }
         return res.status(500).json({
             ok: false,
-            msg: 'Server internal error'
+            msg: 'Server internal error',
         });
     }
 });

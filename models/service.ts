@@ -13,29 +13,29 @@ const Service = db.define<Service>('Services', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   price: {
     type: DataTypes.DECIMAL(10, 2),
-    allowNull: false
+    allowNull: false,
   },
   state: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
-    allowNull: false
+    allowNull: false,
   },
   services_category_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: ServicesCategory,
-      key: 'services_category_id'
-    }
-  }
+      key: 'services_category_id',
+    },
+  },
 });
 
 Service.belongsTo(ServicesCategory, { foreignKey: 'services_category_id' });

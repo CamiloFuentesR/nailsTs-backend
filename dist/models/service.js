@@ -10,29 +10,29 @@ const Service = conection_1.default.define('Services', {
     id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     price: {
         type: sequelize_1.DataTypes.DECIMAL(10, 2),
-        allowNull: false
+        allowNull: false,
     },
     state: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: true,
-        allowNull: false
+        allowNull: false,
     },
     services_category_id: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: servicesCategory_1.default,
-            key: 'services_category_id'
-        }
-    }
+            key: 'services_category_id',
+        },
+    },
 });
 Service.belongsTo(servicesCategory_1.default, { foreignKey: 'services_category_id' });
 exports.default = Service;

@@ -4,6 +4,11 @@ import Role from './role';
 import Client from './client';
 import { UUIDVersion } from 'express-validator/lib/options';
 
+interface Role {
+  dataValues: object;
+  name: string;
+}
+
 interface UserAttributes {
   id: UUIDVersion;
   email: string;
@@ -12,11 +17,18 @@ interface UserAttributes {
   updatedAt: Date;
   state: boolean;
   role_id: number;
+  Role?: Role;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'state' | 'role_id'> { }
+interface UserCreationAttributes
+  extends Optional<
+    UserAttributes,
+    'id' | 'createdAt' | 'updatedAt' | 'state' | 'role_id'
+  > {}
 
-export interface UserInstance extends Model<UserAttributes, UserCreationAttributes>, UserAttributes { }
+export interface UserInstance
+  extends Model<UserAttributes, UserCreationAttributes>,
+    UserAttributes {}
 
 const User = db.define<UserInstance>('Users', {
   id: {
@@ -44,7 +56,7 @@ const User = db.define<UserInstance>('Users', {
     defaultValue: 2,
     references: {
       model: Role,
-      key: 'id'
+      key: 'id',
     },
   },
   createdAt: {
@@ -54,7 +66,7 @@ const User = db.define<UserInstance>('Users', {
   updatedAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
-  }
+  },
 });
 
 // Sobrescribir el método toJSON en el prototipo del modelo
@@ -65,5 +77,6 @@ User.prototype.toJSON = function () {
 };
 
 User.belongsTo(Role, { foreignKey: 'role_id' });
+User.hasOne(Client);
 
 export default User;

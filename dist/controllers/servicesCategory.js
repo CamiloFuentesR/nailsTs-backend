@@ -20,19 +20,19 @@ const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, func
         if (serCat.length === 0) {
             return res.status(404).json({
                 ok: false,
-                msg: 'Servicios_categorias - no se encontraron resultados'
+                msg: 'Servicios_categorias - no se encontraron resultados',
             });
         }
         res.status(200).json({
             ok: true,
-            serCat
+            serCat,
         });
     }
     catch (error) {
         console.error(error);
         return res.status(500).json({
             ok: false,
-            msg: 'Error del servidor'
+            msg: 'Error del servidor',
         });
     }
 });
@@ -42,7 +42,7 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     if (name === '') {
         return res.status(401).json({
             ok: false,
-            msg: 'El nombre no puede estar vacío'
+            msg: 'El nombre no puede estar vacío',
         });
     }
     try {
@@ -50,16 +50,16 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
         if (categoryExist) {
             return res.status(404).json({
                 ok: false,
-                msg: 'Ya existe una categoría con ese nombre'
+                msg: 'Ya existe una categoría con ese nombre',
             });
         }
         const data = {
-            name
+            name,
         };
         const category = yield servicesCategory_1.default.create(data);
         res.status(201).json({
             ok: true,
-            category
+            category,
         });
     }
     catch (error) {
@@ -74,13 +74,13 @@ const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     if (!serCat) {
         return res.status(401).json({
             ok: false,
-            msg: 'Servicio_categoria - no exixte'
+            msg: 'Servicio_categoria - no exixte',
         });
     }
     return res.status(200).json({
         ok: true,
         serCat,
-        body
+        body,
     });
 });
 exports.updateServicesCategory = updateServicesCategory;

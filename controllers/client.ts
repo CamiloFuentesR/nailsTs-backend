@@ -1,0 +1,158 @@
+import { Request, RequestHandler, Response } from 'express';
+import Client, { ClientInstance } from '../models/client';
+
+const showAllClient = async (
+  req: Request,
+  res: Response,
+  state: boolean | null
+) => {
+  try {
+    if (!state) {
+      const client = await Client.findAll();
+      return !client
+        ? res.status(409).json({
+            ok: false,
+            msg: 'No se encontraron clientes registradios',
+          })
+        : res.status(200).json({
+            ok: true,
+            msg: 'Get Clients all',
+            client,
+          });
+    }
+    const client = await Client.findAll({ where: { state } });
+    if (!client) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron clientes',
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      client,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const showAllClientActive: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  showAllClient(req, res, true);
+};
+
+export const showAllClientInActive: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  showAllClient(req, res, false);
+};
+
+export const showAllCliens: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  showAllClient(req, res, null);
+};
+
+export const showClientById: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const { id } = req.params;
+    const client = await Client.findAll({ where: { id } });
+    if (!client) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron clientes',
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      client,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const createClient: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.user;
+  try {
+    let client: ClientInstance | null = await Client.findOne({
+      where: { user_id: id },
+    });
+    if (client) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'El cliente ya existe',
+      });
+    }
+    client = Client.build(req.body);
+    client.user_id = id;
+    const clientSave = await client.save();
+    res.status(201).json({
+      ok: true,
+      msg: 'usuario creado con éxito',
+      client: clientSave,
+    });
+  } catch (error: any) {
+    console.log(error);
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(409).json({
+        ok: false,
+        msg: 'Este cliente ya existe',
+      });
+    }
+    res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const updateClient: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.params;
+  const { body } = req;
+  try {
+    const client = await Client.update(body, {
+      where: { id },
+      returning: true,
+    });
+    if (client[1]) {
+      return res.status(201).json({
+        ok: true,
+        msg: 'Cliente - editado con éxisto',
+        client,
+      });
+    }
+    console.log(client);
+    return res.status(409).json({
+      ok: false,
+      msg: 'Error al editar user',
+    });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};

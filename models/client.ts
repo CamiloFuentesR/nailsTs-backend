@@ -12,9 +12,11 @@ interface ClientAttributes {
   state: boolean;
 }
 
-interface ClientCreationAttributes extends Optional<ClientAttributes, 'id'> { }
+interface ClientCreationAttributes extends Optional<ClientAttributes, 'id'> {}
 
-export interface ClientInstance extends Model<ClientAttributes, ClientCreationAttributes>, ClientAttributes { }
+export interface ClientInstance
+  extends Model<ClientAttributes, ClientCreationAttributes>,
+    ClientAttributes {}
 
 const Client = db.define<ClientInstance>('Clients', {
   id: {
@@ -24,11 +26,11 @@ const Client = db.define<ClientInstance>('Clients', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
   },
   phone_number: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
   user_id: {
     type: DataTypes.UUID,
@@ -36,14 +38,15 @@ const Client = db.define<ClientInstance>('Clients', {
     unique: true,
     references: {
       model: User,
-      key: 'id'
-    }
+      key: 'id',
+    },
   },
   state: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
+    defaultValue: true,
   },
 });
 Client.hasMany(Appointment, { foreignKey: 'cliente_id' });
-Client.hasOne(User, { foreignKey: 'user_id' });
+// Client.belongsTo(User, { foreignKey: 'user_id' });
 export default Client;

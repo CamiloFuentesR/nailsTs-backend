@@ -31,24 +31,24 @@ const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function*
                 },
                 {
                     model: role_1.default,
-                    attributes: ['name']
-                }
+                    attributes: ['name'],
+                },
             ],
         });
         if (users.length === 0) {
             return res.status(400).json({
-                msg: 'No hay usuarios'
+                msg: 'No hay usuarios',
             });
         }
         res.json({
             msg: 'getUsers',
-            users
+            users,
         });
     }
     catch (error) {
         console.log(error);
         return res.status(500).json({
-            msg: error
+            msg: error,
         });
     }
 });
@@ -63,24 +63,24 @@ const getUsersInactive = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 },
                 {
                     model: role_1.default,
-                    attributes: ['name']
-                }
+                    attributes: ['name'],
+                },
             ],
         });
         if (users.length === 0) {
             return res.status(400).json({
-                msg: 'No hay usuarios'
+                msg: 'No hay usuarios',
             });
         }
         res.json({
             msg: 'getUsers',
-            users
+            users,
         });
     }
     catch (error) {
         // throw new Error(error)
         return res.status(500).json({
-            msg: error
+            msg: error,
         });
     }
 });
@@ -88,18 +88,19 @@ exports.getUsersInactive = getUsersInactive;
 const getUserByid = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const userWithClients = yield user_1.default.findByPk(id, {
-        include: [client_1.default,
+        include: [
+            client_1.default,
             {
                 model: role_1.default,
-                attributes: ['name']
-            }
+                attributes: ['name'],
+            },
         ],
     });
     console.log(userWithClients);
     res.json({
         ok: true,
         msg: 'getUser',
-        user: userWithClients
+        user: userWithClients,
     });
 });
 exports.getUserByid = getUserByid;
@@ -108,10 +109,10 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         let user = yield user_1.default.findOne({ where: { email } });
         if (user) {
-            return (res.status(401).json({
+            return res.status(401).json({
                 state: 'error',
                 msg: 'El usuario ya existe',
-            }));
+            });
         }
         user = user_1.default.build(req.body);
         const salt = yield bcrypt_1.default.genSalt(10);
@@ -130,7 +131,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     catch (error) {
         res.status(500).json({
             ok: false,
-            msg: error
+            msg: error,
         });
     }
 });
@@ -141,9 +142,8 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     try {
         const user = yield user_1.default.update(body, {
             where: { id },
-            returning: true
+            returning: true,
         });
-        console.log('user');
         res.json({
             msg: 'postUser',
             user: user,
@@ -153,7 +153,7 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         console.log(error);
         return res.status(500).json({
             ok: false,
-            msj: error
+            msj: error,
         });
     }
 });
@@ -167,7 +167,7 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             const { name } = client;
             res.status(200).json({
                 ok: true,
-                msg: `El cliente ' ${name} ' ha sido eliminado`
+                msg: `El cliente ' ${name} ' ha sido eliminado`,
             });
         }
         else {
@@ -175,7 +175,7 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             res.status(400).json({
                 ok: true,
                 // msg: `El ${user.email} usuario ha sido eliminado`,
-                user: user[1]
+                user: user[1],
             });
         }
     }
@@ -184,7 +184,7 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         return res.status(500).json({
             ok: false,
             msg: 'Error en el servidor',
-            error: error.message
+            error: error.message,
         });
     }
 });

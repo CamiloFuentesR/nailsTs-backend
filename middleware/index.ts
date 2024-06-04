@@ -7,10 +7,10 @@ import * as haveRole from './validateRole';
 
 // Combinar todos los middlewares
 const middlewares = {
-    ...validateFields,
-    ...validateJWT,
-    ...isAdminRole,
-    ...haveRole
+  ...validateFields,
+  ...validateJWT,
+  ...isAdminRole,
+  ...haveRole,
 };
 
 // Exportar los middlewares combinados

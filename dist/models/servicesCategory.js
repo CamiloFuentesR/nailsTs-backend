@@ -9,20 +9,20 @@ const ServicesCategory = conection_1.default.define('services_category', {
     services_category_id: {
         type: sequelize_1.DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true
+        autoIncrement: true,
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
-        unique: true
+        unique: true,
     },
     state: {
         type: sequelize_1.DataTypes.BOOLEAN,
         defaultValue: true,
-        allowNull: false
+        allowNull: false,
     },
 }, {
-    timestamps: false // Desactiva las marcas de tiempo automáticas
+    timestamps: false, // Desactiva las marcas de tiempo automáticas
 });
 exports.default = ServicesCategory;
 //# sourceMappingURL=servicesCategory.js.map

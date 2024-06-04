@@ -21,11 +21,13 @@ const deleteUserAndClientState = (userId) => __awaiter(void 0, void 0, void 0, f
     try {
         yield user_1.default.update({ state: false }, {
             where: { id: userId },
-            returning: true, transaction
+            returning: true,
+            transaction,
         });
         yield client_1.default.update({ state: false }, {
             where: { user_id: userId },
-            returning: true, transaction
+            returning: true,
+            transaction,
         });
         yield transaction.commit();
         console.log('Estados actualizados correctamente');

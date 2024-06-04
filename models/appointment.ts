@@ -15,24 +15,24 @@ const Appointment = db.define<AppointmentProps>('Appointments', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
-    autoIncrement: true
+    autoIncrement: true,
   },
   date_appointment: {
     type: DataTypes.DATE,
-    allowNull: false
+    allowNull: false,
   },
   time: {
     type: DataTypes.TIME,
-    allowNull: false
+    allowNull: false,
   },
   service_type: {
     type: DataTypes.STRING,
-    allowNull: true
+    allowNull: true,
   },
   state: {
     type: DataTypes.INTEGER,
-    allowNull: true
-  }
+    allowNull: true,
+  },
 });
 
 // Definir la relación con Client
