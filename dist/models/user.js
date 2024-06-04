@@ -4,19 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const conection_1 = __importDefault(require("../db/conection")); // Importa tu instancia de Sequelize
-const role_1 = __importDefault(require("./role")); // Importa el modelo de Role si es necesario
+const conection_1 = __importDefault(require("../db/conection"));
+const role_1 = __importDefault(require("./role"));
 const client_1 = __importDefault(require("./client"));
 const User = conection_1.default.define('Users', {
     id: {
         type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
-        // autoIncrement: true,
-        references: {
-        // model: Client,
-        // key: 'user_id'
-        }
     },
     email: {
         type: sequelize_1.DataTypes.STRING,
@@ -30,10 +25,12 @@ const User = conection_1.default.define('Users', {
     state: {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: true,
     },
     role_id: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 2,
         references: {
             model: role_1.default,
             key: 'id'
@@ -56,6 +53,6 @@ User.prototype.toJSON = function () {
 };
 // Definir la relación con Role si es necesario
 User.belongsTo(role_1.default, { foreignKey: 'role_id' });
-User.hasOne(client_1.default, { keyType: 'id' });
+User.belongsTo(client_1.default, { foreignKey: 'user_id' });
 exports.default = User;
 //# sourceMappingURL=user.js.map

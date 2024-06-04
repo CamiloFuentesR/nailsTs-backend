@@ -1,23 +1,22 @@
 import { DataTypes, Model } from 'sequelize';
 import db from '../db/conection';
-import User from './user'; // Importa el modelo de User
 import Appointment from './appointment';
 import { UUIDVersion } from 'express-validator/lib/options';
-interface ClientAttributes {
+import User from './user';
+
+interface ClientAttributes extends Model {
   // Otras propiedades
-  id: number;
+  id: UUIDVersion;
   name: string;
   phone_number: number;
   user_id: UUIDVersion;
   state: boolean;
 }
 
-interface ClientInstance extends Model<ClientAttributes>, ClientAttributes {
-  // Otras definiciones si las hay
-}
-const Client = db.define<ClientInstance>('Clients', {
+
+const Client = db.define<ClientAttributes>('Clients', {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     primaryKey: true,
     autoIncrement: true
   },
@@ -45,5 +44,5 @@ const Client = db.define<ClientInstance>('Clients', {
 });
 
 Client.hasMany(Appointment, { foreignKey: 'cliente_id' });
-
+// Client.hasOne(User,{foreignKey:'user_id'})
 export default Client;

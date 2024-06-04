@@ -1,7 +1,13 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import db from "../db/conection";
 
-const ServicesCategory = db.define('services_category', {
+export interface ServiceCatProps extends Model {
+    services_category_id: number;
+    name: string;
+    state: boolean;
+}
+
+const ServicesCategory = db.define<ServiceCatProps>('services_category', {
     services_category_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,

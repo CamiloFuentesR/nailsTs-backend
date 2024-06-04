@@ -19,8 +19,14 @@ const user_1 = __importDefault(require("../models/user"));
 const deleteUserAndClientState = (userId) => __awaiter(void 0, void 0, void 0, function* () {
     const transaction = yield conection_1.default.transaction();
     try {
-        yield user_1.default.update({ state: false }, { where: { id: userId }, transaction });
-        yield client_1.default.update({ state: false }, { where: { user_id: userId }, transaction });
+        yield user_1.default.update({ state: false }, {
+            where: { id: userId },
+            returning: true, transaction
+        });
+        yield client_1.default.update({ state: false }, {
+            where: { user_id: userId },
+            returning: true, transaction
+        });
         yield transaction.commit();
         console.log('Estados actualizados correctamente');
     }

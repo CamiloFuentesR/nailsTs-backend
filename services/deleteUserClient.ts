@@ -8,12 +8,18 @@ export const deleteUserAndClientState = async (userId: string) => {
     try {
         await User.update(
             { state: false },
-            { where: { id: userId }, transaction }
+            {
+                where: { id: userId },
+                returning: true, transaction
+            }
         );
 
         await Client.update(
             { state: false },
-            { where: { user_id: userId }, transaction }
+            {
+                where: { user_id: userId },
+                returning: true, transaction
+            }
         );
         await transaction.commit();
         console.log('Estados actualizados correctamente');

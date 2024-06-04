@@ -1,18 +1,28 @@
-import { DataTypes } from 'sequelize';
-import db from '../db/conection'; // Importa tu instancia de Sequelize
-import Role from './role'; // Importa el modelo de Role si es necesario
+import { DataTypes, Model, Optional } from 'sequelize';
+import db from '../db/conection';
+import Role from './role';
+import { UUIDVersion } from 'express-validator/lib/options';
 import Client from './client';
 
-const User = db.define('Users', {
+interface UserAttributes {
+  id: UUIDVersion;
+  email: string;
+  password: string;
+  createdAt: Date;
+  updatedAt: Date;
+  state: boolean;
+  role_id: number;
+}
+
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'createdAt' | 'updatedAt' | 'state' | 'role_id'> { }
+
+export interface UserInstance extends Model<UserAttributes, UserCreationAttributes>, UserAttributes { }
+
+const User = db.define<UserInstance>('Users', {
   id: {
     type: DataTypes.UUID,
     defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
-    // autoIncrement: true,
-    references: {
-      // model: Client,
-      // key: 'user_id'
-    }
   },
   email: {
     type: DataTypes.STRING,
@@ -26,16 +36,16 @@ const User = db.define('Users', {
   state: {
     type: DataTypes.BOOLEAN,
     allowNull: false,
+    defaultValue: true,
   },
   role_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
+    defaultValue: 2,
     references: {
       model: Role,
       key: 'id'
     },
-
-
   },
   createdAt: {
     type: DataTypes.DATE,
@@ -46,7 +56,6 @@ const User = db.define('Users', {
     defaultValue: DataTypes.NOW,
   }
 },
-
 );
 
 // Sobrescribir el método toJSON en el prototipo del modelo
@@ -58,6 +67,6 @@ User.prototype.toJSON = function () {
 
 // Definir la relación con Role si es necesario
 User.belongsTo(Role, { foreignKey: 'role_id' });
-User.hasOne(Client, { keyType: 'id' });
+User.belongsTo(Client, { foreignKey: 'user_id' });
 
 export default User;

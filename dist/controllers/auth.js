@@ -18,30 +18,29 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { password, email } = req.body;
-    email = req.body.email.toLowerCase();
     try {
-        //verificar email
+        // Verificar email
         const user = yield user_1.default.findOne({ where: { email } });
         if (!user) {
             return res.status(400).json({
-                msg: 'Se ha ingesado un Email no existente'
+                msg: 'Se ha ingresado un Email no existente'
             });
         }
-        //verificar usuario activo
-        if (!user.dataValues.state) {
+        // Verificar usuario activo
+        if (!user.state) {
             return res.status(400).json({
                 msg: 'Usuario inhabilitado'
             });
         }
-        //verificar pssword
-        const validatePassword = yield bcrypt_1.default.compare(password, user.dataValues.password);
+        // Verificar password
+        const validatePassword = yield bcrypt_1.default.compare(password, user.password);
         if (!validatePassword) {
             return res.status(400).json({
                 msg: 'Password incorrecto'
             });
         }
-        const { id, name, role_id } = user.dataValues;
-        const token = yield (0, generateJWT_1.default)(id, name, role_id);
+        const { id, role_id } = user;
+        const token = yield (0, generateJWT_1.default)(id, email, role_id);
         res.json({
             msg: 'Login ok',
             token
@@ -56,9 +55,9 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.login = login;
 const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id, name, role } = req.user;
-    //generar un nuevo token despues de revalidar el token anterior
-    const token = yield (0, generateJWT_1.default)(id, name, role);
+    const { id, email, role } = req.user;
+    // Generar un nuevo token después de revalidar el token anterior
+    const token = yield (0, generateJWT_1.default)(id, email, role);
     res.status(201).json({
         token,
     });

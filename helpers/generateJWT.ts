@@ -1,6 +1,7 @@
+import { UUIDVersion } from 'express-validator/lib/options';
 import jwt, { Secret } from 'jsonwebtoken';
 
-const generateJWT = (id = '', name = '', role = '') => {
+const generateJWT = (id :UUIDVersion, name = '', role :number) => {
     return new Promise((resolve, reject) => {
         const payload = { id, name, role };
         const secretKey: Secret | undefined = process.env.SECRET_KEY || undefined;

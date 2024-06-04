@@ -21,7 +21,7 @@ router.post('/', [
     (0, express_validator_1.check)('password').notEmpty().withMessage('Debe ingresar un password')
         .isLength({ min: 4 }).withMessage('El password debe tener al menos 5 caracteres'),
     validateFields_1.validateFields
-], user_1.createtUser);
+], user_1.createUser);
 router.put('/:id', [
     validateJWT_1.validateJWT,
     (0, express_validator_1.check)('email')

@@ -5,11 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const conection_1 = __importDefault(require("../db/conection"));
-const user_1 = __importDefault(require("./user")); // Importa el modelo de User
 const appointment_1 = __importDefault(require("./appointment"));
+const user_1 = __importDefault(require("./user"));
 const Client = conection_1.default.define('Clients', {
     id: {
-        type: sequelize_1.DataTypes.INTEGER,
+        type: sequelize_1.DataTypes.UUID,
         primaryKey: true,
         autoIncrement: true
     },
@@ -36,5 +36,6 @@ const Client = conection_1.default.define('Clients', {
     },
 });
 Client.hasMany(appointment_1.default, { foreignKey: 'cliente_id' });
+// Client.hasOne(User,{foreignKey:'user_id'})
 exports.default = Client;
 //# sourceMappingURL=client.js.map

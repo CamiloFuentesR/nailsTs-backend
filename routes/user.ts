@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getUserByid, createtUser, deleteUser, updateUser, getUsersActive, getUsersInactive } from '../controllers/user';
+import { getUserByid, deleteUser, updateUser, getUsersActive, getUsersInactive, createUser } from '../controllers/user';
 import { check } from 'express-validator'
 import { validateFields } from '../middleware/validateFields';
 import { validateJWT } from '../middleware/validateJWT';
@@ -23,7 +23,7 @@ router.post('/', [
     check('password').notEmpty().withMessage('Debe ingresar un password')
         .isLength({ min: 4 }).withMessage('El password debe tener al menos 5 caracteres'),
     validateFields
-], createtUser);
+], createUser);
 
 router.put('/:id', [
     validateJWT,

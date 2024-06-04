@@ -1,8 +1,17 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Model } from 'sequelize';
 import db from '../db/conection';
-import Client from './client'; // Importa el modelo Client si es necesario
 
-const Appointment = db.define('Appointments', {
+export interface AppointmentProps extends Model {
+  id: number;
+  date_appointment: Date;
+  price: number;
+  time: Date;
+  services_category_id: number;
+  service_type: string;
+  state: boolean;
+}
+
+const Appointment = db.define<AppointmentProps>('Appointments', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,

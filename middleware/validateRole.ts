@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 
 
 
-exports.isAdminRole = (req: Request, res: Response, next: NextFunction) => {
+export const isAdminRole: RequestHandler = (req: Request, res: Response, next: NextFunction) => {
 
     if (!req.user) {
         return res.status(500).json({
@@ -19,7 +19,7 @@ exports.isAdminRole = (req: Request, res: Response, next: NextFunction) => {
     next();
 }
 
-export const haveRole = (...roles: any) => {
+export const haveRole: RequestHandler = (...roles: any) => {
     return (req: Request, res: Response, next: NextFunction) => {
         if (!req.user) {
             return res.status(500).json({
