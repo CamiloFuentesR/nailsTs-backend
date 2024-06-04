@@ -6,7 +6,7 @@ import User from './user';
 import Client from './client';
 
 
-export {
+export default{
     Appointment,
     Client,
     Server,

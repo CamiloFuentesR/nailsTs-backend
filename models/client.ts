@@ -1,11 +1,10 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
-import Appointment from './appointment';
 import { UUIDVersion } from 'express-validator/lib/options';
 import User from './user';
+import Appointment from './appointment';
 
-interface ClientAttributes extends Model {
-  // Otras propiedades
+interface ClientAttributes {
   id: UUIDVersion;
   name: string;
   phone_number: number;
@@ -13,12 +12,15 @@ interface ClientAttributes extends Model {
   state: boolean;
 }
 
+interface ClientCreationAttributes extends Optional<ClientAttributes, 'id'> { }
 
-const Client = db.define<ClientAttributes>('Clients', {
+export interface ClientInstance extends Model<ClientAttributes, ClientCreationAttributes>, ClientAttributes { }
+
+const Client = db.define<ClientInstance>('Clients', {
   id: {
     type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
-    autoIncrement: true
   },
   name: {
     type: DataTypes.STRING,
@@ -42,7 +44,6 @@ const Client = db.define<ClientAttributes>('Clients', {
     allowNull: false,
   },
 });
-
 Client.hasMany(Appointment, { foreignKey: 'cliente_id' });
-// Client.hasOne(User,{foreignKey:'user_id'})
+Client.hasOne(User, { foreignKey: 'user_id' });
 export default Client;

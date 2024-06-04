@@ -13,20 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserByid = exports.getUsersInactive = exports.getUsersActive = void 0;
+const user_1 = __importDefault(require("../models/user"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
+const client_1 = __importDefault(require("../models/client"));
 const role_1 = __importDefault(require("../models/role"));
 const deleteUserClient_1 = require("../services/deleteUserClient");
-const models_1 = require("../models");
-const client_1 = __importDefault(require("../models/client"));
+// import { Client, User } from "../models";
+// import { UserInstance } from "../models/user";
 const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield models_1.User.findAll({
+        const users = yield user_1.default.findAll({
             where: { state: true },
             include: [
                 {
                     model: client_1.default,
-                    // attributes: ['id', 'name', 'phone_number', 'state'],
                 },
                 {
                     model: role_1.default,
@@ -36,7 +37,7 @@ const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
         if (users.length === 0) {
             return res.status(400).json({
-                msg: 'No hay usuarios Activos'
+                msg: 'No hay usuarios'
             });
         }
         res.json({
@@ -45,7 +46,6 @@ const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
     catch (error) {
-        // throw new Error(error)
         console.log(error);
         return res.status(500).json({
             msg: error
@@ -55,12 +55,11 @@ const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function*
 exports.getUsersActive = getUsersActive;
 const getUsersInactive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const users = yield models_1.User.findAll({
+        const users = yield user_1.default.findAll({
             where: { state: false },
             include: [
                 {
                     model: client_1.default,
-                    // attributes: ['id', 'name', 'phone_number', 'state'],
                 },
                 {
                     model: role_1.default,
@@ -70,7 +69,7 @@ const getUsersInactive = (req, res) => __awaiter(void 0, void 0, void 0, functio
         });
         if (users.length === 0) {
             return res.status(400).json({
-                msg: 'No hay usuarios inactivos'
+                msg: 'No hay usuarios'
             });
         }
         res.json({
@@ -88,7 +87,7 @@ const getUsersInactive = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.getUsersInactive = getUsersInactive;
 const getUserByid = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const userWithClients = yield models_1.User.findByPk(id, {
+    const userWithClients = yield user_1.default.findByPk(id, {
         include: [client_1.default,
             {
                 model: role_1.default,
@@ -107,18 +106,20 @@ exports.getUserByid = getUserByid;
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
-        let user = yield models_1.User.findOne({ where: { email } });
+        let user = yield user_1.default.findOne({ where: { email } });
         if (user) {
             return (res.status(401).json({
                 state: 'error',
                 msg: 'El usuario ya existe',
             }));
         }
-        user = models_1.User.build(req.body);
+        user = user_1.default.build(req.body);
         const salt = yield bcrypt_1.default.genSalt(10);
-        user.dataValues.password = yield bcrypt_1.default.hash(password, salt);
+        user.password = yield bcrypt_1.default.hash(password, salt);
+        user.role_id = 1;
+        user.state = true;
         const userSave = yield user.save();
-        const token = yield (0, generateJWT_1.default)(user.dataValues.id, user.dataValues.email, user.dataValues.role_id);
+        const token = yield (0, generateJWT_1.default)(user.id, user.email, user.role_id);
         res.status(201).json({
             ok: true,
             msg: 'usuario creado con éxito',
@@ -138,7 +139,7 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const { id } = req.params;
     const { body } = req;
     try {
-        const user = yield models_1.User.update(body, {
+        const user = yield user_1.default.update(body, {
             where: { id },
             returning: true
         });
@@ -160,7 +161,7 @@ exports.updateUser = updateUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const client = yield client_1.default.findOne({ where: { user_id: id } });
+        const client = yield client_1.default.findByPk(id);
         if (client) {
             yield (0, deleteUserClient_1.deleteUserAndClientState)(id);
             const { name } = client;
@@ -170,10 +171,11 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             });
         }
         else {
-            yield models_1.User.update({ state: false }, { where: { id } });
+            const user = yield user_1.default.update({ state: false }, { where: { id }, returning: true });
             res.status(400).json({
                 ok: true,
-                msg: 'El usuario ha sido eliminado'
+                // msg: `El ${user.email} usuario ha sido eliminado`,
+                user: user[1]
             });
         }
     }

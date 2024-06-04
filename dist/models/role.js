@@ -17,4 +17,5 @@ const Role = conection_1.default.define('Roles', {
     }
 });
 exports.default = Role;
+// Role.belongsTo(User, { foreignKey: 'role_id' });
 //# sourceMappingURL=role.js.map

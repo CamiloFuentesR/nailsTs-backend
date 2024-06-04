@@ -1,10 +1,12 @@
 import { Request, RequestHandler, Response } from "express"
+import User, { UserInstance } from "../models/user"
 import bcrypt from 'bcrypt'
 import generateJWT from "../helpers/generateJWT"
+import Client from "../models/client";
 import Role from "../models/role";
 import { deleteUserAndClientState } from "../services/deleteUserClient";
-import {  User } from "../models";
-import Client from "../models/client";
+// import { Client, User } from "../models";
+// import { UserInstance } from "../models/user";
 
 export const getUsersActive: RequestHandler = async (req: Request, res: Response) => {
     try {
@@ -13,7 +15,6 @@ export const getUsersActive: RequestHandler = async (req: Request, res: Response
             include: [
                 {
                     model: Client,
-                    // attributes: ['id', 'name', 'phone_number', 'state'],
                 },
                 {
                     model: Role,
@@ -21,17 +22,18 @@ export const getUsersActive: RequestHandler = async (req: Request, res: Response
                 }
             ],
         });
+
         if (users.length === 0) {
             return res.status(400).json({
-                msg: 'No hay usuarios Activos'
+                msg: 'No hay usuarios'
             })
         }
+
         res.json({
             msg: 'getUsers',
             users
         })
     } catch (error: any) {
-        // throw new Error(error)
         console.log(error);
         return res.status(500).json({
             msg: error
@@ -39,15 +41,14 @@ export const getUsersActive: RequestHandler = async (req: Request, res: Response
     }
 
 }
-export const getUsersInactive: RequestHandler = async (req: Request, res: Response) => {
 
+export const getUsersInactive: RequestHandler = async (req: Request, res: Response) => {
     try {
         const users = await User.findAll({
             where: { state: false },
             include: [
                 {
                     model: Client,
-                    // attributes: ['id', 'name', 'phone_number', 'state'],
                 },
                 {
                     model: Role,
@@ -57,7 +58,7 @@ export const getUsersInactive: RequestHandler = async (req: Request, res: Respon
         });
         if (users.length === 0) {
             return res.status(400).json({
-                msg: 'No hay usuarios inactivos'
+                msg: 'No hay usuarios'
             })
         }
         res.json({
@@ -94,7 +95,7 @@ export const getUserByid: RequestHandler = async (req: Request, res: Response) =
 export const createUser: RequestHandler = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     try {
-        let user = await User.findOne({ where: { email } })
+        let user: UserInstance | null = await User.findOne({ where: { email } })
         if (user) {
             return (
                 res.status(401).json({
@@ -103,12 +104,15 @@ export const createUser: RequestHandler = async (req: Request, res: Response) =>
                 })
             )
         }
+
         user = User.build(req.body);
         const salt = await bcrypt.genSalt(10);
-        user.dataValues.password = await bcrypt.hash(password, salt);
+        user.password = await bcrypt.hash(password, salt);
+        user.role_id = 1;
+        user.state = true;
 
         const userSave = await user.save();
-        const token = await generateJWT(user.dataValues.id, user.dataValues.email, user.dataValues.role_id);
+        const token = await generateJWT(user.id, user.email, user.role_id);
 
         res.status(201).json({
             ok: true,
@@ -122,7 +126,6 @@ export const createUser: RequestHandler = async (req: Request, res: Response) =>
             msg: error
         })
     }
-
 }
 
 export const updateUser: RequestHandler = async (req: Request, res: Response) => {
@@ -155,7 +158,7 @@ export const deleteUser: RequestHandler = async (req: Request, res: Response) =>
 
     const { id } = req.params;
     try {
-        const client = await Client.findOne({ where: { user_id: id } });
+        const client = await Client.findByPk(id);
         if (client) {
             await deleteUserAndClientState(id);
             const { name } = client;
@@ -164,13 +167,14 @@ export const deleteUser: RequestHandler = async (req: Request, res: Response) =>
                 msg: `El cliente ' ${name} ' ha sido eliminado`
             })
         } else {
-            await User.update(
+            const user = await User.update(
                 { state: false },
-                { where: { id } }
+                { where: { id }, returning: true },
             );
             res.status(400).json({
                 ok: true,
-                msg: 'El usuario ha sido eliminado'
+                // msg: `El ${user.email} usuario ha sido eliminado`,
+                user: user[1]
             })
 
         }
