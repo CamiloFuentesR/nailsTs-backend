@@ -1,13 +1,14 @@
 import { Request, RequestHandler, Response } from 'express';
-import Client, { ClientInstance } from '../models/client';
+import { Client, ClientInstance } from '../models';
+import { deleteUserAndClientState } from '../services/deleteUserClient';
 
 const showAllClient = async (
   req: Request,
   res: Response,
-  state: boolean | null
+  state: boolean | ''
 ) => {
   try {
-    if (!state) {
+    if (state === '') {
       const client = await Client.findAll();
       return !client
         ? res.status(409).json({
@@ -58,7 +59,7 @@ export const showAllCliens: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
-  showAllClient(req, res, null);
+  showAllClient(req, res, '');
 };
 
 export const showClientById: RequestHandler = async (
@@ -131,28 +132,33 @@ export const updateClient: RequestHandler = async (
 ) => {
   const { id } = req.params;
   const { body } = req;
+
   try {
-    const client = await Client.update(body, {
+    const [updatedRowsCount, updatedClients] = await Client.update(body, {
       where: { id },
       returning: true,
     });
-    if (client[1]) {
-      return res.status(201).json({
-        ok: true,
-        msg: 'Cliente - editado con éxisto',
-        client,
+    if (
+      updatedRowsCount === 0 ||
+      !updatedClients ||
+      updatedClients.length === 0
+    ) {
+      return res.status(404).json({
+        ok: false,
+        msg: 'Cliente no encontrado o no actualizado',
       });
     }
-    console.log(client);
-    return res.status(409).json({
-      ok: false,
-      msg: 'Error al editar user',
+    return res.status(200).json({
+      ok: true,
+      msg: 'Cliente actualizado correctamente',
+      client: updatedClients[0],
     });
   } catch (error: any) {
-    console.log(error);
+    console.error('Error al actualizar el cliente:', error);
     res.status(500).json({
       ok: false,
-      msg: error.message,
+      msg: 'Error interno del servidor al actualizar el cliente',
+      error: error.message,
     });
   }
 };

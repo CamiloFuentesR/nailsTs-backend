@@ -22,25 +22,25 @@ export const userByIdExist = async (id = '') => {
   // validUUID (id)
   const userByIdExist = await User.findByPk(id);
   if (!isUUID(id)) {
-    throw new Error('No es un UUID válido');
+    throw new Error('ID de usuario no válido');
   }
   if (!userByIdExist /* || userByIdExist.state === false */) {
-    throw new Error(
-      `Este id de usuario: '${id}', no esta registrdo en la  bdd`
-    );
+    throw new Error(`El usuario con ID '${id}', no esta registrdo en la  bdd`);
   }
 };
+
 export const clientByIdExist = async (id = '') => {
-  // validUUID (id)
-  const clientByIdExist = await Client.findByPk(id);
+  if (!id) {
+    throw new Error('ID de cliente no proporcionado');
+  }
   if (!isUUID(id)) {
-    throw new Error('No es un UUID válido');
+    throw new Error('ID de cliente no válido');
   }
-  if (!clientByIdExist /* || userByIdExist.state === false */) {
-    throw new Error(
-      `Este id de usuario: '${id}', no esta registrdo en la  bdd`
-    );
+  const client = await Client.findByPk(id);
+  if (!client) {
+    throw new Error(`El cliente con ID '${id}' no está registrado en la BD`);
   }
+  return client;
 };
 
 export const validUUID = async (value: string): Promise<boolean> => {

@@ -2,7 +2,6 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
 import { UUIDVersion } from 'express-validator/lib/options';
 import User from './user';
-import Appointment from './appointment';
 
 interface ClientAttributes {
   id: UUIDVersion;
@@ -47,6 +46,5 @@ const Client = db.define<ClientInstance>('Clients', {
     defaultValue: true,
   },
 });
-Client.hasMany(Appointment, { foreignKey: 'cliente_id' });
-// Client.belongsTo(User, { foreignKey: 'user_id' });
+
 export default Client;

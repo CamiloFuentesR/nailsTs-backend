@@ -1,16 +1,15 @@
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/validateFields';
 import {
-  createClient,
   showAllCliens,
   showAllClientActive,
   showAllClientInActive,
   showClientById,
+  createClient,
   updateClient,
 } from '../controllers/client';
 import { Router } from 'express';
 import { validateJWT } from '../middleware/validateJWT';
-import { updateUser } from '../controllers/user';
 import { clientByIdExist } from '../helpers/dbValidator';
 import { isAdminRole } from '../middleware/validateRole';
 
@@ -19,7 +18,7 @@ const router = Router();
 router.get('/', validateJWT, showAllCliens);
 router.get('/active', validateJWT, showAllClientActive);
 router.get('/inactive', validateJWT, showAllClientInActive);
-router.get('/:id', validateJWT, showClientById);
+router.get('/:id', [validateJWT, validateFields], showClientById);
 
 router.post(
   '/',
@@ -44,7 +43,7 @@ router.put(
     validateJWT,
     isAdminRole,
     check('id').custom(clientByIdExist),
-    // check('name').notEmpty().withMessage('Debe ingresar nombre'),
+    check('name').notEmpty().withMessage('Debe ingresar nombre'),
     check('phone_number')
       .notEmpty()
       .withMessage('Debe ingresar teléfono')
@@ -55,17 +54,6 @@ router.put(
     validateFields,
   ],
   updateClient
-);
-
-router.delete(
-  '/:id',
-  [
-    validateJWT,
-    isAdminRole,
-    check('id').custom(clientByIdExist),
-    validateFields,
-  ],
-  updateUser
 );
 
 export default router;

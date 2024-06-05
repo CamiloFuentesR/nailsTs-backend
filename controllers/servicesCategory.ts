@@ -1,7 +1,10 @@
-import { Request, Response } from 'express';
-import ServicesCategory from '../models/servicesCategory';
+import { Request, RequestHandler, Response } from 'express';
+import { ServicesCategory } from '../models';
 
-export const getServicesCategory = async (req: Request, res: Response) => {
+export const getServicesCategory: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const serCat = await ServicesCategory.findAll();
     if (serCat.length === 0) {
@@ -23,7 +26,10 @@ export const getServicesCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const createServicesCategory = async (req: Request, res: Response) => {
+export const createServicesCategory: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
   const name = req.body.name.toUpperCase();
   if (name === '') {
     return res.status(401).json({
@@ -53,7 +59,10 @@ export const createServicesCategory = async (req: Request, res: Response) => {
   }
 };
 
-export const updateServicesCategory = async (req: Request, res: Response) => {
+export const updateServicesCategory: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
   const { id } = req.params;
   const { body } = req;
   const serCat = await ServicesCategory.findByPk(id);

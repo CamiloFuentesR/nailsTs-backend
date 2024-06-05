@@ -8,16 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createService = exports.getServices = void 0;
-const service_1 = __importDefault(require("../models/service"));
+const models_1 = require("../models");
 const getServices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
     try {
-        const services = yield service_1.default.findAll();
+        const services = yield models_1.Service.findAll();
         if (services.length === 0) {
             return res.status(404).json({
                 ok: false,
@@ -59,7 +55,7 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
     try {
-        const categoryExist = yield service_1.default.findOne({ where: { name } });
+        const categoryExist = yield models_1.Service.findOne({ where: { name } });
         if (categoryExist) {
             return res.status(404).json({
                 ok: false,
@@ -71,7 +67,7 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             price,
             services_category_id,
         };
-        const service = yield service_1.default.create(data);
+        const service = yield models_1.Service.create(data);
         res.status(201).json({
             ok: true,
             service,

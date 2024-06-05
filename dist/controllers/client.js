@@ -8,16 +8,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateClient = exports.createClient = exports.showClientById = exports.showAllCliens = exports.showAllClientInActive = exports.showAllClientActive = void 0;
-const client_1 = __importDefault(require("../models/client"));
+const models_1 = require("../models");
 const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        if (!state) {
-            const client = yield client_1.default.findAll();
+        if (state === '') {
+            const client = yield models_1.Client.findAll();
             return !client
                 ? res.status(409).json({
                     ok: false,
@@ -29,7 +26,7 @@ const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, fun
                     client,
                 });
         }
-        const client = yield client_1.default.findAll({ where: { state } });
+        const client = yield models_1.Client.findAll({ where: { state } });
         if (!client) {
             return res.status(409).json({
                 ok: false,
@@ -58,13 +55,13 @@ const showAllClientInActive = (req, res) => __awaiter(void 0, void 0, void 0, fu
 });
 exports.showAllClientInActive = showAllClientInActive;
 const showAllCliens = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    showAllClient(req, res, null);
+    showAllClient(req, res, '');
 });
 exports.showAllCliens = showAllCliens;
 const showClientById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const client = yield client_1.default.findAll({ where: { id } });
+        const client = yield models_1.Client.findAll({ where: { id } });
         if (!client) {
             return res.status(409).json({
                 ok: false,
@@ -88,7 +85,7 @@ exports.showClientById = showClientById;
 const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     try {
-        let client = yield client_1.default.findOne({
+        let client = yield models_1.Client.findOne({
             where: { user_id: id },
         });
         if (client) {
@@ -97,7 +94,7 @@ const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 msg: 'El cliente ya existe',
             });
         }
-        client = client_1.default.build(req.body);
+        client = models_1.Client.build(req.body);
         client.user_id = id;
         const clientSave = yield client.save();
         res.status(201).json({
@@ -125,28 +122,30 @@ const updateClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     const { id } = req.params;
     const { body } = req;
     try {
-        const client = yield client_1.default.update(body, {
+        const [updatedRowsCount, updatedClients] = yield models_1.Client.update(body, {
             where: { id },
             returning: true,
         });
-        if (client[1]) {
-            return res.status(201).json({
-                ok: true,
-                msg: 'Cliente - editado con éxisto',
-                client,
+        if (updatedRowsCount === 0 ||
+            !updatedClients ||
+            updatedClients.length === 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Cliente no encontrado o no actualizado',
             });
         }
-        console.log(client);
-        return res.status(409).json({
-            ok: false,
-            msg: 'Error al editar user',
+        return res.status(200).json({
+            ok: true,
+            msg: 'Cliente actualizado correctamente',
+            client: updatedClients[0],
         });
     }
     catch (error) {
-        console.log(error);
+        console.error('Error al actualizar el cliente:', error);
         res.status(500).json({
             ok: false,
-            msg: error.message,
+            msg: 'Error interno del servidor al actualizar el cliente',
+            error: error.message,
         });
     }
 });

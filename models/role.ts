@@ -1,18 +1,17 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
-import User from './user';
 
 interface RoleAttributes {
   id: number;
   name: string;
 }
-
 interface RoleCreationAttributes
   extends Optional<RoleAttributes, 'id' | 'name'> {}
 
 export interface RoleInstance
   extends Model<RoleAttributes, RoleCreationAttributes>,
     RoleAttributes {}
+
 const Role = db.define<RoleInstance>('Roles', {
   id: {
     type: DataTypes.INTEGER,

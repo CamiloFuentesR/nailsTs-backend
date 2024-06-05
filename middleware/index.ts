@@ -1,17 +1,7 @@
 // Importar middlewares
 
-import * as validateFields from './validateFields';
-import * as validateJWT from './validateJWT';
-import * as isAdminRole from './validateRole';
-import * as haveRole from './validateRole';
+import { validateFields } from './validateFields';
+import { validateJWT } from './validateJWT';
+import { haveRole, isAdminRole } from './validateRole';
 
-// Combinar todos los middlewares
-const middlewares = {
-  ...validateFields,
-  ...validateJWT,
-  ...isAdminRole,
-  ...haveRole,
-};
-
-// Exportar los middlewares combinados
-export default middlewares;
+export { validateFields, validateJWT, isAdminRole, haveRole };

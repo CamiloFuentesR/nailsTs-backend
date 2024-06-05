@@ -1,20 +1,21 @@
 import { Request, RequestHandler, Response } from 'express';
-import User, { UserInstance } from '../models/user';
+// import User, { UserInstance } from '../models/user';
 import bcrypt from 'bcrypt';
 import generateJWT from '../helpers/generateJWT';
+import { User, UserInstance } from '../models';
+// import User,{ UserInstance } from '../models/';
+// import { UserInstance } from '../models/user';
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
   let { password, email } = req.body;
 
   try {
-    // Verificar email
     const user: UserInstance | null = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(400).json({
-        msg: 'Se ha ingresado un Email no existente',
+        msg: 'El usuario ingresado no existe',
       });
     }
-    // Verificar usuario activo
     if (!user.state) {
       return res.status(400).json({
         msg: 'Usuario inhabilitado',

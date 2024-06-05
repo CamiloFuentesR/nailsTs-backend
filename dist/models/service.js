@@ -34,6 +34,5 @@ const Service = conection_1.default.define('Services', {
         },
     },
 });
-Service.belongsTo(servicesCategory_1.default, { foreignKey: 'services_category_id' });
 exports.default = Service;
 //# sourceMappingURL=service.js.map

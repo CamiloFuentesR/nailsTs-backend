@@ -35,22 +35,25 @@ const userByIdExist = (...args_3) => __awaiter(void 0, [...args_3], void 0, func
     // validUUID (id)
     const userByIdExist = yield user_1.default.findByPk(id);
     if (!(0, uuid_1.validate)(id)) {
-        throw new Error('No es un UUID válido');
+        throw new Error('ID de usuario no válido');
     }
     if (!userByIdExist /* || userByIdExist.state === false */) {
-        throw new Error(`Este id de usuario: '${id}', no esta registrdo en la  bdd`);
+        throw new Error(`El usuario con ID '${id}', no esta registrdo en la  bdd`);
     }
 });
 exports.userByIdExist = userByIdExist;
 const clientByIdExist = (...args_4) => __awaiter(void 0, [...args_4], void 0, function* (id = '') {
-    // validUUID (id)
-    const clientByIdExist = yield client_1.default.findByPk(id);
+    if (!id) {
+        throw new Error('ID de cliente no proporcionado');
+    }
     if (!(0, uuid_1.validate)(id)) {
-        throw new Error('No es un UUID válido');
+        throw new Error('ID de cliente no válido');
     }
-    if (!clientByIdExist /* || userByIdExist.state === false */) {
-        throw new Error(`Este id de usuario: '${id}', no esta registrdo en la  bdd`);
+    const client = yield client_1.default.findByPk(id);
+    if (!client) {
+        throw new Error(`El cliente con ID '${id}' no está registrado en la BD`);
     }
+    return client;
 });
 exports.clientByIdExist = clientByIdExist;
 const validUUID = (value) => __awaiter(void 0, void 0, void 0, function* () {

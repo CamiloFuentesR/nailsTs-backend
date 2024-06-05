@@ -1,12 +1,9 @@
 import { Request, RequestHandler, Response } from 'express';
-import User, { UserInstance } from '../models/user';
+import { UserInstance } from '../models/user';
 import bcrypt from 'bcrypt';
 import generateJWT from '../helpers/generateJWT';
-import Client from '../models/client';
-import Role from '../models/role';
 import { deleteUserAndClientState } from '../services/deleteUserClient';
-// import { Client, User } from "../models";
-// import { UserInstance } from "../models/user";
+import { Client, Role, User } from '../models';
 
 export const getUsersActive: RequestHandler = async (
   req: Request,
@@ -176,6 +173,41 @@ export const deleteUser: RequestHandler = async (
       });
     } else {
       const user = await User.update(
+        { state: false },
+        { where: { id }, returning: true }
+      );
+      res.status(400).json({
+        ok: true,
+        // msg: `El ${user.email} usuario ha sido eliminado`,
+        user: user[1],
+      });
+    }
+  } catch (error: any) {
+    console.error('Error al eliminar cliente:', error);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Error en el servidor',
+      error: error.message,
+    });
+  }
+};
+
+export const activarUsuario: RequestHandler = async (
+  req: Request,
+  res: Response
+) => {
+  const { id } = req.params;
+  try {
+    const client = await Client.findByPk(id);
+    if (client) {
+      await deleteUserAndClientState(id);
+      const { name } = client;
+      res.status(200).json({
+        ok: true,
+        msg: `El cliente ' ${name} ' ha sido eliminado`,
+      });
+    } else {
+      const user = await Client.update(
         { state: false },
         { where: { id }, returning: true }
       );

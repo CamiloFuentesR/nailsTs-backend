@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const conection_1 = __importDefault(require("../db/conection"));
 const role_1 = __importDefault(require("./role"));
-const client_1 = __importDefault(require("./client"));
 const User = conection_1.default.define('Users', {
     id: {
         type: sequelize_1.DataTypes.UUID,
@@ -51,7 +50,5 @@ User.prototype.toJSON = function () {
     delete values.password;
     return values;
 };
-User.belongsTo(role_1.default, { foreignKey: 'role_id' });
-User.hasOne(client_1.default);
 exports.default = User;
 //# sourceMappingURL=user.js.map

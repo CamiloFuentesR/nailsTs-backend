@@ -60,7 +60,8 @@ const validateJWT = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     catch (error) {
         console.log(error);
         res.status(500).json({
-            msg: 'No posee token válido para realizar esta acción',
+            msg: 'Error interno del servidor',
+            error: error.message,
         });
     }
 });

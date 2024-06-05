@@ -16,10 +16,12 @@ const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../routes/user"));
 const auth_1 = __importDefault(require("../routes/auth"));
 const client_1 = __importDefault(require("../routes/client"));
+const roles_1 = __importDefault(require("../routes/roles"));
 const services_category_1 = __importDefault(require("../routes/services_category"));
 const services_1 = __importDefault(require("../routes/services"));
 const cors_1 = __importDefault(require("cors"));
 const conection_1 = __importDefault(require("../db/conection"));
+const errorHandler_1 = require("../middleware/errorHandler");
 class Server {
     constructor() {
         this.apiPaths = {
@@ -28,13 +30,17 @@ class Server {
             serviceCategory: '/api/ser-cat',
             category: '/api/services',
             client: '/api/clients',
+            role: '/api/role',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
         this.dBConection();
         this.middlewares();
         this.routes();
+        // Error handler middleware
+        this.app.use(errorHandler_1.errorHandler);
     }
+    // Conexión a la base de datos
     dBConection() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -42,28 +48,33 @@ class Server {
                 console.log('DB online');
             }
             catch (error) {
-                throw new Error(error);
+                console.error('Error connecting to the database:', error);
+                throw new Error(error.message || 'Error connecting to the database');
             }
         });
     }
+    // Configuración de middlewares
     middlewares() {
-        //cors
+        // Habilitar CORS
         this.app.use((0, cors_1.default)());
-        //ready body
+        // Parseo del cuerpo de la solicitud
         this.app.use(express_1.default.json());
-        //public folder
+        // Carpeta pública
         this.app.use(express_1.default.static('public'));
     }
+    // Definición de rutas
     routes() {
         this.app.use(this.apiPaths.auth, auth_1.default);
         this.app.use(this.apiPaths.category, services_1.default);
         this.app.use(this.apiPaths.client, client_1.default);
         this.app.use(this.apiPaths.serviceCategory, services_category_1.default);
         this.app.use(this.apiPaths.users, user_1.default);
+        this.app.use(this.apiPaths.role, roles_1.default);
     }
+    // Método para iniciar el servidor
     listen() {
         this.app.listen(this.port, () => {
-            console.log('Servidor corriendo el puerto: ' + this.port);
+            console.log('Servidor corriendo en el puerto: ' + this.port);
         });
     }
 }

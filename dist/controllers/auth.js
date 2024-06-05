@@ -13,20 +13,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.renewToken = exports.login = void 0;
-const user_1 = __importDefault(require("../models/user"));
+// import User, { UserInstance } from '../models/user';
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
+const models_1 = require("../models");
+// import User,{ UserInstance } from '../models/';
+// import { UserInstance } from '../models/user';
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let { password, email } = req.body;
     try {
-        // Verificar email
-        const user = yield user_1.default.findOne({ where: { email } });
+        const user = yield models_1.User.findOne({ where: { email } });
         if (!user) {
             return res.status(400).json({
-                msg: 'Se ha ingresado un Email no existente',
+                msg: 'El usuario ingresado no existe',
             });
         }
-        // Verificar usuario activo
         if (!user.state) {
             return res.status(400).json({
                 msg: 'Usuario inhabilitado',

@@ -56,10 +56,11 @@ export const validateJWT = async (
     req.user = authenticatedUser;
     req.role = authenticatedUser.dataValues.Role?.name;
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.log(error);
     res.status(500).json({
-      msg: 'No posee token válido para realizar esta acción',
+      msg: 'Error interno del servidor',
+      error: error.message,
     });
   }
 };

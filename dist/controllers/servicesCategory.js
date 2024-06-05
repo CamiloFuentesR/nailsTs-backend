@@ -8,15 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateServicesCategory = exports.createServicesCategory = exports.getServicesCategory = void 0;
-const servicesCategory_1 = __importDefault(require("../models/servicesCategory"));
+const models_1 = require("../models");
 const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const serCat = yield servicesCategory_1.default.findAll();
+        const serCat = yield models_1.ServicesCategory.findAll();
         if (serCat.length === 0) {
             return res.status(404).json({
                 ok: false,
@@ -46,7 +43,7 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
         });
     }
     try {
-        const categoryExist = yield servicesCategory_1.default.findOne({ where: { name } });
+        const categoryExist = yield models_1.ServicesCategory.findOne({ where: { name } });
         if (categoryExist) {
             return res.status(404).json({
                 ok: false,
@@ -56,7 +53,7 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
         const data = {
             name,
         };
-        const category = yield servicesCategory_1.default.create(data);
+        const category = yield models_1.ServicesCategory.create(data);
         res.status(201).json({
             ok: true,
             category,
@@ -70,7 +67,7 @@ exports.createServicesCategory = createServicesCategory;
 const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
-    const serCat = yield servicesCategory_1.default.findByPk(id);
+    const serCat = yield models_1.ServicesCategory.findByPk(id);
     if (!serCat) {
         return res.status(401).json({
             ok: false,

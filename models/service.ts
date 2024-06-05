@@ -38,6 +38,4 @@ const Service = db.define<Service>('Services', {
   },
 });
 
-Service.belongsTo(ServicesCategory, { foreignKey: 'services_category_id' });
-
 export default Service;

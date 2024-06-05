@@ -1,14 +1,24 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-// import { validateFields } from '../middleware/validateFields';
 import { login } from '../controllers/auth';
-import middlewares from '../middleware';
+import { validateFields } from '../middleware';
 
 const router = Router();
 
 router.post(
   '/',
-  [check('email').normalizeEmail(), middlewares.validateFields],
+  [
+    check('email')
+      .notEmpty()
+      .withMessage('Debe ingresar el email')
+      .normalizeEmail()
+      .isEmail()
+      .withMessage('ingresar email válido'),
+    check('password')
+      .notEmpty()
+      .withMessage('El password no puede estar vacío'),
+    validateFields,
+  ],
   login
 );
 

@@ -76,7 +76,4 @@ User.prototype.toJSON = function () {
   return values;
 };
 
-User.belongsTo(Role, { foreignKey: 'role_id' });
-User.hasOne(Client);
-
 export default User;

@@ -1,9 +1,7 @@
 import { Response, Request } from 'express';
-import Service from '../models/service';
+import { Service } from '../models';
 
 export const getServices = async (req: Request, res: Response) => {
-  const { id } = req.params;
-
   try {
     const services = await Service.findAll();
 
