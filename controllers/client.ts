@@ -21,6 +21,8 @@ const showAllClient = async (
             client,
           });
     }
+    console.log(state);
+    console.log('entra aqui');
     const client = await Client.findAll({ where: { state } });
     if (!client) {
       return res.status(409).json({

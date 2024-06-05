@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import generateJWT from '../helpers/generateJWT';
 import { deleteUserAndClientState } from '../services/deleteUserClient';
 import { Client, Role, User } from '../models';
+import { activeUserAndClientState } from '../services/activeUserCLient';
 
 export const getUsersActive: RequestHandler = async (
   req: Request,
@@ -162,26 +163,9 @@ export const deleteUser: RequestHandler = async (
   res: Response
 ) => {
   const { id } = req.params;
+
   try {
-    const client = await Client.findByPk(id);
-    if (client) {
-      await deleteUserAndClientState(id);
-      const { name } = client;
-      res.status(200).json({
-        ok: true,
-        msg: `El cliente ' ${name} ' ha sido eliminado`,
-      });
-    } else {
-      const user = await User.update(
-        { state: false },
-        { where: { id }, returning: true }
-      );
-      res.status(400).json({
-        ok: true,
-        // msg: `El ${user.email} usuario ha sido eliminado`,
-        user: user[1],
-      });
-    }
+    await deleteUserAndClientState(id, res);
   } catch (error: any) {
     console.error('Error al eliminar cliente:', error);
     return res.status(500).json({
@@ -191,34 +175,16 @@ export const deleteUser: RequestHandler = async (
     });
   }
 };
-
-export const activarUsuario: RequestHandler = async (
+export const activeteUser: RequestHandler = async (
   req: Request,
   res: Response
 ) => {
   const { id } = req.params;
+
   try {
-    const client = await Client.findByPk(id);
-    if (client) {
-      await deleteUserAndClientState(id);
-      const { name } = client;
-      res.status(200).json({
-        ok: true,
-        msg: `El cliente ' ${name} ' ha sido eliminado`,
-      });
-    } else {
-      const user = await Client.update(
-        { state: false },
-        { where: { id }, returning: true }
-      );
-      res.status(400).json({
-        ok: true,
-        // msg: `El ${user.email} usuario ha sido eliminado`,
-        user: user[1],
-      });
-    }
+    await activeUserAndClientState(id, res);
   } catch (error: any) {
-    console.error('Error al eliminar cliente:', error);
+    console.error('Error al activar cliente:', error);
     return res.status(500).json({
       ok: false,
       msg: 'Error en el servidor',

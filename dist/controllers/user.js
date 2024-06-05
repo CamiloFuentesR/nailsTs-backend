@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activarUsuario = exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserByid = exports.getUsersInactive = exports.getUsersActive = void 0;
+exports.activeteUser = exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserByid = exports.getUsersInactive = exports.getUsersActive = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const deleteUserClient_1 = require("../services/deleteUserClient");
 const models_1 = require("../models");
+const activeUserCLient_1 = require("../services/activeUserCLient");
 const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield models_1.User.findAll({
@@ -157,23 +158,7 @@ exports.updateUser = updateUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const client = yield models_1.Client.findByPk(id);
-        if (client) {
-            yield (0, deleteUserClient_1.deleteUserAndClientState)(id);
-            const { name } = client;
-            res.status(200).json({
-                ok: true,
-                msg: `El cliente ' ${name} ' ha sido eliminado`,
-            });
-        }
-        else {
-            const user = yield models_1.User.update({ state: false }, { where: { id }, returning: true });
-            res.status(400).json({
-                ok: true,
-                // msg: `El ${user.email} usuario ha sido eliminado`,
-                user: user[1],
-            });
-        }
+        yield (0, deleteUserClient_1.deleteUserAndClientState)(id, res);
     }
     catch (error) {
         console.error('Error al eliminar cliente:', error);
@@ -185,29 +170,13 @@ const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.deleteUser = deleteUser;
-const activarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const activeteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {
-        const client = yield models_1.Client.findByPk(id);
-        if (client) {
-            yield (0, deleteUserClient_1.deleteUserAndClientState)(id);
-            const { name } = client;
-            res.status(200).json({
-                ok: true,
-                msg: `El cliente ' ${name} ' ha sido eliminado`,
-            });
-        }
-        else {
-            const user = yield models_1.Client.update({ state: false }, { where: { id }, returning: true });
-            res.status(400).json({
-                ok: true,
-                // msg: `El ${user.email} usuario ha sido eliminado`,
-                user: user[1],
-            });
-        }
+        yield (0, activeUserCLient_1.activeUserAndClientState)(id, res);
     }
     catch (error) {
-        console.error('Error al eliminar cliente:', error);
+        console.error('Error al activar cliente:', error);
         return res.status(500).json({
             ok: false,
             msg: 'Error en el servidor',
@@ -215,5 +184,5 @@ const activarUsuario = (req, res) => __awaiter(void 0, void 0, void 0, function*
         });
     }
 });
-exports.activarUsuario = activarUsuario;
+exports.activeteUser = activeteUser;
 //# sourceMappingURL=user.js.map

@@ -6,6 +6,7 @@ import {
   getUsersActive,
   getUsersInactive,
   createUser,
+  activeteUser,
 } from '../controllers/user';
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/validateFields';
@@ -59,6 +60,11 @@ router.delete(
   '/:id',
   [validateJWT, check('id').custom(userByIdExist), validateFields],
   deleteUser
+);
+router.put(
+  '/active/:id',
+  [validateJWT, check('id').custom(userByIdExist), validateFields],
+  activeteUser
 );
 
 export default router;

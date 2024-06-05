@@ -33,5 +33,6 @@ router.put('/:id', [
     validateFields_1.validateFields,
 ], user_1.updateUser);
 router.delete('/:id', [validateJWT_1.validateJWT, (0, express_validator_1.check)('id').custom(dbValidator_1.userByIdExist), validateFields_1.validateFields], user_1.deleteUser);
+router.put('/active/:id', [validateJWT_1.validateJWT, (0, express_validator_1.check)('id').custom(dbValidator_1.userByIdExist), validateFields_1.validateFields], user_1.activeteUser);
 exports.default = router;
 //# sourceMappingURL=user.js.map

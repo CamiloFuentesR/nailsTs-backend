@@ -26,6 +26,8 @@ const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, fun
                     client,
                 });
         }
+        console.log(state);
+        console.log('entra aqui');
         const client = yield models_1.Client.findAll({ where: { state } });
         if (!client) {
             return res.status(409).json({

@@ -12,28 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUserAndClientState = void 0;
+exports.activeUserAndClientState = void 0;
 const conection_1 = __importDefault(require("../db/conection"));
 const models_1 = require("../models");
-const deleteUserAndClientState = (userId, res) => __awaiter(void 0, void 0, void 0, function* () {
+const activeUserAndClientState = (userId, res) => __awaiter(void 0, void 0, void 0, function* () {
     const transaction = yield conection_1.default.transaction();
     try {
         const client = yield models_1.Client.findOne({
-            where: { user_id: userId, state: true },
+            where: { user_id: userId, state: false },
             transaction,
         });
-        const user = yield models_1.User.findByPk(userId);
-        console.log(user);
+        yield models_1.User.findByPk(userId);
         if (!client) {
-            throw new Error(`Cliente no encontrado o ya está eliminado`);
+            throw new Error(`Cliente ya se encuentra activo`);
         }
-        const [affectedRowsClient, [updatedClient]] = yield models_1.Client.update({ state: false }, { where: { user_id: userId }, returning: true, transaction });
-        const [affectedRows, [updatedUser]] = yield models_1.User.update({ state: false }, { where: { id: userId }, returning: true, transaction });
+        const [affectedRowsClient, [updatedClient]] = yield models_1.Client.update({ state: true }, { where: { user_id: userId }, returning: true, transaction });
+        const [affectedRows, [updatedUser]] = yield models_1.User.update({ state: true }, { where: { id: userId }, returning: true, transaction });
         yield transaction.commit();
-        console.log('Cliente y usuario eliminados exitosamente');
+        console.log('Cliente y usuario activados exitosamente');
         return res.status(200).json({
             ok: true,
-            msg: 'Cliente y usuario eliminados exitosamente',
+            msg: 'Cliente y usuario activados exitosamente',
             updatedUser,
             updatedClient,
         });
@@ -43,5 +42,5 @@ const deleteUserAndClientState = (userId, res) => __awaiter(void 0, void 0, void
         throw new Error(error.message);
     }
 });
-exports.deleteUserAndClientState = deleteUserAndClientState;
-//# sourceMappingURL=deleteUserClient.js.map
+exports.activeUserAndClientState = activeUserAndClientState;
+//# sourceMappingURL=activeUserCLient.js.map

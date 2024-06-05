@@ -2,7 +2,7 @@ import { Response } from 'express';
 import db from '../db/conection';
 import { Client, User } from '../models';
 
-export const deleteUserAndClientState = async (
+export const activeUserAndClientState = async (
   userId: string,
   res: Response
 ) => {
@@ -10,31 +10,30 @@ export const deleteUserAndClientState = async (
 
   try {
     const client = await Client.findOne({
-      where: { user_id: userId, state: true },
+      where: { user_id: userId, state: false },
       transaction,
     });
-    const user = await User.findByPk(userId);
-    console.log(user);
+    await User.findByPk(userId);
 
     if (!client) {
-      throw new Error(`Cliente no encontrado o ya está eliminado`);
+      throw new Error(`Cliente ya se encuentra activo`);
     }
 
     const [affectedRowsClient, [updatedClient]] = await Client.update(
-      { state: false },
+      { state: true },
       { where: { user_id: userId }, returning: true, transaction }
     );
     const [affectedRows, [updatedUser]] = await User.update(
-      { state: false },
+      { state: true },
       { where: { id: userId }, returning: true, transaction }
     );
 
     await transaction.commit();
 
-    console.log('Cliente y usuario eliminados exitosamente');
+    console.log('Cliente y usuario activados exitosamente');
     return res.status(200).json({
       ok: true,
-      msg: 'Cliente y usuario eliminados exitosamente',
+      msg: 'Cliente y usuario activados exitosamente',
       updatedUser,
       updatedClient,
     });
