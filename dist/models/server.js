@@ -59,8 +59,27 @@ class Server {
     }
     // Configuración de middlewares
     middlewares() {
+        //cors
+        const whiteList = [
+            'http://localhost:3000',
+            'http://localhost:4000',
+            'https://nails-ts-backend.vercel.app/',
+        ]; //hace accesible solo desde esta url acccion
+        const corsOptions = {
+            origin: (origin, callbaback) => {
+                //console.log(origin);
+                const existe = whiteList.some(dominio => dominio === origin);
+                if (existe) {
+                    callbaback(null, true);
+                }
+                else {
+                    callbaback(new Error('No permitido por cors'));
+                }
+            },
+        };
         // Habilitar CORS
-        this.app.use((0, cors_1.default)());
+        // this.app.use(cors());
+        this.app.use((0, cors_1.default)(corsOptions));
         // Parseo del cuerpo de la solicitud
         this.app.use(express_1.default.json());
         // Carpeta pública
