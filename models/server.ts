@@ -28,9 +28,7 @@ class Server {
   constructor() {
     this.app = express();
     this.port = process.env.PORT || '8000';
-    const whiteList = ['http://localhost:3000'] && [
-      'https://nails-ts-backend.vercel.app',
-    ];
+    const whiteList = ['https://nails-ts-backend.vercel.app'];
     const corsOptions = {
       origin: (origin: any, callbaback: any) => {
         //console.log(origin);
