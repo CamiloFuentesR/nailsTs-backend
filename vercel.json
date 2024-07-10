@@ -1,24 +1,5 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "dist/models/app.js",
-      "use": "@vercel/node",
-      "config": {
-        "zero-config": true,
-        "typescript": {
-          "tsconfigPath": "./tsconfig.json"
-        }
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/dist/models/app.js"
-    }
-  ],
-  "env": {
-    "DATABASE_URL": "localhost"
-  }
+  "builds": [{ "src": "dist/app.js", "use": "@vercel/node" }],
+  "routes": [{ "src": "/(.*)", "dest": "dist/app.js" }]
 }
