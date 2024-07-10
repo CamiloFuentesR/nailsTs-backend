@@ -18,6 +18,7 @@ const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const deleteUserClient_1 = require("../services/deleteUserClient");
 const models_1 = require("../models");
 const activeUserCLient_1 = require("../services/activeUserCLient");
+const updateUserClient_1 = require("../services/updateUserClient");
 const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield models_1.User.findAll({
@@ -102,9 +103,13 @@ const getUserByid = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 });
 exports.getUserByid = getUserByid;
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const { email, password } = req.body;
     try {
-        let user = yield models_1.User.findOne({ where: { email } });
+        let user = yield models_1.User.findOne({
+            where: { email },
+            include: [{ model: models_1.Role, attributes: ['name'] }],
+        });
         if (user) {
             return res.status(401).json({
                 state: 'error',
@@ -114,10 +119,12 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         user = models_1.User.build(req.body);
         const salt = yield bcrypt_1.default.genSalt(10);
         user.password = yield bcrypt_1.default.hash(password, salt);
-        user.role_id = 1;
+        user.role_id = 2;
         user.state = true;
+        const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'unknown';
+        console.log(roleName);
         const userSave = yield user.save();
-        const token = yield (0, generateJWT_1.default)(user.id, user.email, user.role_id);
+        const token = yield (0, generateJWT_1.default)(user.id, user.email, 'USER_ROLE');
         res.status(201).json({
             ok: true,
             msg: 'usuario creado con éxito',
@@ -136,23 +143,7 @@ exports.createUser = createUser;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
-    try {
-        const user = yield models_1.User.update(body, {
-            where: { id },
-            returning: true,
-        });
-        res.json({
-            msg: 'postUser',
-            user: user,
-        });
-    }
-    catch (error) {
-        console.log(error);
-        return res.status(500).json({
-            ok: false,
-            msj: error,
-        });
-    }
+    (0, updateUserClient_1.updateUserAndClientState)(id, body, res);
 });
 exports.updateUser = updateUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

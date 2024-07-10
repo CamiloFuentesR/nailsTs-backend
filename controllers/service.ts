@@ -1,4 +1,4 @@
-import { Response, Request } from 'express';
+import { Response, Request, RequestHandler } from 'express';
 import { Service } from '../models';
 
 export const getServices = async (req: Request, res: Response) => {
@@ -21,6 +21,59 @@ export const getServices = async (req: Request, res: Response) => {
     return res.status(500).json({
       ok: false,
       msg: error,
+    });
+  }
+};
+export const getServicesByCategory: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const services = await Service.findAll({
+      where: { services_category_id: id },
+    });
+    if (!services) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron clientes',
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      services,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const getServicesById: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const services = await Service.findByPk(id);
+    if (!services) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron clientes',
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      services,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
     });
   }
 };
@@ -77,4 +130,36 @@ export const createService = async (req: Request, res: Response) => {
       msg: 'Server internal error',
     });
   }
+};
+
+export const updateservice: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const { body } = req;
+  let service = await Service.findByPk(id);
+
+  if (!service) {
+    return res.status(400).json({
+      ok: false,
+      msg: 'No se encontró este servicio',
+    });
+  }
+
+  const [updatedRowsCount, updateService] = await Service.update(body, {
+    where: { id },
+    returning: true,
+  });
+  if (updatedRowsCount === 0 || !updateService || updateService.length === 0) {
+    return res.status(404).json({
+      ok: false,
+      msg: 'Cliente no encontrado o no actualizado',
+    });
+  }
+  res.status(201).json({
+    ok: true,
+    msg: 'Servicio actualizado correctamente',
+    service: updateService[0],
+  });
 };

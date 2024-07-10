@@ -16,17 +16,19 @@ declare global {
 export const validateJWT = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   const token = req.header('x-token-authorize');
   if (!token)
     return res.status(401).json({
-      msg: 'Token no válido - no posee token',
+      // msg: 'Token no válido - no posee token',
+      msg: 'Sin autorización para realizar esta acción',
     });
   const secretKey: Secret | undefined = process.env.SECRET_KEY || undefined;
   if (!secretKey) {
     return res.status(500).json({
-      msg: 'Token no válido - La clave secreta no está definida en la configuración',
+      // msg: 'Token no válido - La clave secreta no está definida en la configuración',
+      msg: 'Sin autorización para realizar esta acción',
     });
   }
 
@@ -45,12 +47,12 @@ export const validateJWT = async (
     });
     if (!authenticatedUser) {
       return res.status(401).json({
-        mgs: 'Token no válido - usuario no encontrado en la BD',
+        mgs: 'Error - usuario no encontrado en el sistema',
       });
     }
     if (!authenticatedUser.state) {
       return res.status(401).json({
-        msg: 'Token no válido - usuario eliminado',
+        msg: 'Autorizacion - has sido eliminado del sistema',
       });
     }
     req.user = authenticatedUser;

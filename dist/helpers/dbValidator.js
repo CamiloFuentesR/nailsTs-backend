@@ -12,11 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validUUID = exports.clientByIdExist = exports.userByIdExist = exports.emailExist = exports.isValidRole = void 0;
+exports.validUUID = exports.categoryByIdExist = exports.serviceByIdExist = exports.clientByIdExist = exports.userByIdExist = exports.emailExist = exports.isValidRole = void 0;
 const role_1 = __importDefault(require("../models/role"));
 const user_1 = __importDefault(require("../models/user"));
 const uuid_1 = require("uuid");
 const client_1 = __importDefault(require("../models/client"));
+const models_1 = require("../models");
 const isValidRole = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (name = '') {
     const roleExist = yield role_1.default.findOne({ where: { name } });
     if (!roleExist) {
@@ -56,6 +57,28 @@ const clientByIdExist = (...args_4) => __awaiter(void 0, [...args_4], void 0, fu
     return client;
 });
 exports.clientByIdExist = clientByIdExist;
+const serviceByIdExist = (...args_5) => __awaiter(void 0, [...args_5], void 0, function* (id = '') {
+    if (!id) {
+        throw new Error('ID del servicio no proporcionado');
+    }
+    const service = yield models_1.Service.findByPk(id);
+    if (!service) {
+        throw new Error(`El ID del servicio no es válido.`);
+    }
+    return service;
+});
+exports.serviceByIdExist = serviceByIdExist;
+const categoryByIdExist = (...args_6) => __awaiter(void 0, [...args_6], void 0, function* (id = '') {
+    if (!id) {
+        throw new Error('ID de la categoria no proporcionado');
+    }
+    const category = yield models_1.ServicesCategory.findByPk(id);
+    if (!category) {
+        throw new Error(`El ID la categoria no es válido.`);
+    }
+    return category;
+});
+exports.categoryByIdExist = categoryByIdExist;
 const validUUID = (value) => __awaiter(void 0, void 0, void 0, function* () {
     if (!(0, uuid_1.validate)(value)) {
         throw new Error('No es un UUID válido');

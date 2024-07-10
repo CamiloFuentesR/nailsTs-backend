@@ -39,10 +39,6 @@ const User = conection_1.default.define('Users', {
         type: sequelize_1.DataTypes.DATE,
         defaultValue: sequelize_1.DataTypes.NOW,
     },
-    updatedAt: {
-        type: sequelize_1.DataTypes.DATE,
-        defaultValue: sequelize_1.DataTypes.NOW,
-    },
 });
 // Sobrescribir el método toJSON en el prototipo del modelo
 User.prototype.toJSON = function () {

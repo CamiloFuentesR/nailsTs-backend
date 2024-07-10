@@ -17,5 +17,6 @@ router.post('/', [
         .withMessage('El password no puede estar vacío'),
     middleware_1.validateFields,
 ], auth_1.login);
+router.post('/renew', middleware_1.validateJWT, auth_1.renewToken);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

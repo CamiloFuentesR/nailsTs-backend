@@ -9,9 +9,10 @@ const dbValidator_1 = require("../helpers/dbValidator");
 const validateRole_1 = require("../middleware/validateRole");
 const router = (0, express_1.Router)();
 router.get('/', validateJWT_1.validateJWT, client_1.showAllCliens);
-router.get('/active', validateJWT_1.validateJWT, client_1.showAllClientActive);
+router.get('/active', client_1.showAllClientActive);
 router.get('/inactive', validateJWT_1.validateJWT, client_1.showAllClientInActive);
 router.get('/:id', [validateJWT_1.validateJWT, validateFields_1.validateFields], client_1.showClientById);
+router.get('/clientbyuser/:id', [validateJWT_1.validateJWT, validateFields_1.validateFields], client_1.showClientByUserId);
 router.post('/', [
     validateJWT_1.validateJWT,
     (0, express_validator_1.check)('name').notEmpty().withMessage('Debe ingresar nombre'),

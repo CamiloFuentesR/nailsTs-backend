@@ -23,7 +23,6 @@ const deleteUserAndClientState = (userId, res) => __awaiter(void 0, void 0, void
             transaction,
         });
         const user = yield models_1.User.findByPk(userId);
-        console.log(user);
         if (!client) {
             throw new Error(`Cliente no encontrado o ya está eliminado`);
         }

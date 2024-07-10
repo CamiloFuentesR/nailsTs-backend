@@ -25,12 +25,16 @@ const Service = conection_1.default.define('Services', {
         defaultValue: true,
         allowNull: false,
     },
+    duration: {
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: true,
+    },
     services_category_id: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
         references: {
             model: servicesCategory_1.default,
-            key: 'services_category_id',
+            key: 'id',
         },
     },
 });

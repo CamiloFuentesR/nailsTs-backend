@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateClient = exports.createClient = exports.showClientById = exports.showAllCliens = exports.showAllClientInActive = exports.showAllClientActive = void 0;
+exports.updateClient = exports.createClient = exports.showClientByUserId = exports.showClientById = exports.showAllCliens = exports.showAllClientInActive = exports.showAllClientActive = void 0;
 const models_1 = require("../models");
 const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -22,12 +22,10 @@ const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, fun
                 })
                 : res.status(200).json({
                     ok: true,
-                    msg: 'Get Clients all',
+                    msg: 'Se obtuvieron todos los clientes con éxito',
                     client,
                 });
         }
-        console.log(state);
-        console.log('entra aqui');
         const client = yield models_1.Client.findAll({ where: { state } });
         if (!client) {
             return res.status(409).json({
@@ -37,6 +35,9 @@ const showAllClient = (req, res, state) => __awaiter(void 0, void 0, void 0, fun
         }
         return res.status(200).json({
             ok: true,
+            msg: state
+                ? 'Se obtuvieron Clientes activos con éxito'
+                : 'Se obtuvieron clientes inactivos con éxito',
             client,
         });
     }
@@ -63,7 +64,7 @@ exports.showAllCliens = showAllCliens;
 const showClientById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const client = yield models_1.Client.findAll({ where: { id } });
+        const client = yield models_1.Client.findByPk(id);
         if (!client) {
             return res.status(409).json({
                 ok: false,
@@ -84,6 +85,33 @@ const showClientById = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.showClientById = showClientById;
+const showClientByUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const client = yield models_1.Client.findOne({
+            where: { user_id: id },
+            attributes: ['id', 'name', 'phone_number'],
+        });
+        if (!client) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'No se encontraron clientes',
+            });
+        }
+        return res.status(200).json({
+            ok: true,
+            client,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.showClientByUserId = showClientByUserId;
 const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.user;
     try {

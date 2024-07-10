@@ -5,10 +5,11 @@ import generateJWT from '../helpers/generateJWT';
 import { deleteUserAndClientState } from '../services/deleteUserClient';
 import { Client, Role, User } from '../models';
 import { activeUserAndClientState } from '../services/activeUserCLient';
+import { updateUserAndClientState } from '../services/updateUserClient';
 
 export const getUsersActive: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const users = await User.findAll({
@@ -42,7 +43,7 @@ export const getUsersActive: RequestHandler = async (
 
 export const getUsersInactive: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const users = await User.findAll({
@@ -77,7 +78,7 @@ export const getUsersInactive: RequestHandler = async (
 
 export const getUserByid: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.params;
   const userWithClients = await User.findByPk(id, {
@@ -99,11 +100,14 @@ export const getUserByid: RequestHandler = async (
 
 export const createUser: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { email, password } = req.body;
   try {
-    let user: UserInstance | null = await User.findOne({ where: { email } });
+    let user: UserInstance | null = await User.findOne({
+      where: { email },
+      include: [{ model: Role, attributes: ['name'] }],
+    });
     if (user) {
       return res.status(401).json({
         state: 'error',
@@ -114,11 +118,12 @@ export const createUser: RequestHandler = async (
     user = User.build(req.body);
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
-    user.role_id = 1;
+    user.role_id = 2;
     user.state = true;
-
+    const roleName = user.dataValues.Role?.name || 'unknown';
+    console.log(roleName);
     const userSave = await user.save();
-    const token = await generateJWT(user.id, user.email, user.role_id);
+    const token = await generateJWT(user.id, user.email, 'USER_ROLE');
 
     res.status(201).json({
       ok: true,
@@ -136,31 +141,16 @@ export const createUser: RequestHandler = async (
 
 export const updateUser: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.params;
   const { body } = req;
-  try {
-    const user = await User.update(body, {
-      where: { id },
-      returning: true,
-    });
-    res.json({
-      msg: 'postUser',
-      user: user,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      ok: false,
-      msj: error,
-    });
-  }
+  updateUserAndClientState(id, body, res);
 };
 
 export const deleteUser: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.params;
 
@@ -177,7 +167,7 @@ export const deleteUser: RequestHandler = async (
 };
 export const activeteUser: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.params;
 

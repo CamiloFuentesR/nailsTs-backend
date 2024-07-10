@@ -28,12 +28,16 @@ const Service = db.define<Service>('Services', {
     defaultValue: true,
     allowNull: false,
   },
+  duration: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   services_category_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
       model: ServicesCategory,
-      key: 'services_category_id',
+      key: 'id',
     },
   },
 });

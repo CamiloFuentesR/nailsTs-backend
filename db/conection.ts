@@ -16,6 +16,7 @@ const db = new Sequelize(dbDatabase, dbUser, dbPassword, {
   define: {
     timestamps: true,
     underscored: true,
+    // freezeTableName: true,
   },
   timezone: 'America/Santiago',
   dialectOptions: {

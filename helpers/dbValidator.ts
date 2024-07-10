@@ -3,6 +3,7 @@ import Role from '../models/role';
 import User from '../models/user';
 import { validate as isUUID } from 'uuid';
 import Client from '../models/client';
+import { Service, ServicesCategory } from '../models';
 
 export const isValidRole = async (name = '') => {
   const roleExist = await Role.findOne({ where: { name } });
@@ -41,6 +42,27 @@ export const clientByIdExist = async (id = '') => {
     throw new Error(`El cliente con ID '${id}' no está registrado en la BD`);
   }
   return client;
+};
+
+export const serviceByIdExist = async (id = '') => {
+  if (!id) {
+    throw new Error('ID del servicio no proporcionado');
+  }
+  const service = await Service.findByPk(id);
+  if (!service) {
+    throw new Error(`El ID del servicio no es válido.`);
+  }
+  return service;
+};
+export const categoryByIdExist = async (id = '') => {
+  if (!id) {
+    throw new Error('ID de la categoria no proporcionado');
+  }
+  const category = await ServicesCategory.findByPk(id);
+  if (!category) {
+    throw new Error(`El ID la categoria no es válido.`);
+  }
+  return category;
 };
 
 export const validUUID = async (value: string): Promise<boolean> => {

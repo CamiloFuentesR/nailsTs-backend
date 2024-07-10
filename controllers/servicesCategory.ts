@@ -3,7 +3,7 @@ import { ServicesCategory } from '../models';
 
 export const getServicesCategory: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const serCat = await ServicesCategory.findAll();
@@ -28,7 +28,7 @@ export const getServicesCategory: RequestHandler = async (
 
 export const createServicesCategory: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const name = req.body.name.toUpperCase();
   if (name === '') {
@@ -59,9 +59,35 @@ export const createServicesCategory: RequestHandler = async (
   }
 };
 
+export const showServiceCategoryById: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const category = await ServicesCategory.findByPk(id);
+    if (!category) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron clientes',
+      });
+    }
+    return res.status(200).json({
+      ok: true,
+      category,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
 export const updateServicesCategory: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.params;
   const { body } = req;

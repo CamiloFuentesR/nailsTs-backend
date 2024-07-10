@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
 import Role from './role';
-import Client from './client';
 import { UUIDVersion } from 'express-validator/lib/options';
 
 interface Role {
@@ -14,17 +13,14 @@ interface UserAttributes {
   email: string;
   password: string;
   createdAt: Date;
-  updatedAt: Date;
+  // updatedAt: Date;
   state: boolean;
   role_id: number;
   Role?: Role;
 }
 
 interface UserCreationAttributes
-  extends Optional<
-    UserAttributes,
-    'id' | 'createdAt' | 'updatedAt' | 'state' | 'role_id'
-  > {}
+  extends Optional<UserAttributes, 'id' | 'createdAt' | 'state' | 'role_id'> {}
 
 export interface UserInstance
   extends Model<UserAttributes, UserCreationAttributes>,
@@ -60,10 +56,6 @@ const User = db.define<UserInstance>('Users', {
     },
   },
   createdAt: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW,
-  },
-  updatedAt: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },

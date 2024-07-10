@@ -1,39 +1,91 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
+import Service from './service';
+import ServicesCategory from './servicesCategory';
+import { UUIDVersion } from 'express-validator/lib/options';
 
-export interface AppointmentProps extends Model {
-  id: number;
-  date_appointment: Date;
+export interface AppointmentProps {
+  id: UUIDVersion;
+  start: Date;
+  end: Date;
   price: number;
-  time: Date;
-  services_category_id: number;
+  client_id: UUIDVersion;
+  // time: Date;
+  service_id: number;
+  category_id: number;
   service_type: string;
-  state: boolean;
+  state: number;
+  title: string;
 }
 
-const Appointment = db.define<AppointmentProps>('Appointments', {
-  id: {
-    type: DataTypes.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
+interface AppointmentCreationAttributes
+  extends Optional<AppointmentProps, 'id'> {}
+
+export interface AppointmentInstance
+  extends Model<AppointmentProps, AppointmentCreationAttributes>,
+    AppointmentProps {}
+
+const Appointment = db.define<AppointmentInstance>(
+  'Appointments',
+  {
+    id: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    client_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    start: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    end: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    price: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+    },
+    // time: {
+    //   type: DataTypes.DATE,
+    //   allowNull: false,
+    // },
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    service_type: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    state: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    service_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: Service,
+        key: 'id',
+      },
+    },
+    category_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: ServicesCategory,
+        key: 'id',
+      },
+    },
   },
-  date_appointment: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
-  time: {
-    type: DataTypes.TIME,
-    allowNull: false,
-  },
-  service_type: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  state: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-});
+  // {
+  //   freezeTableName: true, // Esto asegura que el nombre de la tabla será 'Appointment' y no 'Appointments'
+  // },
+);
 
 // Definir la relación con Client
 // Appointment.belongsTo(Client, { foreignKey: 'client_id' });

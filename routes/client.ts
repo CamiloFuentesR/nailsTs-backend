@@ -7,6 +7,7 @@ import {
   showClientById,
   createClient,
   updateClient,
+  showClientByUserId,
 } from '../controllers/client';
 import { Router } from 'express';
 import { validateJWT } from '../middleware/validateJWT';
@@ -16,9 +17,14 @@ import { isAdminRole } from '../middleware/validateRole';
 const router = Router();
 
 router.get('/', validateJWT, showAllCliens);
-router.get('/active', validateJWT, showAllClientActive);
+router.get('/active', showAllClientActive);
 router.get('/inactive', validateJWT, showAllClientInActive);
 router.get('/:id', [validateJWT, validateFields], showClientById);
+router.get(
+  '/clientbyuser/:id',
+  [validateJWT, validateFields],
+  showClientByUserId,
+);
 
 router.post(
   '/',
@@ -34,7 +40,7 @@ router.post(
       .withMessage('Teléfono inválido'),
     validateFields,
   ],
-  createClient
+  createClient,
 );
 
 router.put(
@@ -53,7 +59,7 @@ router.put(
       .withMessage('Teléfono inválido'),
     validateFields,
   ],
-  updateClient
+  updateClient,
 );
 
 export default router;

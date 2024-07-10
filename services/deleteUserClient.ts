@@ -4,7 +4,7 @@ import { Client, User } from '../models';
 
 export const deleteUserAndClientState = async (
   userId: string,
-  res: Response
+  res: Response,
 ) => {
   const transaction = await db.transaction();
 
@@ -14,7 +14,6 @@ export const deleteUserAndClientState = async (
       transaction,
     });
     const user = await User.findByPk(userId);
-    console.log(user);
 
     if (!client) {
       throw new Error(`Cliente no encontrado o ya está eliminado`);
@@ -22,11 +21,11 @@ export const deleteUserAndClientState = async (
 
     const [affectedRowsClient, [updatedClient]] = await Client.update(
       { state: false },
-      { where: { user_id: userId }, returning: true, transaction }
+      { where: { user_id: userId }, returning: true, transaction },
     );
     const [affectedRows, [updatedUser]] = await User.update(
       { state: false },
-      { where: { id: userId }, returning: true, transaction }
+      { where: { id: userId }, returning: true, transaction },
     );
 
     await transaction.commit();

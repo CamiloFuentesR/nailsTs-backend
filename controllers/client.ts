@@ -1,11 +1,10 @@
 import { Request, RequestHandler, Response } from 'express';
 import { Client, ClientInstance } from '../models';
-import { deleteUserAndClientState } from '../services/deleteUserClient';
 
 const showAllClient = async (
   req: Request,
   res: Response,
-  state: boolean | ''
+  state: boolean | '',
 ) => {
   try {
     if (state === '') {
@@ -17,13 +16,62 @@ const showAllClient = async (
           })
         : res.status(200).json({
             ok: true,
-            msg: 'Get Clients all',
+            msg: 'Se obtuvieron todos los clientes con éxito',
             client,
           });
     }
-    console.log(state);
-    console.log('entra aqui');
     const client = await Client.findAll({ where: { state } });
+    if (!client) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron clientes',
+      });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      msg: state
+        ? 'Se obtuvieron Clientes activos con éxito'
+        : 'Se obtuvieron clientes inactivos con éxito',
+      client,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const showAllClientActive: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  showAllClient(req, res, true);
+};
+
+export const showAllClientInActive: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  showAllClient(req, res, false);
+};
+
+export const showAllCliens: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  showAllClient(req, res, '');
+};
+
+export const showClientById: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const client = await Client.findByPk(id);
     if (!client) {
       return res.status(409).json({
         ok: false,
@@ -43,34 +91,16 @@ const showAllClient = async (
   }
 };
 
-export const showAllClientActive: RequestHandler = async (
+export const showClientByUserId: RequestHandler = async (
   req: Request,
-  res: Response
-) => {
-  showAllClient(req, res, true);
-};
-
-export const showAllClientInActive: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  showAllClient(req, res, false);
-};
-
-export const showAllCliens: RequestHandler = async (
-  req: Request,
-  res: Response
-) => {
-  showAllClient(req, res, '');
-};
-
-export const showClientById: RequestHandler = async (
-  req: Request,
-  res: Response
+  res: Response,
 ) => {
   try {
     const { id } = req.params;
-    const client = await Client.findAll({ where: { id } });
+    const client = await Client.findOne({
+      where: { user_id: id },
+      attributes: ['id', 'name', 'phone_number'],
+    });
     if (!client) {
       return res.status(409).json({
         ok: false,
@@ -92,7 +122,7 @@ export const showClientById: RequestHandler = async (
 
 export const createClient: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.user;
   try {
@@ -130,7 +160,7 @@ export const createClient: RequestHandler = async (
 
 export const updateClient: RequestHandler = async (
   req: Request,
-  res: Response
+  res: Response,
 ) => {
   const { id } = req.params;
   const { body } = req;

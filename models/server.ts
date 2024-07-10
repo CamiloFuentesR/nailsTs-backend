@@ -1,6 +1,8 @@
 import express, { Application } from 'express';
 import userRoutes from '../routes/user';
 import authRoutes from '../routes/auth';
+import appointmentRoutes from '../routes/appointment';
+import appointmentStateRoutes from '../routes/appointmentState';
 import clientRoutes from '../routes/client';
 import roleRoutes from '../routes/roles';
 import servicesCategory from '../routes/services_category';
@@ -19,6 +21,8 @@ class Server {
     category: '/api/services',
     client: '/api/clients',
     role: '/api/role',
+    appointment: '/api/appointment',
+    appointmentState: '/api/appointmentState',
   };
 
   constructor() {
@@ -62,6 +66,8 @@ class Server {
     this.app.use(this.apiPaths.serviceCategory, servicesCategory);
     this.app.use(this.apiPaths.users, userRoutes);
     this.app.use(this.apiPaths.role, roleRoutes);
+    this.app.use(this.apiPaths.appointment, appointmentRoutes);
+    this.app.use(this.apiPaths.appointmentState, appointmentStateRoutes);
   }
 
   // Método para iniciar el servidor

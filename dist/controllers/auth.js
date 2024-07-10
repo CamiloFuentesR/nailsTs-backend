@@ -13,19 +13,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.renewToken = exports.login = void 0;
-// import User, { UserInstance } from '../models/user';
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const models_1 = require("../models");
-// import User,{ UserInstance } from '../models/';
-// import { UserInstance } from '../models/user';
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     let { password, email } = req.body;
     try {
-        const user = yield models_1.User.findOne({ where: { email } });
+        const user = yield models_1.User.findOne({
+            where: { email },
+            include: [{ model: models_1.Role, attributes: ['name'] }],
+        });
         if (!user) {
             return res.status(400).json({
-                msg: 'El usuario ingresado no existe',
+                msg: 'Usuario o contraseña incorrecto',
             });
         }
         if (!user.state) {
@@ -33,33 +34,36 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 msg: 'Usuario inhabilitado',
             });
         }
-        // Verificar password
         const validatePassword = yield bcrypt_1.default.compare(password, user.password);
         if (!validatePassword) {
             return res.status(400).json({
-                msg: 'Password incorrecto',
+                msg: 'Usuario o contraseña incorrecto',
             });
         }
-        const { id, role_id } = user;
-        const token = yield (0, generateJWT_1.default)(id, email, role_id);
+        const { id } = user;
+        const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'unknown';
+        const token = yield (0, generateJWT_1.default)(id, email, roleName);
         res.json({
-            msg: 'Login ok',
+            ok: true,
             token,
         });
     }
     catch (error) {
         console.log(error);
         return res.status(500).json({
+            ok: false,
             msg: 'Hable con el admin',
         });
     }
 });
 exports.login = login;
 const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id, email, role } = req.user;
+    const { id, email } = req.user;
+    const role = req.role;
     // Generar un nuevo token después de revalidar el token anterior
     const token = yield (0, generateJWT_1.default)(id, email, role);
     res.status(201).json({
+        ok: true,
         token,
     });
 });

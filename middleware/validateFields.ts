@@ -7,11 +7,12 @@ export const validateFields: RequestHandler = (
   next: NextFunction
 ) => {
   const errors = validationResult(req);
+  console.log(errors);
   if (!errors.isEmpty()) {
-    return res.status(400).json({
-      errors: errors.mapped(),
-    });
-    // return res.status(400).json(errors);
+    // return res.status(400).json({
+    //   data: errors.mapped(),
+    // });
+    return res.status(400).json(errors);
   }
   next();
 };

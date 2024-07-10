@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { login } from '../controllers/auth';
-import { validateFields } from '../middleware';
+import { login, renewToken } from '../controllers/auth';
+import { validateFields, validateJWT } from '../middleware';
 
 const router = Router();
 
@@ -21,5 +21,7 @@ router.post(
   ],
   login
 );
+
+router.post('/renew', validateJWT, renewToken);
 
 export default router;

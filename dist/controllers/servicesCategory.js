@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateServicesCategory = exports.createServicesCategory = exports.getServicesCategory = void 0;
+exports.updateServicesCategory = exports.showServiceCategoryById = exports.createServicesCategory = exports.getServicesCategory = void 0;
 const models_1 = require("../models");
 const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -64,6 +64,30 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
 });
 exports.createServicesCategory = createServicesCategory;
+const showServiceCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const category = yield models_1.ServicesCategory.findByPk(id);
+        if (!category) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'No se encontraron clientes',
+            });
+        }
+        return res.status(200).json({
+            ok: true,
+            category,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.showServiceCategoryById = showServiceCategoryById;
 const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;

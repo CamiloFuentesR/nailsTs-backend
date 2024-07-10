@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const user_1 = __importDefault(require("../routes/user"));
 const auth_1 = __importDefault(require("../routes/auth"));
+const appointment_1 = __importDefault(require("../routes/appointment"));
+const appointmentState_1 = __importDefault(require("../routes/appointmentState"));
 const client_1 = __importDefault(require("../routes/client"));
 const roles_1 = __importDefault(require("../routes/roles"));
 const services_category_1 = __importDefault(require("../routes/services_category"));
@@ -31,6 +33,8 @@ class Server {
             category: '/api/services',
             client: '/api/clients',
             role: '/api/role',
+            appointment: '/api/appointment',
+            appointmentState: '/api/appointmentState',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -70,6 +74,8 @@ class Server {
         this.app.use(this.apiPaths.serviceCategory, services_category_1.default);
         this.app.use(this.apiPaths.users, user_1.default);
         this.app.use(this.apiPaths.role, roles_1.default);
+        this.app.use(this.apiPaths.appointment, appointment_1.default);
+        this.app.use(this.apiPaths.appointmentState, appointmentState_1.default);
     }
     // Método para iniciar el servidor
     listen() {

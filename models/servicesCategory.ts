@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import db from '../db/conection';
 
 export interface ServiceCatProps extends Model {
-  services_category_id: number;
+  id: number;
   name: string;
   state: boolean;
 }
@@ -10,7 +10,7 @@ export interface ServiceCatProps extends Model {
 const ServicesCategory = db.define<ServiceCatProps>(
   'services_category',
   {
-    services_category_id: {
+    id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -28,7 +28,7 @@ const ServicesCategory = db.define<ServiceCatProps>(
   },
   {
     timestamps: false, // Desactiva las marcas de tiempo automáticas
-  }
+  },
 );
 
 export default ServicesCategory;

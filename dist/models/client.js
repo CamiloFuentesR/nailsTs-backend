@@ -18,7 +18,7 @@ const Client = conection_1.default.define('Clients', {
     },
     phone_number: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
     },
     user_id: {
         type: sequelize_1.DataTypes.UUID,
