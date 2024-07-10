@@ -2,10 +2,10 @@ import { Sequelize, Dialect } from 'sequelize';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const dbDatabase = process.env.DB_DATABASE || 'nails';
-const dbUser = process.env.DB_USER || 'postgres';
-const dbPassword = process.env.DB_PASSWORD;
-const dbHost = process.env.DB_HOST;
+const dbDatabase = process.env.POSTGRES_DATABASE || 'nails';
+const dbUser = process.env.POSTGRES_USER || 'postgres';
+const dbPassword = process.env.POSTGRES_PASSWORD;
+const dbHost = process.env.POSTGRES_HOST;
 const dbPort = parseInt(process.env.DB_PORT || '5432', 10);
 const dbDialect = process.env.DB_DIALECT as Dialect;
 
