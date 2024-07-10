@@ -63,7 +63,7 @@ class Server {
         const whiteList = [
             'http://localhost:3000',
             'http://localhost:4000',
-            'https://nails-ts-backend.vercel.app/',
+            'https://nails-ts-backend.vercel.app',
         ]; //hace accesible solo desde esta url acccion
         const corsOptions = {
             origin: (origin, callbaback) => {
