@@ -38,14 +38,29 @@ class Server {
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
-        this.dBConection();
+        const whiteList = ['http://localhost:3000'] && [
+            'https://nails-ts-backend.vercel.app',
+        ];
+        const corsOptions = {
+            origin: (origin, callbaback) => {
+                //console.log(origin);
+                const existe = whiteList.some(dominio => dominio === origin);
+                if (existe) {
+                    callbaback(null, true);
+                }
+                else {
+                    callbaback(new Error('No permitido por cors'));
+                }
+            },
+        };
+        this.dBConection(corsOptions);
         this.middlewares();
         this.routes();
         // Error handler middleware
         this.app.use(errorHandler_1.errorHandler);
     }
     // Conexión a la base de datos
-    dBConection() {
+    dBConection(corsOptions) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield conection_1.default.authenticate();
@@ -60,26 +75,9 @@ class Server {
     // Configuración de middlewares
     middlewares() {
         //cors
-        const whiteList = [
-            'http://localhost:3000',
-            'http://localhost:4000',
-            'https://nails-ts-backend.vercel.app',
-        ]; //hace accesible solo desde esta url acccion
-        const corsOptions = {
-            origin: (origin, callbaback) => {
-                //console.log(origin);
-                const existe = whiteList.some(dominio => dominio === origin);
-                if (existe) {
-                    callbaback(null, true);
-                }
-                else {
-                    callbaback(new Error('No permitido por cors'));
-                }
-            },
-        };
         // Habilitar CORS
         // this.app.use(cors());
-        this.app.use((0, cors_1.default)(corsOptions));
+        this.app.use((0, cors_1.default)());
         // Parseo del cuerpo de la solicitud
         this.app.use(express_1.default.json());
         // Carpeta pública
