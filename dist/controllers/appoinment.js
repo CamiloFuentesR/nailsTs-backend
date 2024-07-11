@@ -36,7 +36,6 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 msg: 'Error al crear la cita, datos duplicados',
             });
         }
-        console.log(req.body);
         const appointment = yield appointment_1.default.create(Object.assign({ id,
             service_id,
             category_id }, appointmentData));

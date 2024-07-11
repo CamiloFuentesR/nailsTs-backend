@@ -16,7 +16,6 @@ export const createAppointment: RequestHandler = async (
         msg: 'Error al crear la cita, datos duplicados',
       });
     }
-    console.log(req.body);
     const appointment = await Appointment.create({
       id,
       service_id,

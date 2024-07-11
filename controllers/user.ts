@@ -90,7 +90,6 @@ export const getUserByid: RequestHandler = async (
       },
     ],
   });
-  console.log(userWithClients);
   res.json({
     ok: true,
     msg: 'getUser',
@@ -121,7 +120,6 @@ export const createUser: RequestHandler = async (
     user.role_id = 2;
     user.state = true;
     const roleName = user.dataValues.Role?.name || 'unknown';
-    console.log(roleName);
     const userSave = await user.save();
     const token = await generateJWT(user.id, user.email, 'USER_ROLE');
 

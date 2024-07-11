@@ -94,7 +94,6 @@ const getUserByid = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             },
         ],
     });
-    console.log(userWithClients);
     res.json({
         ok: true,
         msg: 'getUser',
@@ -122,7 +121,6 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         user.role_id = 2;
         user.state = true;
         const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'unknown';
-        console.log(roleName);
         const userSave = yield user.save();
         const token = yield (0, generateJWT_1.default)(user.id, user.email, 'USER_ROLE');
         res.status(201).json({

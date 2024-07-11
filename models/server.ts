@@ -28,19 +28,8 @@ class Server {
   constructor() {
     this.app = express();
     this.port = process.env.PORT || '8000';
-    const whiteList = ['https://nails-ts-backend.vercel.app'];
-    const corsOptions = {
-      origin: (origin: any, callbaback: any) => {
-        //console.log(origin);
-        const existe = whiteList.some(dominio => dominio === origin);
-        if (existe) {
-          callbaback(null, true);
-        } else {
-          callbaback(new Error('No permitido por cors'));
-        }
-      },
-    };
-    this.dBConection(corsOptions);
+
+    this.dBConection();
     this.middlewares();
     this.routes();
 
@@ -49,7 +38,7 @@ class Server {
   }
 
   // Conexión a la base de datos
-  private async dBConection(corsOptions: any): Promise<void> {
+  private async dBConection(): Promise<void> {
     try {
       await db.authenticate();
       console.log('DB online');
@@ -61,10 +50,7 @@ class Server {
 
   // Configuración de middlewares
   private middlewares(): void {
-    //cors
-
     // Habilitar CORS
-    // this.app.use(cors());
     this.app.use(cors());
     // Parseo del cuerpo de la solicitud
     this.app.use(express.json());
