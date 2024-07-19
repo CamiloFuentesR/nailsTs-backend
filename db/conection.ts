@@ -32,7 +32,7 @@ const db = new Sequelize(dbDatabase, dbUser, dbPassword, {
         }
       : null,
   },
-  // logging: false,
+  logging: false,
 });
 
 export default db;

@@ -35,7 +35,7 @@ const db = new sequelize_1.Sequelize(dbDatabase, dbUser, dbPassword, {
             }
             : null,
     },
-    // logging: false,
+    logging: false,
 });
 exports.default = db;
 //# sourceMappingURL=conection.js.map

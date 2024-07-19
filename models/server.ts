@@ -46,7 +46,7 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: '*', // Permitir todas las conexiones para pruebas
+        origin: process.env.WEB_NET,
         methods: ['GET', 'POST', 'PUT'],
       },
     });
