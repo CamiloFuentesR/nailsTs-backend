@@ -1,4 +1,5 @@
 import { Sequelize, Dialect } from 'sequelize';
+import pg from 'pg';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,11 +10,13 @@ const dbPassword = process.env.DB_PASSWORD;
 const dbHost = process.env.DB_HOST;
 const dbPort = parseInt(process.env.DB_PORT || '5432', 10);
 const dbDialect = process.env.DB_DIALECT as Dialect;
-
-const sequelize = new Sequelize(dbDatabase, dbUser, dbPassword, {
+const isProduction = process.env.NODE_ENV === 'production';
+const db = new Sequelize(dbDatabase, dbUser, dbPassword, {
   host: dbHost,
   port: dbPort,
   dialect: dbDialect,
+  protocol: dbDialect,
+  dialectModule: pg,
   define: {
     timestamps: true,
     underscored: true,
@@ -22,12 +25,14 @@ const sequelize = new Sequelize(dbDatabase, dbUser, dbPassword, {
   dialectOptions: {
     useUTC: false, // Para que no use UTC
     timezone: 'America/Santiago',
-    ssl: {
-      require: true,
-      rejectUnauthorized: false,
-    },
+    ssl: isProduction
+      ? {
+          require: true,
+          rejectUnauthorized: false,
+        }
+      : null,
   },
-  logging: false,
+  // logging: false,
 });
 
-export default sequelize;
+export default db;

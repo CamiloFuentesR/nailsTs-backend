@@ -1,13 +1,14 @@
 import { Request, RequestHandler, Response } from 'express';
 import Appointment from '../models/appointment';
 import { Service, ServicesCategory } from '../models';
+import { Op } from 'sequelize';
 
 export const createAppointment: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
   const { id, service_id, category_id, ...appointmentData } = req.body;
-
+  console.log(req.body);
   try {
     const ap = await Appointment.findByPk(id);
     if (ap) {
@@ -29,6 +30,7 @@ export const createAppointment: RequestHandler = async (
       appointment,
     });
   } catch (error: any) {
+    console.log(error.message);
     res.status(500).json({
       ok: false,
       msg: 'Error al crear la cita',
@@ -42,7 +44,13 @@ export const getAllAppointment: RequestHandler = async (
   res: Response,
 ) => {
   try {
-    const appointment = await Appointment.findAll();
+    const appointment = await Appointment.findAll({
+      where: {
+        state: {
+          [Op.ne]: -1, // Utiliza Op.ne (not equal) para filtrar los estados diferentes a -1
+        },
+      },
+    });
 
     if (appointment) {
       res.status(200).json({
@@ -89,7 +97,6 @@ export const updateAppointment: RequestHandler = async (
       appointment: updatedClients[0],
     });
   } catch (error: any) {
-    console.error('Error al actualizar la cita:', error);
     res.status(500).json({
       ok: false,
       msg: 'Error interno del servidor al actualizar la cita',
@@ -119,7 +126,7 @@ export const getAppointmentById: RequestHandler = async (
     if (!appointment) {
       return res.status(409).json({
         ok: false,
-        msg: 'No se encontraron clientes',
+        msg: 'No se encontraron citas',
       });
     }
     return res.status(200).json({

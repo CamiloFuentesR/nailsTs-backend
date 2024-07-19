@@ -43,7 +43,7 @@ const getServicesByCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
         if (!services) {
             return res.status(409).json({
                 ok: false,
-                msg: 'No se encontraron clientes',
+                msg: 'No se encontraron servicios',
             });
         }
         return res.status(200).json({
@@ -67,7 +67,7 @@ const getServicesById = (req, res) => __awaiter(void 0, void 0, void 0, function
         if (!services) {
             return res.status(409).json({
                 ok: false,
-                msg: 'No se encontraron clientes',
+                msg: 'No se encontraron servicios',
             });
         }
         return res.status(200).json({

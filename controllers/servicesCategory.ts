@@ -69,7 +69,7 @@ export const showServiceCategoryById: RequestHandler = async (
     if (!category) {
       return res.status(409).json({
         ok: false,
-        msg: 'No se encontraron clientes',
+        msg: 'No se encontraron categorias',
       });
     }
     return res.status(200).json({

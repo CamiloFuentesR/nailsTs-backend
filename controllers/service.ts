@@ -36,7 +36,7 @@ export const getServicesByCategory: RequestHandler = async (
     if (!services) {
       return res.status(409).json({
         ok: false,
-        msg: 'No se encontraron clientes',
+        msg: 'No se encontraron servicios',
       });
     }
     return res.status(200).json({
@@ -62,7 +62,7 @@ export const getServicesById: RequestHandler = async (
     if (!services) {
       return res.status(409).json({
         ok: false,
-        msg: 'No se encontraron clientes',
+        msg: 'No se encontraron servicios',
       });
     }
     return res.status(200).json({
