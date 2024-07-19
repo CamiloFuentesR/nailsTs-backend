@@ -5,6 +5,7 @@ import {
   getAllAppointment,
   getAppointmentById,
   updateAppointment,
+  updateAppointmentState,
 } from '../controllers/appoinment';
 import { check } from 'express-validator';
 import {
@@ -30,5 +31,6 @@ router.post(
 router.get('/', validateJWT, getAllAppointment);
 router.get('/:id', validateJWT, getAppointmentById);
 router.put('/:id', validateJWT, updateAppointment);
+router.delete('/:id', validateJWT, updateAppointmentState);
 
 export default router;

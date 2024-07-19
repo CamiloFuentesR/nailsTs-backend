@@ -16,5 +16,6 @@ router.post('/', [
 router.get('/', middleware_1.validateJWT, appoinment_1.getAllAppointment);
 router.get('/:id', middleware_1.validateJWT, appoinment_1.getAppointmentById);
 router.put('/:id', middleware_1.validateJWT, appoinment_1.updateAppointment);
+router.delete('/:id', middleware_1.validateJWT, appoinment_1.updateAppointmentState);
 exports.default = router;
 //# sourceMappingURL=appointment.js.map
