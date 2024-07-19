@@ -98,14 +98,25 @@ class Server {
       });
 
       socket.on('eventUpdated', data => {
-        console.log('Event added:', data);
+        console.log('Event updated:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('eventUpdated', data);
       });
       socket.on('businessHourAdded', data => {
-        console.log('Event added:', data);
+        console.log('Business added:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('businessHourAdded', data);
+      });
+
+      socket.on('eventLoaded', data => {
+        console.log('Event loaded:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventLoaded', data);
+      });
+      socket.on('eventDeleted', data => {
+        console.log('Event loaded:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventDeleted', data);
       });
 
       console.log('New client connected');

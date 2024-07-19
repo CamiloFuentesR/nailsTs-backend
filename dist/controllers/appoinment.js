@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentById = exports.updateAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
+exports.getAppointmentById = exports.updateAppointmentState = exports.updateAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
 const appointment_1 = __importDefault(require("../models/appointment"));
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
@@ -115,6 +115,24 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateAppointment = updateAppointment;
+const updateAppointmentState = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const [affectedRows, updatedAppointments] = yield appointment_1.default.update({ state: -1 }, {
+            where: { id: id },
+            returning: true, // Para obtener los registros actualizados en Postgres
+        });
+        if (affectedRows === 0) {
+            return null; // No se encontró el registro con el ID dado
+        }
+        return updatedAppointments[0]; // Retorna el primer registro actualizado
+    }
+    catch (error) {
+        console.error('Error updating appointment state:', error);
+        throw error;
+    }
+});
+exports.updateAppointmentState = updateAppointmentState;
 const getAppointmentById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
