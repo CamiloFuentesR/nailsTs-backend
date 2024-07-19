@@ -7,6 +7,7 @@ import User from './user';
 import { UserInstance } from './user';
 import { ClientInstance } from './client';
 import ServicesCategory from './servicesCategory';
+import businessHour from './businessHour';
 
 export {
   Appointment,
@@ -18,6 +19,7 @@ export {
   ServicesCategory,
   User,
   UserInstance,
+  businessHour,
 };
 
 import './initAssociations';

@@ -95,7 +95,7 @@ const showClientByUserId = (req, res) => __awaiter(void 0, void 0, void 0, funct
         if (!client) {
             return res.status(409).json({
                 ok: false,
-                msg: 'No se encontraron clientes',
+                msg: 'Se le recuerda ingresar sus datos de contacto',
             });
         }
         return res.status(200).json({

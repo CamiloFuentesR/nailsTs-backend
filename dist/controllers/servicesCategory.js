@@ -71,7 +71,7 @@ const showServiceCategoryById = (req, res) => __awaiter(void 0, void 0, void 0, 
         if (!category) {
             return res.status(409).json({
                 ok: false,
-                msg: 'No se encontraron clientes',
+                msg: 'No se encontraron categorias',
             });
         }
         return res.status(200).json({

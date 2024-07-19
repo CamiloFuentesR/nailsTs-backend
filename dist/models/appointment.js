@@ -41,6 +41,14 @@ const Appointment = conection_1.default.define('Appointments', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
+    backgroundColor: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
+    className: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
     state: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
@@ -62,7 +70,5 @@ const Appointment = conection_1.default.define('Appointments', {
         },
     },
 });
-// Definir la relación con Client
-// Appointment.belongsTo(Client, { foreignKey: 'client_id' });
 exports.default = Appointment;
 //# sourceMappingURL=appointment.js.map

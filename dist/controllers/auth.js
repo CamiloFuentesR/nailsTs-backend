@@ -52,7 +52,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         console.log(error);
         return res.status(500).json({
             ok: false,
-            msg: 'Hable con el admin',
+            msg: 'Hable con el administrador',
         });
     }
 });

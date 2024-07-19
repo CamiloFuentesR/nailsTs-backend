@@ -30,13 +30,14 @@ export const getUsersActive: RequestHandler = async (
       });
     }
     res.json({
+      ok: true,
       msg: 'getUsers',
       users,
     });
   } catch (error: any) {
     console.log(error);
     return res.status(500).json({
-      msg: error,
+      msg: error.message,
     });
   }
 };

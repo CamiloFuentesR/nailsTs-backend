@@ -1,15 +1,21 @@
 import express, { Application } from 'express';
-import userRoutes from '../routes/user';
-import authRoutes from '../routes/auth';
-import appointmentRoutes from '../routes/appointment';
-import appointmentStateRoutes from '../routes/appointmentState';
-import clientRoutes from '../routes/client';
-import roleRoutes from '../routes/roles';
-import servicesCategory from '../routes/services_category';
-import services from '../routes/services';
+
 import cors from 'cors';
 import db from '../db/conection';
 import { errorHandler } from '../middleware/errorHandler';
+import { injectSpeedInsights } from '@vercel/speed-insights';
+import {
+  appointmentRoutes,
+  appointmentStateRoutes,
+  authRoutes,
+  businessHourRoutes,
+  clientRoutes,
+  roleRoutes,
+  services,
+  servicesCategory,
+  userRoutes,
+} from '../routes';
+injectSpeedInsights();
 
 class Server {
   private app: Application;
@@ -23,12 +29,26 @@ class Server {
     role: '/api/role',
     appointment: '/api/appointment',
     appointmentState: '/api/appointmentState',
+    businessHour: '/api/businessHour',
   };
 
   constructor() {
     this.app = express();
     this.port = process.env.PORT || '8000';
 
+    const whiteList = ['https://nails-ts-backend.vercel.app'] && [
+      'http://localhost:3000',
+    ];
+    const corsOptions = {
+      origin: (origin: any, callbaback: any) => {
+        const existe = whiteList.some(dominio => dominio === origin);
+        if (existe) {
+          callbaback(null, true);
+        } else {
+          callbaback(new Error('No permitido por cors'));
+        }
+      },
+    };
     this.dBConection();
     this.middlewares();
     this.routes();
@@ -68,6 +88,7 @@ class Server {
     this.app.use(this.apiPaths.role, roleRoutes);
     this.app.use(this.apiPaths.appointment, appointmentRoutes);
     this.app.use(this.apiPaths.appointmentState, appointmentStateRoutes);
+    this.app.use(this.apiPaths.businessHour, businessHourRoutes);
   }
 
   // Método para iniciar el servidor

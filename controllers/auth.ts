@@ -40,7 +40,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
     console.log(error);
     return res.status(500).json({
       ok: false,
-      msg: 'Hable con el admin',
+      msg: 'Hable con el administrador',
     });
   }
 };
