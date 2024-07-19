@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
-
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
 import db from '../db/conection';
 import { errorHandler } from '../middleware/errorHandler';
@@ -15,10 +16,13 @@ import {
   servicesCategory,
   userRoutes,
 } from '../routes';
+
 injectSpeedInsights();
 
 class Server {
   private app: Application;
+  private server: http.Server;
+  private io: SocketIOServer;
   private port: string;
   private apiPaths = {
     users: '/api/users',
@@ -36,28 +40,26 @@ class Server {
     this.app = express();
     this.port = process.env.PORT || '8000';
 
-    const whiteList = ['https://nails-ts-backend.vercel.app'] && [
-      'http://localhost:3000',
-    ];
-    const corsOptions = {
-      origin: (origin: any, callbaback: any) => {
-        const existe = whiteList.some(dominio => dominio === origin);
-        if (existe) {
-          callbaback(null, true);
-        } else {
-          callbaback(new Error('No permitido por cors'));
-        }
+    // Crear el servidor HTTP
+    this.server = http.createServer(this.app);
+
+    // Inicializar Socket.io con el servidor HTTP
+    this.io = new SocketIOServer(this.server, {
+      cors: {
+        origin: '*', // Permitir todas las conexiones para pruebas
+        methods: ['GET', 'POST', 'PUT'],
       },
-    };
+    });
+
     this.dBConection();
     this.middlewares();
     this.routes();
+    this.sockets();
 
     // Error handler middleware
     this.app.use(errorHandler);
   }
 
-  // Conexión a la base de datos
   private async dBConection(): Promise<void> {
     try {
       await db.authenticate();
@@ -68,17 +70,12 @@ class Server {
     }
   }
 
-  // Configuración de middlewares
   private middlewares(): void {
-    // Habilitar CORS
     this.app.use(cors());
-    // Parseo del cuerpo de la solicitud
     this.app.use(express.json());
-    // Carpeta pública
     this.app.use(express.static('public'));
   }
 
-  // Definición de rutas
   private routes(): void {
     this.app.use(this.apiPaths.auth, authRoutes);
     this.app.use(this.apiPaths.category, services);
@@ -90,10 +87,36 @@ class Server {
     this.app.use(this.apiPaths.appointmentState, appointmentStateRoutes);
     this.app.use(this.apiPaths.businessHour, businessHourRoutes);
   }
+  private sockets(): void {
+    this.io.on('connection', socket => {
+      console.log('New client connected');
 
-  // Método para iniciar el servidor
+      socket.on('eventAdded', data => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventAdded', data);
+      });
+
+      socket.on('eventUpdated', data => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventUpdated', data);
+      });
+      socket.on('businessHourAdded', data => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('businessHourAdded', data);
+      });
+
+      console.log('New client connected');
+      socket.on('disconnect', () => {
+        console.log('Client disconnected');
+      });
+    });
+  }
+
   public listen(): void {
-    this.app.listen(this.port, () => {
+    this.server.listen(this.port, () => {
       console.log('Servidor corriendo en el puerto: ' + this.port);
     });
   }
