@@ -37,8 +37,9 @@ class Server {
     this.port = process.env.PORT || '8000';
 
     const whiteList = ['https://nails-ts-backend.vercel.app'] && [
-      'http://localhost:3000',
-    ];
+        'http://localhost:3000',
+      ] && ['https://nailsts-backend.onrender.com'];
+
     const corsOptions = {
       origin: (origin: any, callbaback: any) => {
         const existe = whiteList.some(dominio => dominio === origin);
