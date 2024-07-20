@@ -16,9 +16,7 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const conection_1 = __importDefault(require("../db/conection"));
 const errorHandler_1 = require("../middleware/errorHandler");
-const speed_insights_1 = require("@vercel/speed-insights");
 const routes_1 = require("../routes");
-(0, speed_insights_1.injectSpeedInsights)();
 class Server {
     constructor() {
         this.apiPaths = {

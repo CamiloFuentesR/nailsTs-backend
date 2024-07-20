@@ -3,7 +3,6 @@ import express, { Application } from 'express';
 import cors from 'cors';
 import db from '../db/conection';
 import { errorHandler } from '../middleware/errorHandler';
-import { injectSpeedInsights } from '@vercel/speed-insights';
 import {
   appointmentRoutes,
   appointmentStateRoutes,
@@ -15,7 +14,6 @@ import {
   servicesCategory,
   userRoutes,
 } from '../routes';
-injectSpeedInsights();
 
 class Server {
   private app: Application;
