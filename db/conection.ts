@@ -36,7 +36,7 @@ const db = new Sequelize(dbDatabase, dbUser, dbPassword, {
     //   rejectUnauthorized: false,
     // },
   },
-  // logging: false,
+  logging: false,
 });
 
 export default db;

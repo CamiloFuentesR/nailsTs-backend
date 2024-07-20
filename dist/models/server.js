@@ -41,8 +41,8 @@ class Server {
         // Inicializar Socket.io con el servidor HTTP
         this.io = new socket_io_1.Server(this.server, {
             cors: {
-                // origin: 'https://mozzafiato-manicure.netlify.app/',
-                origin: '*',
+                origin: 'https://mozzafiato-manicure.netlify.app//socket.io/socket.io.js',
+                // origin: '*',
                 methods: ['GET', 'POST', 'PUT'],
             },
         });
@@ -93,6 +93,26 @@ class Server {
                 console.log('Event added:', data);
                 // Emitir el evento a todos los clientes conectados
                 this.io.emit('eventUpdated', data);
+            });
+            socket.on('eventDeleted', data => {
+                console.log('Event added:', data);
+                // Emitir el evento a todos los clientes conectados
+                this.io.emit('eventDeleted', data);
+            });
+            socket.on('eventLoaded', data => {
+                console.log('Event added:', data);
+                // Emitir el evento a todos los clientes conectados
+                this.io.emit('eventLoaded', data);
+            });
+            socket.on('eventRemoved', data => {
+                console.log('Event added:', data);
+                // Emitir el evento a todos los clientes conectados
+                this.io.emit('eventRemoved', data);
+            });
+            socket.on('businessHourUpdated', data => {
+                console.log('Event added:', data);
+                // Emitir el evento a todos los clientes conectados
+                this.io.emit('businessHourUpdated', data);
             });
             socket.on('businessHourAdded', data => {
                 console.log('Event added:', data);
