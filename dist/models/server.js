@@ -119,6 +119,11 @@ class Server {
                 // Emitir el evento a todos los clientes conectados
                 this.io.emit('businessHourAdded', data);
             });
+            socket.on('businessHourLoaded', data => {
+                console.log('Event added:', data);
+                // Emitir el evento a todos los clientes conectados
+                this.io.emit('businessHourLoaded', data);
+            });
             console.log('New client connected');
             socket.on('disconnect', () => {
                 console.log('Client disconnected');
