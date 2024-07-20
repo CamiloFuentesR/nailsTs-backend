@@ -35,15 +35,13 @@ class Server {
             businessHour: '/api/businessHour',
         };
         this.app = (0, express_1.default)();
-        this.port = process.env.PORT || '8000';
+        this.port = process.env.PORT || '443';
         // Crear el servidor HTTP
         this.server = http_1.default.createServer(this.app);
         // Inicializar Socket.io con el servidor HTTP
         this.io = new socket_io_1.Server(this.server, {
             cors: {
-                origin: ['https://mozzafiato-manicure.netlify.app/'] && [
-                    'http://localhost:3000/',
-                ], // Permitir todas las conexiones para pruebas
+                origin: '*', // Permitir todas las conexiones para pruebas
                 methods: ['GET', 'POST', 'PUT'],
             },
         });

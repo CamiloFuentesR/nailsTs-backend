@@ -23,7 +23,7 @@ services:
       - key: DB_SSL
         value: 'false'
       - key: PORT
-        value: '8000'
+        value: '443'
     regions:
       - oregon
     autoDeploy: true

@@ -38,7 +38,7 @@ class Server {
 
   constructor() {
     this.app = express();
-    this.port = process.env.PORT || '8000';
+    this.port = process.env.PORT || '443';
 
     // Crear el servidor HTTP
     this.server = http.createServer(this.app);
@@ -46,9 +46,7 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: ['https://mozzafiato-manicure.netlify.app/'] && [
-          'http://localhost:3000/',
-        ], // Permitir todas las conexiones para pruebas
+        origin: '*', // Permitir todas las conexiones para pruebas
         methods: ['GET', 'POST', 'PUT'],
       },
     });

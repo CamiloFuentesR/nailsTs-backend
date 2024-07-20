@@ -25,12 +25,16 @@ const db = new Sequelize(dbDatabase, dbUser, dbPassword, {
   dialectOptions: {
     useUTC: false, // Para que no use UTC
     timezone: 'America/Santiago',
-    ssl: isProduction
-      ? {
-          require: true,
-          rejectUnauthorized: false,
-        }
-      : null,
+    // ssl: isProduction
+    //   ? {
+    //       require: true,
+    //       rejectUnauthorized: false,
+    //     }
+    //   : null,
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
   },
   // logging: false,
 });
