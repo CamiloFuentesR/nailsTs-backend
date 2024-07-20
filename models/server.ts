@@ -47,8 +47,7 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: 'https://mozzafiato-manicure.netlify.app/',
-        // origin: '*',
+        origin: 'https://mozzafiato-manicure.netlify.app',
         methods: ['GET', 'POST', 'PUT'],
       },
     });
@@ -90,12 +89,12 @@ class Server {
     this.app.use(this.apiPaths.businessHour, businessHourRoutes);
   }
   private sockets(): void {
-    const staticPath = path.resolve(__dirname, '.', 'dist');
     this.io.on('connection', socket => {
       console.log('New client connected');
 
       socket.on('testEvent', data => {
         console.log('Test event received:', data);
+        // Emitir el evento a todos los clientes conectados
         this.io.emit('testEvent', { message: 'Hello from server' });
       });
 
@@ -105,6 +104,7 @@ class Server {
     });
 
     if (process.env.NODE_ENV === 'production') {
+      const staticPath = path.resolve(__dirname, '.', 'dist');
       this.app.get('*', (req, res) => {
         this.app.use(express.static(staticPath));
         const indexFile = path.join(__dirname, 'dist', 'app.js');
