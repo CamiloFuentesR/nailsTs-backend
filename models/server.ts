@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import { createServer } from 'http';
+import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import cors from 'cors';
 import db from '../db/conection';
@@ -21,6 +21,8 @@ injectSpeedInsights();
 
 class Server {
   private app: Application;
+  private server: http.Server;
+  private io: SocketIOServer;
   private port: string;
   private apiPaths = {
     users: '/api/users',
@@ -33,50 +35,31 @@ class Server {
     appointmentState: '/api/appointmentState',
     businessHour: '/api/businessHour',
   };
-  private server: any; // Servidor HTTP
-  private io: any; // Instancia de Socket.io
 
   constructor() {
     this.app = express();
     this.port = process.env.PORT || '8000';
-    this.server = createServer(this.app); // Crear servidor HTTP
+
+    // Crear el servidor HTTP
+    this.server = http.createServer(this.app);
+
+    // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: [
-          'https://nails-ts-backend.vercel.app',
-          'http://localhost:3000',
-          'https://mozzafiato-manicure.netlify.app',
-        ],
+        origin: '*', // Permitir todas las conexiones para pruebas
         methods: ['GET', 'POST', 'PUT'],
       },
     });
 
-    const whiteList = [
-      'https://nails-ts-backend.vercel.app',
-      'http://localhost:3000',
-      'https://mozzafiato-manicure.netlify.app',
-    ];
-    const corsOptions = {
-      origin: (origin: any, callback: any) => {
-        const existe = whiteList.some(dominio => dominio === origin);
-        if (existe) {
-          callback(null, true);
-        } else {
-          callback(new Error('No permitido por cors'));
-        }
-      },
-    };
-
     this.dBConection();
     this.middlewares();
     this.routes();
-    this.sockets(); // Configurar Socket.io
+    this.sockets();
 
     // Error handler middleware
     this.app.use(errorHandler);
   }
 
-  // Conexión a la base de datos
   private async dBConection(): Promise<void> {
     try {
       await db.authenticate();
@@ -87,17 +70,12 @@ class Server {
     }
   }
 
-  // Configuración de middlewares
   private middlewares(): void {
-    // Habilitar CORS
     this.app.use(cors());
-    // Parseo del cuerpo de la solicitud
     this.app.use(express.json());
-    // Carpeta pública
     this.app.use(express.static('public'));
   }
 
-  // Definición de rutas
   private routes(): void {
     this.app.use(this.apiPaths.auth, authRoutes);
     this.app.use(this.apiPaths.category, services);
@@ -109,32 +87,36 @@ class Server {
     this.app.use(this.apiPaths.appointmentState, appointmentStateRoutes);
     this.app.use(this.apiPaths.businessHour, businessHourRoutes);
   }
-
-  // Configuración de Socket.io
   private sockets(): void {
-    this.io.on('connection', (socket: any) => {
+    this.io.on('connection', socket => {
       console.log('New client connected');
 
-      socket.on('eventAdded', (data: any) => {
+      socket.on('eventAdded', data => {
         console.log('Event added:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('eventAdded', data);
       });
 
-      socket.on('eventUpdated', (data: any) => {
-        console.log('Event added:', data);
+      socket.on('eventUpdated', data => {
+        console.log('Event updated:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('eventUpdated', data);
       });
-      socket.on('businessHourAdded', (data: any) => {
-        console.log('Event added:', data);
+      socket.on('businessHourAdded', data => {
+        console.log('Business added:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('businessHourAdded', data);
       });
-      socket.on('businessHourAdded', (data: any) => {
-        console.log('Event added:', data);
+
+      socket.on('eventLoaded', data => {
+        console.log('Event loaded:', data);
         // Emitir el evento a todos los clientes conectados
-        this.io.emit('businessHourAdded', data);
+        this.io.emit('eventLoaded', data);
+      });
+      socket.on('eventDeleted', data => {
+        console.log('Event loaded:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventLoaded', data);
       });
 
       console.log('New client connected');
@@ -143,7 +125,7 @@ class Server {
       });
     });
   }
-  // Método para iniciar el servidor
+
   public listen(): void {
     this.server.listen(this.port, () => {
       console.log('Servidor corriendo en el puerto: ' + this.port);
