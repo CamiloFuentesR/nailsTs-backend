@@ -43,7 +43,7 @@ class Server {
                     'https://nails-ts-backend.vercel.app',
                     'http://localhost:3000',
                     'https://mozzafiato-manicure.netlify.app',
-                ], // Cambia esto según tus necesidades
+                ],
                 methods: ['GET', 'POST', 'PUT'],
             },
         });
