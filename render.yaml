@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: my-web-service
+    env: node
+    plan: free
+    buildCommand: 'npm install && npm run build'
+    startCommand: 'node dist/app.js'
+    envVars:
+      - key: SECRET_KEY
+        value: Cad@Di#qxuel0kiesterestor90
+      - key: DB_HOST
+        value: ep-winter-queen-a4qnemz8-pooler.us-east-1.aws.neon.tech
+      - key: DB_PORT
+        value: '5432'
+      - key: DB_USER
+        value: default
+      - key: DB_PASSWORD
+        value: Ib3meHMig0Rc
+      - key: DB_DATABASE
+        value: test
+      - key: DB_DIALECT
+        value: postgres
+      - key: DB_SSL
+        value: 'false'
+      - key: PORT
+        value: '8000'
+    regions:
+      - oregon
+    autoDeploy: true
+    branches:
+      only:
+        - main
