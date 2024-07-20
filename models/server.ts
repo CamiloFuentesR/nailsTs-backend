@@ -5,6 +5,7 @@ import cors from 'cors';
 import db from '../db/conection';
 import { errorHandler } from '../middleware/errorHandler';
 import { injectSpeedInsights } from '@vercel/speed-insights';
+import path from 'path';
 import {
   appointmentRoutes,
   appointmentStateRoutes,
@@ -46,8 +47,8 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        // origin: 'https://mozzafiato-manicure.netlify.app/',
-        origin: '*',
+        origin: 'https://mozzafiato-manicure.netlify.app/',
+        // origin: '*',
         methods: ['GET', 'POST', 'PUT'],
       },
     });
@@ -89,33 +90,28 @@ class Server {
     this.app.use(this.apiPaths.businessHour, businessHourRoutes);
   }
   private sockets(): void {
+    const staticPath = path.resolve(__dirname, '.', 'dist');
     this.io.on('connection', socket => {
       console.log('New client connected');
 
-      socket.on('eventAdded', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventAdded', data);
+      socket.on('testEvent', data => {
+        console.log('Test event received:', data);
+        this.io.emit('testEvent', { message: 'Hello from server' });
       });
 
-      socket.on('eventUpdated', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventUpdated', data);
-      });
-      socket.on('businessHourAdded', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('businessHourAdded', data);
-      });
-
-      console.log('New client connected');
       socket.on('disconnect', () => {
         console.log('Client disconnected');
       });
     });
-  }
 
+    if (process.env.NODE_ENV === 'production') {
+      this.app.get('*', (req, res) => {
+        this.app.use(express.static(staticPath));
+        const indexFile = path.join(__dirname, 'dist', 'app.js');
+        return res.sendFile(indexFile);
+      });
+    }
+  }
   public listen(): void {
     this.server.listen(this.port, () => {
       console.log('Servidor corriendo en el puerto: ' + this.port);
