@@ -35,7 +35,7 @@ class Server {
             businessHour: '/api/businessHour',
         };
         this.app = (0, express_1.default)();
-        this.port = process.env.PORT || '443';
+        this.port = process.env.PORT || '8000';
         // Crear el servidor HTTP
         this.server = http_1.default.createServer(this.app);
         // Inicializar Socket.io con el servidor HTTP
@@ -89,24 +89,14 @@ class Server {
                 this.io.emit('eventAdded', data);
             });
             socket.on('eventUpdated', data => {
-                console.log('Event updated:', data);
+                console.log('Event added:', data);
                 // Emitir el evento a todos los clientes conectados
                 this.io.emit('eventUpdated', data);
             });
             socket.on('businessHourAdded', data => {
-                console.log('Business added:', data);
+                console.log('Event added:', data);
                 // Emitir el evento a todos los clientes conectados
                 this.io.emit('businessHourAdded', data);
-            });
-            socket.on('eventLoaded', data => {
-                console.log('Event loaded:', data);
-                // Emitir el evento a todos los clientes conectados
-                this.io.emit('eventLoaded', data);
-            });
-            socket.on('eventDeleted', data => {
-                console.log('Event loaded:', data);
-                // Emitir el evento a todos los clientes conectados
-                this.io.emit('eventLoaded', data);
             });
             console.log('New client connected');
             socket.on('disconnect', () => {

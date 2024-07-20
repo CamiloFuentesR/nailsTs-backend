@@ -28,18 +28,18 @@ const db = new sequelize_1.Sequelize(dbDatabase, dbUser, dbPassword, {
     dialectOptions: {
         useUTC: false, // Para que no use UTC
         timezone: 'America/Santiago',
-        // ssl: isProduction
-        //   ? {
-        //       require: true,
-        //       rejectUnauthorized: false,
-        //     }
-        //   : null,
-        ssl: {
-            require: true,
-            rejectUnauthorized: false,
-        },
+        ssl: isProduction
+            ? {
+                require: true,
+                rejectUnauthorized: false,
+            }
+            : null,
+        // ssl: {
+        //   require: true,
+        //   rejectUnauthorized: false,
+        // },
     },
-    // logging: false,
+    logging: false,
 });
 exports.default = db;
 //# sourceMappingURL=conection.js.map
