@@ -40,7 +40,7 @@ class Server {
 
   constructor() {
     this.app = express();
-    this.port = process.env.PORT || '8000';
+    this.port = process.env.PORT || '5000';
 
     // Crear el servidor HTTP
     this.server = http.createServer(this.app);
@@ -48,7 +48,7 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: 'https://mozzafiato-manicure.netlify.app/',
+        origin: 'https://mozzafiato-manicure.netlify.app',
         methods: ['GET', 'POST', 'PUT'],
       },
     });
