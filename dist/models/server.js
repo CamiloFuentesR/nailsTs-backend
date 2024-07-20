@@ -13,10 +13,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const http_1 = require("http");
+const socket_io_1 = require("socket.io");
 const cors_1 = __importDefault(require("cors"));
 const conection_1 = __importDefault(require("../db/conection"));
 const errorHandler_1 = require("../middleware/errorHandler");
+const speed_insights_1 = require("@vercel/speed-insights");
 const routes_1 = require("../routes");
+(0, speed_insights_1.injectSpeedInsights)();
 class Server {
     constructor() {
         this.apiPaths = {
@@ -32,23 +36,37 @@ class Server {
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
-        const whiteList = ['https://nails-ts-backend.vercel.app'] && [
+        this.server = (0, http_1.createServer)(this.app); // Crear servidor HTTP
+        this.io = new socket_io_1.Server(this.server, {
+            cors: {
+                origin: [
+                    'https://nails-ts-backend.vercel.app',
+                    'http://localhost:3000',
+                    'https://mozzafiato-manicure.netlify.app',
+                ],
+                methods: ['GET', 'POST', 'PUT'],
+            },
+        });
+        const whiteList = [
+            'https://nails-ts-backend.vercel.app',
             'http://localhost:3000',
-        ] && ['https://nailsts-backend.onrender.com'];
+            'https://mozzafiato-manicure.netlify.app',
+        ];
         const corsOptions = {
-            origin: (origin, callbaback) => {
+            origin: (origin, callback) => {
                 const existe = whiteList.some(dominio => dominio === origin);
                 if (existe) {
-                    callbaback(null, true);
+                    callback(null, true);
                 }
                 else {
-                    callbaback(new Error('No permitido por cors'));
+                    callback(new Error('No permitido por cors'));
                 }
             },
         };
         this.dBConection();
         this.middlewares();
         this.routes();
+        this.sockets(); // Configurar Socket.io
         // Error handler middleware
         this.app.use(errorHandler_1.errorHandler);
     }
@@ -86,9 +104,22 @@ class Server {
         this.app.use(this.apiPaths.appointmentState, routes_1.appointmentStateRoutes);
         this.app.use(this.apiPaths.businessHour, routes_1.businessHourRoutes);
     }
+    // Configuración de Socket.io
+    sockets() {
+        this.io.on('connection', (socket) => {
+            console.log('New client connected');
+            socket.on('event-update', (data) => {
+                console.log('Event update received:', data);
+                this.io.emit('event-update', data); // Enviar la actualización a todos los clientes
+            });
+            socket.on('disconnect', () => {
+                console.log('Client disconnected');
+            });
+        });
+    }
     // Método para iniciar el servidor
     listen() {
-        this.app.listen(this.port, () => {
+        this.server.listen(this.port, () => {
             console.log('Servidor corriendo en el puerto: ' + this.port);
         });
     }
