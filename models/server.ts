@@ -115,17 +115,34 @@ class Server {
     this.io.on('connection', (socket: any) => {
       console.log('New client connected');
 
-      socket.on('event-update', (data: any) => {
-        console.log('Event update received:', data);
-        this.io.emit('event-update', data); // Enviar la actualización a todos los clientes
+      socket.on('eventAdded', (data: any) => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventAdded', data);
       });
 
+      socket.on('eventUpdated', (data: any) => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('eventUpdated', data);
+      });
+      socket.on('businessHourAdded', (data: any) => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('businessHourAdded', data);
+      });
+      socket.on('businessHourAdded', (data: any) => {
+        console.log('Event added:', data);
+        // Emitir el evento a todos los clientes conectados
+        this.io.emit('businessHourAdded', data);
+      });
+
+      console.log('New client connected');
       socket.on('disconnect', () => {
         console.log('Client disconnected');
       });
     });
   }
-
   // Método para iniciar el servidor
   public listen(): void {
     this.server.listen(this.port, () => {
