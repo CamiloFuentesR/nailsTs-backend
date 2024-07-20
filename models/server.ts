@@ -50,6 +50,7 @@ class Server {
       cors: {
         origin: 'https://mozzafiato-manicure.netlify.app',
         methods: ['GET', 'POST', 'PUT'],
+        credentials: true,
       },
     });
 
