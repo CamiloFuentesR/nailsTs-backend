@@ -104,6 +104,30 @@ export const updateAppointment: RequestHandler = async (
     });
   }
 };
+export const updateAppointmentState: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  try {
+    const [affectedRows, updatedAppointments] = await Appointment.update(
+      { state: -1 },
+      {
+        where: { id: id },
+        returning: true, // Para obtener los registros actualizados en Postgres
+      },
+    );
+
+    if (affectedRows === 0) {
+      return null; // No se encontró el registro con el ID dado
+    }
+
+    return updatedAppointments[0]; // Retorna el primer registro actualizado
+  } catch (error) {
+    console.error('Error updating appointment state:', error);
+    throw error;
+  }
+};
 
 export const getAppointmentById: RequestHandler = async (
   req: Request,
