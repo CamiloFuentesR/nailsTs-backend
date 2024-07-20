@@ -46,7 +46,9 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: 'https://mozzafiato-manicure.netlify.app/', // Permitir todas las conexiones para pruebas
+        origin: ['https://mozzafiato-manicure.netlify.app/'] && [
+          'http://localhost:3000/',
+        ], // Permitir todas las conexiones para pruebas
         methods: ['GET', 'POST', 'PUT'],
       },
     });
