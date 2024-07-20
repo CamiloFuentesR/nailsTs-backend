@@ -5,6 +5,8 @@ import cors from 'cors';
 import db from '../db/conection';
 import { errorHandler } from '../middleware/errorHandler';
 import { injectSpeedInsights } from '@vercel/speed-insights';
+import path from 'path';
+
 import {
   appointmentRoutes,
   appointmentStateRoutes,
@@ -46,7 +48,7 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: '*', // Permitir todas las conexiones para pruebas
+        origin: 'https://mozzafiato-manicure.netlify.app/',
         methods: ['GET', 'POST', 'PUT'],
       },
     });
@@ -87,7 +89,9 @@ class Server {
     this.app.use(this.apiPaths.appointmentState, appointmentStateRoutes);
     this.app.use(this.apiPaths.businessHour, businessHourRoutes);
   }
+
   private sockets(): void {
+    const staticPath = path.resolve(__dirname, '.', 'dist');
     this.io.on('connection', socket => {
       console.log('New client connected');
 
@@ -113,6 +117,13 @@ class Server {
         console.log('Client disconnected');
       });
     });
+    if (process.env.NODE_ENV === 'production') {
+      this.app.get('*', (req, res) => {
+        this.app.use(express.static(staticPath));
+        const indexFile = path.join(__dirname, 'dist', 'app.js');
+        return res.sendFile(indexFile);
+      });
+    }
   }
 
   public listen(): void {

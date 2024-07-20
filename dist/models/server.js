@@ -19,6 +19,7 @@ const cors_1 = __importDefault(require("cors"));
 const conection_1 = __importDefault(require("../db/conection"));
 const errorHandler_1 = require("../middleware/errorHandler");
 const speed_insights_1 = require("@vercel/speed-insights");
+const path_1 = __importDefault(require("path"));
 const routes_1 = require("../routes");
 (0, speed_insights_1.injectSpeedInsights)();
 class Server {
@@ -41,7 +42,7 @@ class Server {
         // Inicializar Socket.io con el servidor HTTP
         this.io = new socket_io_1.Server(this.server, {
             cors: {
-                origin: '*', // Permitir todas las conexiones para pruebas
+                origin: 'https://mozzafiato-manicure.netlify.app/',
                 methods: ['GET', 'POST', 'PUT'],
             },
         });
@@ -81,6 +82,7 @@ class Server {
         this.app.use(this.apiPaths.businessHour, routes_1.businessHourRoutes);
     }
     sockets() {
+        const staticPath = path_1.default.resolve(__dirname, '.', 'dist');
         this.io.on('connection', socket => {
             console.log('New client connected');
             socket.on('eventAdded', data => {
@@ -103,6 +105,13 @@ class Server {
                 console.log('Client disconnected');
             });
         });
+        if (process.env.NODE_ENV === 'production') {
+            this.app.get('*', (req, res) => {
+                this.app.use(express_1.default.static(staticPath));
+                const indexFile = path_1.default.join(__dirname, 'dist', 'app.js');
+                return res.sendFile(indexFile);
+            });
+        }
     }
     listen() {
         this.server.listen(this.port, () => {
