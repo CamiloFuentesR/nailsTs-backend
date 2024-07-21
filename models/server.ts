@@ -120,17 +120,17 @@ class Server {
         this.io.emit('eventRemoved', data);
       });
       socket.on('businessHourUpdated', data => {
-        console.log('Event added:', data);
+        console.log('Event updated:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('businessHourUpdated', data);
       });
       socket.on('businessHourAdded', data => {
-        console.log('Event added:', data);
+        console.log('Business added:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('businessHourAdded', data);
       });
       socket.on('businessHourLoaded', data => {
-        console.log('Event added:', data);
+        console.log('Business loaded:', data);
         // Emitir el evento a todos los clientes conectados
         this.io.emit('businessHourLoaded', data);
       });
