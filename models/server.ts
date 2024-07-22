@@ -47,8 +47,8 @@ class Server {
     // Inicializar Socket.io con el servidor HTTP
     this.io = new SocketIOServer(this.server, {
       cors: {
-        origin: 'https://mozzafiato-manicure.netlify.app',
-        // origin: 'http://localhost:3000',
+        // origin: 'https://mozzafiato-manicure.netlify.app',
+        origin: 'http://localhost:3000',
         methods: ['GET', 'POST', 'PUT'],
       },
     });
@@ -91,53 +91,40 @@ class Server {
   }
   private sockets(): void {
     this.io.on('connection', socket => {
-      console.log('New client connected');
+      console.log('Cliente conectado');
 
-      socket.on('eventAdded', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventAdded', data);
-      });
-
-      socket.on('eventUpdated', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventUpdated', data);
-      });
-      socket.on('eventDeleted', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventDeleted', data);
-      });
-      socket.on('eventLoaded', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventLoaded', data);
-      });
-      socket.on('eventRemoved', data => {
-        console.log('Event added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('eventRemoved', data);
-      });
-      socket.on('businessHourUpdated', data => {
-        console.log('Event updated:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('businessHourUpdated', data);
-      });
-      socket.on('businessHourAdded', data => {
-        console.log('Business added:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('businessHourAdded', data);
-      });
-      socket.on('businessHourLoaded', data => {
-        console.log('Business loaded:', data);
-        // Emitir el evento a todos los clientes conectados
-        this.io.emit('businessHourLoaded', data);
+      socket.on('saveAppointment', event => {
+        console.log('Evento agregado:', event);
+        // Aquí podrías guardar el evento en la base de datos
+        socket.broadcast.emit('savedAppointment', event); // Emitir a todos los clientes
       });
 
-      console.log('New client connected');
+      socket.on('updateAppointment', event => {
+        console.log('Evento actualizado:', event);
+        // Aquí podrías actualizar el evento en la base de datos
+        socket.broadcast.emit('updatedAppointment', event); // Emitir a todos los clientes
+      });
+
+      // socket.on('eventDeleted', event => {
+      //   console.log('Evento eliminado:', event);
+      //   // Aquí podrías eliminar el evento de la base de datos
+      //   socket.broadcast.emit('eventDeleted', event); // Emitir a todos los clientes
+      // });
+
+      // socket.on('businessHourAdded', businessHour => {
+      //   console.log('Hora de negocio agregada:', businessHour);
+      //   // Aquí podrías guardar la hora de negocio en la base de datos
+      //   socket.broadcast.emit('businessHourAdded', businessHour); // Emitir a todos los clientes
+      // });
+
+      // socket.on('businessHourUpdated', businessHour => {
+      //   console.log('Hora de negocio actualizada:', businessHour);
+      //   // Aquí podrías actualizar la hora de negocio en la base de datos
+      //   socket.broadcast.emit('businessHourUpdated', businessHour); // Emitir a todos los clientes
+      // });
+
       socket.on('disconnect', () => {
-        console.log('Client disconnected');
+        console.log('Cliente desconectado');
       });
     });
   }
