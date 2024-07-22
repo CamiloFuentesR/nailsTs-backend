@@ -62,7 +62,7 @@ const getAllAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const appointment = yield appointment_1.default.findAll({
             where: {
                 state: {
-                    [sequelize_1.Op.ne]: -1, // Utiliza Op.ne (not equal) para filtrar los estados diferentes a -1
+                    [sequelize_1.Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
                 },
             },
         });

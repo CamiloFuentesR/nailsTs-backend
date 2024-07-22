@@ -27,7 +27,6 @@ exports.getBusinessHourById = exports.updateBusinessHour = exports.getAllBusines
 const businessHour_1 = __importDefault(require("../models/businessHour"));
 const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { id } = _a, businessHourData = __rest(_a, ["id"]);
-    console.log(req.body);
     try {
         const existingBusinessHour = yield businessHour_1.default.findByPk(id);
         console.log(existingBusinessHour);

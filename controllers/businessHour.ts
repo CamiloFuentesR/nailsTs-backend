@@ -6,7 +6,6 @@ export const createBusinessHour: RequestHandler = async (
   res: Response,
 ) => {
   const { id, ...businessHourData } = req.body;
-  console.log(req.body);
 
   try {
     const existingBusinessHour = await BusinessHour.findByPk(id);

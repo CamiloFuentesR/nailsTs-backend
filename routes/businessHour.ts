@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.post('/', validateJWT, createBusinessHour);
-router.put('/', validateJWT, updateBusinessHour);
+router.put('/:id', validateJWT, updateBusinessHour);
 router.get('/', validateJWT, getAllBusinessHours);
 router.get('/:id', validateJWT, getBusinessHourById);
 // router.get('/', validateJWT, getAllBusinessHours);

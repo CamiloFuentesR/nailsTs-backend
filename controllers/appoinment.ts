@@ -47,7 +47,7 @@ export const getAllAppointment: RequestHandler = async (
     const appointment = await Appointment.findAll({
       where: {
         state: {
-          [Op.ne]: -1, // Utiliza Op.ne (not equal) para filtrar los estados diferentes a -1
+          [Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
         },
       },
     });
