@@ -19,16 +19,13 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getBusinessHourById = exports.updateBusinessHour = exports.getAllBusinessHours = exports.createBusinessHour = void 0;
-const businessHour_1 = __importDefault(require("../models/businessHour"));
+const models_1 = require("../models");
 const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { id } = _a, businessHourData = __rest(_a, ["id"]);
     try {
-        const existingBusinessHour = yield businessHour_1.default.findByPk(id);
+        const existingBusinessHour = yield models_1.BusinessHour.findByPk(id);
         console.log(existingBusinessHour);
         if (existingBusinessHour) {
             return res.status(500).json({
@@ -36,7 +33,7 @@ const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, funct
                 msg: 'Error al crear el horario, datos duplicados',
             });
         }
-        const businessHour = yield businessHour_1.default.create(Object.assign({ id }, businessHourData));
+        const businessHour = yield models_1.BusinessHour.create(Object.assign({ id }, businessHourData));
         res.status(201).json({
             ok: true,
             msg: 'Horario creado con éxito',
@@ -54,7 +51,7 @@ const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, funct
 exports.createBusinessHour = createBusinessHour;
 const getAllBusinessHours = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const businessHours = yield businessHour_1.default.findAll();
+        const businessHours = yield models_1.BusinessHour.findAll();
         if (businessHours) {
             res.status(200).json({
                 ok: true,
@@ -77,7 +74,7 @@ const updateBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, funct
     const { id } = req.params;
     const { body } = req;
     try {
-        const [updatedRowsCount, updatedBusinessHours] = yield businessHour_1.default.update(body, {
+        const [updatedRowsCount, updatedBusinessHours] = yield models_1.BusinessHour.update(body, {
             where: { id },
             returning: true,
         });
@@ -107,7 +104,7 @@ exports.updateBusinessHour = updateBusinessHour;
 const getBusinessHourById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const businessHour = yield businessHour_1.default.findByPk(id);
+        const businessHour = yield models_1.BusinessHour.findByPk(id);
         if (!businessHour) {
             return res.status(409).json({
                 ok: false,

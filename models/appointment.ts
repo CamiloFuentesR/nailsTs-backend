@@ -1,7 +1,5 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
-import Service from './service';
-import ServicesCategory from './servicesCategory';
 import { UUIDVersion } from 'express-validator/lib/options';
 
 export interface AppointmentProps {
@@ -12,9 +10,6 @@ export interface AppointmentProps {
   client_id: UUIDVersion;
   backgroundColor: string;
   className: string;
-  service_id: number;
-  category_id: number;
-  service_type: string;
   state: number;
   title: string;
 }
@@ -30,11 +25,11 @@ const Appointment = db.define<AppointmentInstance>('Appointments', {
   id: {
     type: DataTypes.UUID,
     primaryKey: true,
-    autoIncrement: true,
+    defaultValue: DataTypes.UUIDV4,
   },
   client_id: {
     type: DataTypes.UUID,
-    allowNull: false,
+    allowNull: true,
   },
   start: {
     type: DataTypes.DATE,
@@ -48,18 +43,12 @@ const Appointment = db.define<AppointmentInstance>('Appointments', {
     type: DataTypes.FLOAT,
     allowNull: true,
   },
-  // time: {
-  //   type: DataTypes.DATE,
-  //   allowNull: false,
-  // },
+
   title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  service_type: {
     type: DataTypes.STRING,
     allowNull: true,
   },
+
   backgroundColor: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -70,23 +59,7 @@ const Appointment = db.define<AppointmentInstance>('Appointments', {
   },
   state: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  service_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: Service,
-      key: 'id',
-    },
-  },
-  category_id: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: ServicesCategory,
-      key: 'id',
-    },
+    allowNull: true,
   },
 });
 

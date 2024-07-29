@@ -85,7 +85,7 @@ const getServicesById = (req, res) => __awaiter(void 0, void 0, void 0, function
 });
 exports.getServicesById = getServicesById;
 const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { name, price, services_category_id } = req.body;
+    const { name, price, services_category_id, duration } = req.body;
     if (name === '') {
         return res.status(401).json({
             ok: false,
@@ -115,6 +115,7 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         const data = {
             name,
             price,
+            duration,
             services_category_id,
         };
         const service = yield models_1.Service.create(data);

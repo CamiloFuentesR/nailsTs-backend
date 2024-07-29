@@ -5,10 +5,10 @@ import cors from 'cors';
 import db from '../db/conection';
 import { errorHandler } from '../middleware/errorHandler';
 import { injectSpeedInsights } from '@vercel/speed-insights';
-import path from 'path';
 import {
   appointmentRoutes,
   appointmentStateRoutes,
+  appointmentServiceRoute,
   authRoutes,
   businessHourRoutes,
   clientRoutes,
@@ -16,6 +16,8 @@ import {
   services,
   servicesCategory,
   userRoutes,
+  servicesCategorySecondaryRoutes,
+  servicesSecondaryRoutes,
 } from '../routes';
 
 injectSpeedInsights();
@@ -35,6 +37,9 @@ class Server {
     appointment: '/api/appointment',
     appointmentState: '/api/appointmentState',
     businessHour: '/api/businessHour',
+    categorySecondary: '/api/categorySecondary',
+    serviceSecondary: '/api/serviceSecondary',
+    appointmentServoce: '/api/appointmentService',
   };
 
   constructor() {
@@ -88,6 +93,12 @@ class Server {
     this.app.use(this.apiPaths.appointment, appointmentRoutes);
     this.app.use(this.apiPaths.appointmentState, appointmentStateRoutes);
     this.app.use(this.apiPaths.businessHour, businessHourRoutes);
+    this.app.use(
+      this.apiPaths.categorySecondary,
+      servicesCategorySecondaryRoutes,
+    );
+    this.app.use(this.apiPaths.serviceSecondary, servicesSecondaryRoutes);
+    this.app.use(this.apiPaths.appointmentServoce, appointmentServiceRoute);
   }
   private sockets(): void {
     this.io.on('connection', socket => {

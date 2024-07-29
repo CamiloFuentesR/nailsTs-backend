@@ -5,17 +5,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const conection_1 = __importDefault(require("../db/conection"));
-const service_1 = __importDefault(require("./service"));
-const servicesCategory_1 = __importDefault(require("./servicesCategory"));
 const Appointment = conection_1.default.define('Appointments', {
     id: {
         type: sequelize_1.DataTypes.UUID,
         primaryKey: true,
-        autoIncrement: true,
+        defaultValue: sequelize_1.DataTypes.UUIDV4,
     },
     client_id: {
         type: sequelize_1.DataTypes.UUID,
-        allowNull: false,
+        allowNull: true,
     },
     start: {
         type: sequelize_1.DataTypes.DATE,
@@ -29,15 +27,7 @@ const Appointment = conection_1.default.define('Appointments', {
         type: sequelize_1.DataTypes.FLOAT,
         allowNull: true,
     },
-    // time: {
-    //   type: DataTypes.DATE,
-    //   allowNull: false,
-    // },
     title: {
-        type: sequelize_1.DataTypes.STRING,
-        allowNull: false,
-    },
-    service_type: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
@@ -51,23 +41,7 @@ const Appointment = conection_1.default.define('Appointments', {
     },
     state: {
         type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false,
-    },
-    service_id: {
-        type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: service_1.default,
-            key: 'id',
-        },
-    },
-    category_id: {
-        type: sequelize_1.DataTypes.INTEGER,
-        allowNull: false,
-        references: {
-            model: servicesCategory_1.default,
-            key: 'id',
-        },
+        allowNull: true,
     },
 });
 exports.default = Appointment;

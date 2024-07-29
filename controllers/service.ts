@@ -79,7 +79,7 @@ export const getServicesById: RequestHandler = async (
 };
 
 export const createService = async (req: Request, res: Response) => {
-  const { name, price, services_category_id } = req.body;
+  const { name, price, services_category_id, duration } = req.body;
 
   if (name === '') {
     return res.status(401).json({
@@ -109,6 +109,7 @@ export const createService = async (req: Request, res: Response) => {
     const data = {
       name,
       price,
+      duration,
       services_category_id,
     };
     const service = await Service.create(data);

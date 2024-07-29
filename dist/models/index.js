@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.businessHour = exports.User = exports.ServicesCategory = exports.Service = exports.Role = exports.Server = exports.Client = exports.Appointment = void 0;
+exports.ServicesSecondary = exports.ServicesCategorySecondary = exports.AppointmentService = exports.BusinessHour = exports.User = exports.ServicesCategory = exports.Service = exports.Role = exports.Server = exports.Client = exports.Appointment = void 0;
 const appointment_1 = __importDefault(require("./appointment"));
 exports.Appointment = appointment_1.default;
 const client_1 = __importDefault(require("./client"));
@@ -19,6 +19,12 @@ exports.User = user_1.default;
 const servicesCategory_1 = __importDefault(require("./servicesCategory"));
 exports.ServicesCategory = servicesCategory_1.default;
 const businessHour_1 = __importDefault(require("./businessHour"));
-exports.businessHour = businessHour_1.default;
+exports.BusinessHour = businessHour_1.default;
+const AppointmentService_1 = __importDefault(require("./AppointmentService"));
+exports.AppointmentService = AppointmentService_1.default;
+const serviceCategorySecondary_1 = __importDefault(require("./serviceCategorySecondary"));
+exports.ServicesCategorySecondary = serviceCategorySecondary_1.default;
+const serviceSecondary_1 = __importDefault(require("./serviceSecondary"));
+exports.ServicesSecondary = serviceSecondary_1.default;
 require("./initAssociations");
 //# sourceMappingURL=index.js.map

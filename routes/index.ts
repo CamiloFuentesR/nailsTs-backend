@@ -7,10 +7,14 @@ import roleRoutes from '../routes/roles';
 import servicesCategory from '../routes/services_category';
 import services from '../routes/services';
 import userRoutes from '../routes/user';
+import servicesCategorySecondaryRoutes from '../routes/serviceCategorySecondary';
+import servicesSecondaryRoutes from '../routes/servicesSecondaries';
+import appointmentServiceRoute from '../routes/appointmentService';
 
 export {
   appointmentRoutes,
   appointmentStateRoutes,
+  appointmentServiceRoute,
   authRoutes,
   businessHourRoutes,
   clientRoutes,
@@ -18,4 +22,6 @@ export {
   services,
   servicesCategory,
   userRoutes,
+  servicesCategorySecondaryRoutes,
+  servicesSecondaryRoutes,
 };

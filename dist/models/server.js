@@ -33,6 +33,9 @@ class Server {
             appointment: '/api/appointment',
             appointmentState: '/api/appointmentState',
             businessHour: '/api/businessHour',
+            categorySecondary: '/api/categorySecondary',
+            serviceSecondary: '/api/serviceSecondary',
+            appointmentServoce: '/api/appointmentService',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -41,8 +44,8 @@ class Server {
         // Inicializar Socket.io con el servidor HTTP
         this.io = new socket_io_1.Server(this.server, {
             cors: {
-                // origin: 'https://mozzafiato-manicure.netlify.app',
-                origin: 'http://localhost:3000',
+                origin: 'https://mozzafiato-manicure.netlify.app',
+                // origin: 'http://localhost:3000',
                 methods: ['GET', 'POST', 'PUT'],
             },
         });
@@ -80,6 +83,9 @@ class Server {
         this.app.use(this.apiPaths.appointment, routes_1.appointmentRoutes);
         this.app.use(this.apiPaths.appointmentState, routes_1.appointmentStateRoutes);
         this.app.use(this.apiPaths.businessHour, routes_1.businessHourRoutes);
+        this.app.use(this.apiPaths.categorySecondary, routes_1.servicesCategorySecondaryRoutes);
+        this.app.use(this.apiPaths.serviceSecondary, routes_1.servicesSecondaryRoutes);
+        this.app.use(this.apiPaths.appointmentServoce, routes_1.appointmentServiceRoute);
     }
     sockets() {
         this.io.on('connection', socket => {

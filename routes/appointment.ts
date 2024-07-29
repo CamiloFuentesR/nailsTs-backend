@@ -20,9 +20,9 @@ router.post(
   '/',
   [
     validateJWT,
-    check('service_id').custom(serviceByIdExist),
-    check('category_id').custom(categoryByIdExist),
-    check('client_id').custom(clientByIdExist),
+    // check('service_id').custom(serviceByIdExist),
+    // check('category_id').custom(categoryByIdExist),
+    // check('client_id').custom(clientByIdExist),
     validateFields,
   ],
   createAppointment,

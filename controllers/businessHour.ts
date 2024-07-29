@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response } from 'express';
-import BusinessHour from '../models/businessHour';
+import { BusinessHour } from '../models';
 
 export const createBusinessHour: RequestHandler = async (
   req: Request,
