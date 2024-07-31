@@ -77,6 +77,7 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             // parafinoterapy: appointmentData.parafinoterapy,
             // retiro: appointmentData.retiro,
         }, { transaction });
+        console.log(servicesData);
         // Prepara los datos de servicios relacionados con la cita
         const appointmentServices = servicesData.map((service) => ({
             appointment_id: appointment.id,

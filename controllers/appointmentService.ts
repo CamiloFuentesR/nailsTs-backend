@@ -58,7 +58,6 @@ export const getAppointmentServiceById: RequestHandler = async (
   try {
     const { id } = req.params;
     const appointment = await AppointmentService.findAll({
-      attributes: ['appointment_id'],
       where: {
         appointment_id: id,
       },
@@ -71,6 +70,13 @@ export const getAppointmentServiceById: RequestHandler = async (
             'services_category_id',
             'price',
             'duration',
+          ],
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: ['name'],
+            },
           ],
         },
       ],

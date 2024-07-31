@@ -17,9 +17,12 @@ user_1.default.hasOne(client_1.default, { foreignKey: 'user_id' });
 client_1.default.hasOne(user_1.default, { foreignKey: 'id' });
 client_1.default.belongsTo(user_1.default, { foreignKey: 'user_id' });
 service_1.default.belongsTo(servicesCategory_1.default, { foreignKey: 'id' });
+service_1.default.belongsTo(servicesCategory_1.default, {
+    foreignKey: 'services_category_id',
+    as: 'category',
+});
 _1.ServicesSecondary.belongsTo(serviceCategorySecondary_1.default, { foreignKey: 'id' });
 client_1.default.hasMany(appointment_1.default, { foreignKey: 'client_id' });
 appointment_1.default.belongsTo(appointmentState_1.default, { foreignKey: 'state' });
 _1.AppointmentService.belongsTo(service_1.default, { foreignKey: 'service_id' });
-// AppointmentService.belongsTo(ServicesCategory, { foreignKey: 'id' });
 //# sourceMappingURL=initAssociations.js.map

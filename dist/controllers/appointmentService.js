@@ -69,7 +69,6 @@ const getAppointmentServiceById = (req, res) => __awaiter(void 0, void 0, void 0
     try {
         const { id } = req.params;
         const appointment = yield models_1.AppointmentService.findAll({
-            attributes: ['appointment_id'],
             where: {
                 appointment_id: id,
             },
@@ -82,6 +81,13 @@ const getAppointmentServiceById = (req, res) => __awaiter(void 0, void 0, void 0
                         'services_category_id',
                         'price',
                         'duration',
+                    ],
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: ['name'],
+                        },
                     ],
                 },
             ],

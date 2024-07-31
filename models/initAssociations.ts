@@ -13,8 +13,11 @@ User.hasOne(Client, { foreignKey: 'user_id' });
 Client.hasOne(User, { foreignKey: 'id' });
 Client.belongsTo(User, { foreignKey: 'user_id' });
 Service.belongsTo(ServicesCategory, { foreignKey: 'id' });
+Service.belongsTo(ServicesCategory, {
+  foreignKey: 'services_category_id',
+  as: 'category',
+});
 ServicesSecondary.belongsTo(ServicesCategorySecondary, { foreignKey: 'id' });
 Client.hasMany(Appointment, { foreignKey: 'client_id' });
 Appointment.belongsTo(AppointmentSate, { foreignKey: 'state' });
 AppointmentService.belongsTo(Service, { foreignKey: 'service_id' });
-// AppointmentService.belongsTo(ServicesCategory, { foreignKey: 'id' });

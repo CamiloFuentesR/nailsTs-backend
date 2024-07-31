@@ -76,7 +76,7 @@ export const createAppointment: RequestHandler = async (
       },
       { transaction },
     );
-
+    console.log(servicesData);
     // Prepara los datos de servicios relacionados con la cita
     const appointmentServices = servicesData.map((service: any) => ({
       appointment_id: appointment.id,
