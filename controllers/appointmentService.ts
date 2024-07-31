@@ -50,7 +50,6 @@ export const getAppointmentService = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
-
 export const getAppointmentServiceById: RequestHandler = async (
   req: Request,
   res: Response,
