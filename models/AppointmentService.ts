@@ -17,7 +17,9 @@ interface AppointmentServiceCreationAttributes
 
 export interface AppointmentServiceInstance
   extends Model<AppointmentServiceProps, AppointmentServiceCreationAttributes>,
-    AppointmentServiceProps {}
+    AppointmentServiceProps {
+  Service: any;
+}
 
 const AppointmentService = db.define<AppointmentServiceInstance>(
   'appointment_services',

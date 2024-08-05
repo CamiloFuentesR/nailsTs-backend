@@ -38,9 +38,29 @@ export const createAppointmentService: RequestHandler = async (
 
 export const getAppointmentService = async (req: Request, res: Response) => {
   try {
-    const appointmentService = await AppointmentService.findAll();
+    const appointmentService = await AppointmentService.findAll({
+      include: [
+        {
+          model: Service,
+          attributes: [
+            'id',
+            'name',
+            'services_category_id',
+            'price',
+            'duration',
+          ],
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: ['name'],
+            },
+          ],
+        },
+      ],
+    });
     if (appointmentService.length > 0) {
-      return res.status(200).json({ ok: true, msg: appointmentService });
+      return res.status(200).json({ ok: true, appointmentService });
     }
     return res.status(400).json({
       ok: false,
@@ -50,6 +70,67 @@ export const getAppointmentService = async (req: Request, res: Response) => {
     console.log(error);
   }
 };
+
+export const getAppointmentServiceReportByGroup = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    // Obtén todos los servicios de citas con las categorías
+    const appointmentServices = await AppointmentService.findAll({
+      include: [
+        {
+          model: Service,
+          attributes: [
+            'id',
+            'name',
+            'services_category_id',
+            'price',
+            'duration',
+          ],
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: ['name'],
+            },
+          ],
+        },
+      ],
+    });
+
+    // Agrupar por categoría y contar
+    const groupedData = appointmentServices.reduce((acc, appointment) => {
+      const categoryName = appointment.Service.category.name;
+      if (!acc[categoryName]) {
+        acc[categoryName] = { label: categoryName, value: 0 };
+      }
+      acc[categoryName].value += 1;
+      return acc;
+    }, {} as Record<string, { label: string; value: number }>);
+
+    // Convertir a array y ordenar por valor en orden descendente
+    const sortedData = Object.values(groupedData).sort(
+      (a, b) => b.value - a.value,
+    );
+
+    if (appointmentServices.length > 0) {
+      return res.status(200).json({ ok: true, serviceAppointment: sortedData });
+    }
+
+    return res.status(400).json({
+      ok: false,
+      msg: 'No se encontraron datos',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Error al obtener los datos',
+    });
+  }
+};
+
 export const getAppointmentServiceById: RequestHandler = async (
   req: Request,
   res: Response,

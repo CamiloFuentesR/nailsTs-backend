@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
 import Appointment from '../models/appointment';
 import { AppointmentService, Service, ServicesCategory } from '../models';
-import { Op, where } from 'sequelize';
+import { Op, fn, col } from 'sequelize';
 import db from '../db/conection';
 import { AppointmentServiceInstance } from '../models/AppointmentService';
 
@@ -138,6 +138,71 @@ export const getAllAppointment: RequestHandler = async (
   }
 };
 
+const monthNames = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+];
+
+export const getAppointmentByMonth: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    // Realiza la consulta para contar citas por mes
+    const citasPorMes = await Appointment.findAll({
+      attributes: [
+        [fn('DATE_TRUNC', 'month', col('start')), 'mes'], // Agrupa por mes usando la columna 'start'
+        [fn('COUNT', col('id')), 'totalCitas'], // Cuenta el número de citas
+      ],
+      where: {
+        state: {
+          [Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
+        },
+      },
+      group: ['mes'], // Agrupa por mes
+      order: [['mes', 'ASC']], // Ordena por mes en orden ascendente
+    });
+
+    // Mapear los resultados para incluir los nombres de meses en español
+    const resultados = citasPorMes.map((registro: any) => {
+      const mesIndex = new Date(registro.get('mes')).getMonth(); // Obtener el índice del mes
+      return {
+        month: monthNames[mesIndex], // Obtener el nombre del mes en español
+        totalAppointment: Number(registro.get('totalCitas')),
+      };
+    });
+
+    if (resultados.length > 0) {
+      res.status(200).json({
+        ok: true,
+        msg: 'Se obtuvieron las citas por mes con éxito',
+        appointmentByMonth: resultados,
+      });
+    } else {
+      res.status(404).json({
+        ok: false,
+        msg: 'No se encontraron citas',
+      });
+    }
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'No se pudieron cargar los datos',
+      details: error.message,
+    });
+  }
+};
 // export const updateAppointment: RequestHandler = async (
 //   req: Request,
 //   res: Response,

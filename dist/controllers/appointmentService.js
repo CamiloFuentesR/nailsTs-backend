@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentServiceById = exports.getAppointmentService = exports.createAppointmentService = void 0;
+exports.getAppointmentServiceById = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
 const models_1 = require("../models");
 const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -51,9 +51,29 @@ const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0,
 exports.createAppointmentService = createAppointmentService;
 const getAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const appointmentService = yield models_1.AppointmentService.findAll();
+        const appointmentService = yield models_1.AppointmentService.findAll({
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [
+                        'id',
+                        'name',
+                        'services_category_id',
+                        'price',
+                        'duration',
+                    ],
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: ['name'],
+                        },
+                    ],
+                },
+            ],
+        });
         if (appointmentService.length > 0) {
-            return res.status(200).json({ ok: true, msg: appointmentService });
+            return res.status(200).json({ ok: true, appointmentService });
         }
         return res.status(400).json({
             ok: false,
@@ -65,6 +85,58 @@ const getAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getAppointmentService = getAppointmentService;
+const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Obtén todos los servicios de citas con las categorías
+        const appointmentServices = yield models_1.AppointmentService.findAll({
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [
+                        'id',
+                        'name',
+                        'services_category_id',
+                        'price',
+                        'duration',
+                    ],
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: ['name'],
+                        },
+                    ],
+                },
+            ],
+        });
+        // Agrupar por categoría y contar
+        const groupedData = appointmentServices.reduce((acc, appointment) => {
+            const categoryName = appointment.Service.category.name;
+            if (!acc[categoryName]) {
+                acc[categoryName] = { label: categoryName, value: 0 };
+            }
+            acc[categoryName].value += 1;
+            return acc;
+        }, {});
+        // Convertir a array y ordenar por valor en orden descendente
+        const sortedData = Object.values(groupedData).sort((a, b) => b.value - a.value);
+        if (appointmentServices.length > 0) {
+            return res.status(200).json({ ok: true, serviceAppointment: sortedData });
+        }
+        return res.status(400).json({
+            ok: false,
+            msg: 'No se encontraron datos',
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al obtener los datos',
+        });
+    }
+});
+exports.getAppointmentServiceReportByGroup = getAppointmentServiceReportByGroup;
 const getAppointmentServiceById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;

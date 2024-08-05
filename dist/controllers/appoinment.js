@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentById = exports.updateAppointmentState = exports.updateAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
+exports.getAppointmentById = exports.updateAppointmentState = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAllAppointment = exports.createAppointment = void 0;
 const appointment_1 = __importDefault(require("../models/appointment"));
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
@@ -134,6 +134,68 @@ const getAllAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.getAllAppointment = getAllAppointment;
+const monthNames = [
+    'Ene',
+    'Feb',
+    'Mar',
+    'Abr',
+    'May',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dic',
+];
+const getAppointmentByMonth = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        // Realiza la consulta para contar citas por mes
+        const citasPorMes = yield appointment_1.default.findAll({
+            attributes: [
+                [(0, sequelize_1.fn)('DATE_TRUNC', 'month', (0, sequelize_1.col)('start')), 'mes'], // Agrupa por mes usando la columna 'start'
+                [(0, sequelize_1.fn)('COUNT', (0, sequelize_1.col)('id')), 'totalCitas'], // Cuenta el número de citas
+            ],
+            where: {
+                state: {
+                    [sequelize_1.Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
+                },
+            },
+            group: ['mes'], // Agrupa por mes
+            order: [['mes', 'ASC']], // Ordena por mes en orden ascendente
+        });
+        // Mapear los resultados para incluir los nombres de meses en español
+        const resultados = citasPorMes.map((registro) => {
+            const mesIndex = new Date(registro.get('mes')).getMonth(); // Obtener el índice del mes
+            return {
+                month: monthNames[mesIndex], // Obtener el nombre del mes en español
+                totalAppointment: Number(registro.get('totalCitas')),
+            };
+        });
+        if (resultados.length > 0) {
+            res.status(200).json({
+                ok: true,
+                msg: 'Se obtuvieron las citas por mes con éxito',
+                appointmentByMonth: resultados,
+            });
+        }
+        else {
+            res.status(404).json({
+                ok: false,
+                msg: 'No se encontraron citas',
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'No se pudieron cargar los datos',
+            details: error.message,
+        });
+    }
+});
+exports.getAppointmentByMonth = getAppointmentByMonth;
 // export const updateAppointment: RequestHandler = async (
 //   req: Request,
 //   res: Response,

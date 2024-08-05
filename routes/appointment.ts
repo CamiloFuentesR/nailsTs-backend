@@ -4,6 +4,7 @@ import {
   createAppointment,
   getAllAppointment,
   getAppointmentById,
+  getAppointmentByMonth,
   updateAppointment,
   updateAppointmentState,
 } from '../controllers/appoinment';
@@ -29,6 +30,7 @@ router.post(
 );
 
 router.get('/', validateJWT, getAllAppointment);
+router.get('/reportByMonth', validateJWT, getAppointmentByMonth);
 router.get('/:id', validateJWT, getAppointmentById);
 router.put('/:id', validateJWT, updateAppointment);
 router.delete('/:id', validateJWT, updateAppointmentState);
