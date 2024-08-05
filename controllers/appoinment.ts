@@ -138,6 +138,60 @@ export const getAllAppointment: RequestHandler = async (
   }
 };
 
+export const getAcceptedAppointment: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const currentDate = new Date();
+
+    const [totalAppointments, approvedAppointments, notApprovedAppointments] =
+      await Promise.all([
+        Appointment.count({
+          where: {
+            start: {
+              [Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
+            },
+            state: {
+              [Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
+            },
+          },
+        }),
+        Appointment.count({
+          where: {
+            start: {
+              [Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
+            },
+            state: 2, // Filtra las citas aprobadas
+          },
+        }),
+        Appointment.count({
+          where: {
+            start: {
+              [Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
+            },
+            state: 1, // Filtra las citas no aprobadas
+          },
+        }),
+      ]);
+
+    res.status(200).json({
+      ok: true,
+      msg: 'Se obtuvieron las citas con éxito',
+      totalAppointments,
+      approvedAppointments,
+      notApprovedAppointments,
+    });
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'No se pudieron cargar datos',
+      details: error.message,
+    });
+  }
+};
+
 const monthNames = [
   'Ene',
   'Feb',

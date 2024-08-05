@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentById = exports.updateAppointmentState = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAllAppointment = exports.createAppointment = void 0;
+exports.getAppointmentById = exports.updateAppointmentState = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAcceptedAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
 const appointment_1 = __importDefault(require("../models/appointment"));
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
@@ -134,6 +134,55 @@ const getAllAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.getAllAppointment = getAllAppointment;
+const getAcceptedAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const currentDate = new Date();
+        const [totalAppointments, approvedAppointments, notApprovedAppointments] = yield Promise.all([
+            appointment_1.default.count({
+                where: {
+                    start: {
+                        [sequelize_1.Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
+                    },
+                    state: {
+                        [sequelize_1.Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
+                    },
+                },
+            }),
+            appointment_1.default.count({
+                where: {
+                    start: {
+                        [sequelize_1.Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
+                    },
+                    state: 2, // Filtra las citas aprobadas
+                },
+            }),
+            appointment_1.default.count({
+                where: {
+                    start: {
+                        [sequelize_1.Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
+                    },
+                    state: 1, // Filtra las citas no aprobadas
+                },
+            }),
+        ]);
+        res.status(200).json({
+            ok: true,
+            msg: 'Se obtuvieron las citas con éxito',
+            totalAppointments,
+            approvedAppointments,
+            notApprovedAppointments,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'No se pudieron cargar datos',
+            details: error.message,
+        });
+    }
+});
+exports.getAcceptedAppointment = getAcceptedAppointment;
 const monthNames = [
     'Ene',
     'Feb',

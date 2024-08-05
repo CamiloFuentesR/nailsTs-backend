@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { validateFields, validateJWT } from '../middleware';
 import {
   createAppointment,
+  getAcceptedAppointment,
   getAllAppointment,
   getAppointmentById,
   getAppointmentByMonth,
@@ -31,6 +32,7 @@ router.post(
 
 router.get('/', validateJWT, getAllAppointment);
 router.get('/reportByMonth', validateJWT, getAppointmentByMonth);
+router.get('/reportAccept', validateJWT, getAcceptedAppointment);
 router.get('/:id', validateJWT, getAppointmentById);
 router.put('/:id', validateJWT, updateAppointment);
 router.delete('/:id', validateJWT, updateAppointmentState);

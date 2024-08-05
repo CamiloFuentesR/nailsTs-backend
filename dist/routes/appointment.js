@@ -13,6 +13,7 @@ router.post('/', [
 ], appoinment_1.createAppointment);
 router.get('/', middleware_1.validateJWT, appoinment_1.getAllAppointment);
 router.get('/reportByMonth', middleware_1.validateJWT, appoinment_1.getAppointmentByMonth);
+router.get('/reportAccept', middleware_1.validateJWT, appoinment_1.getAcceptedAppointment);
 router.get('/:id', middleware_1.validateJWT, appoinment_1.getAppointmentById);
 router.put('/:id', middleware_1.validateJWT, appoinment_1.updateAppointment);
 router.delete('/:id', middleware_1.validateJWT, appoinment_1.updateAppointmentState);
