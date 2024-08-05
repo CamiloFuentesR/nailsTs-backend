@@ -1,7 +1,11 @@
 import { Request, RequestHandler, Response } from 'express';
-import { AppointmentService, Service, ServicesCategory } from '../models';
+import {
+  Appointment,
+  AppointmentService,
+  Service,
+  ServicesCategory,
+} from '../models';
 import { AppointmentServiceInstance } from '../models/AppointmentService';
-import { where } from 'sequelize';
 
 export const createAppointmentService: RequestHandler = async (
   req: Request,
@@ -76,7 +80,7 @@ export const getAppointmentServiceReportByGroup = async (
   res: Response,
 ) => {
   try {
-    // Obtén todos los servicios de citas con las categorías
+    // Obtén todos los servicios de citas con las categorías y el estado de la cita
     const appointmentServices = await AppointmentService.findAll({
       include: [
         {
@@ -96,18 +100,28 @@ export const getAppointmentServiceReportByGroup = async (
             },
           ],
         },
+        {
+          model: Appointment,
+          attributes: [],
+          where: {
+            state: 3, // Filtra solo las citas con estado 3
+          },
+        },
       ],
     });
 
     // Agrupar por categoría y contar
-    const groupedData = appointmentServices.reduce((acc, appointment) => {
-      const categoryName = appointment.Service.category.name;
-      if (!acc[categoryName]) {
-        acc[categoryName] = { label: categoryName, value: 0 };
-      }
-      acc[categoryName].value += 1;
-      return acc;
-    }, {} as Record<string, { label: string; value: number }>);
+    const groupedData = appointmentServices.reduce(
+      (acc, appointmentService) => {
+        const categoryName = appointmentService.Service.category.name;
+        if (!acc[categoryName]) {
+          acc[categoryName] = { label: categoryName, value: 0 };
+        }
+        acc[categoryName].value += 1;
+        return acc;
+      },
+      {} as Record<string, { label: string; value: number }>,
+    );
 
     // Convertir a array y ordenar por valor en orden descendente
     const sortedData = Object.values(groupedData).sort(

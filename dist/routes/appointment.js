@@ -16,6 +16,6 @@ router.get('/reportByMonth', middleware_1.validateJWT, appoinment_1.getAppointme
 router.get('/reportAccept', middleware_1.validateJWT, appoinment_1.getAcceptedAppointment);
 router.get('/:id', middleware_1.validateJWT, appoinment_1.getAppointmentById);
 router.put('/:id', middleware_1.validateJWT, appoinment_1.updateAppointment);
-router.delete('/:id', middleware_1.validateJWT, appoinment_1.updateAppointmentState);
+router.delete('/:id', middleware_1.validateJWT, appoinment_1.deleteAppointment);
 exports.default = router;
 //# sourceMappingURL=appointment.js.map

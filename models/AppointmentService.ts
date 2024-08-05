@@ -8,7 +8,7 @@ export interface AppointmentServiceProps {
   id: UUIDVersion;
   appointment_id: UUIDVersion;
   service_id: number;
-  state: boolean;
+  state: number;
   price: number;
 }
 

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentById = exports.updateAppointmentState = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAcceptedAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
+exports.getAppointmentById = exports.updateAppointmentState = exports.deleteAppointment = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAcceptedAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
 const appointment_1 = __importDefault(require("../models/appointment"));
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
@@ -74,10 +74,7 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             state: appointmentData.state,
             price: appointmentData.price,
             className: appointmentData.className,
-            // parafinoterapy: appointmentData.parafinoterapy,
-            // retiro: appointmentData.retiro,
         }, { transaction });
-        console.log(servicesData);
         // Prepara los datos de servicios relacionados con la cita
         const appointmentServices = servicesData.map((service) => ({
             appointment_id: appointment.id,
@@ -112,7 +109,7 @@ const getAllAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const appointment = yield appointment_1.default.findAll({
             where: {
                 state: {
-                    [sequelize_1.Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
+                    [sequelize_1.Op.notIn]: [-1, 4],
                 },
             },
         });
@@ -338,6 +335,50 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateAppointment = updateAppointment;
+const deleteAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    console.log('id');
+    console.log(req.params);
+    // Inicia una transacción
+    const transaction = yield conection_1.default.transaction();
+    try {
+        const appointment = yield appointment_1.default.findOne({
+            where: { id: id },
+        });
+        if (!appointment) {
+            yield transaction.rollback();
+            return res.status(404).json({
+                ok: false,
+                msg: 'Cita no encontrada',
+            });
+        }
+        // Actualiza el estado de la cita a -1
+        yield appointment.update({ state: -1 }, { transaction });
+        // Actualiza el estado de los servicios de la cita a -1
+        yield models_1.AppointmentService.update({ state: -1 }, {
+            where: { appointment_id: id },
+            transaction,
+        });
+        // Confirma la transacción
+        yield transaction.commit();
+        return res.status(200).json({
+            ok: true,
+            msg: 'Su cita ha sido cancelada con éxito.',
+            appointment,
+        });
+    }
+    catch (error) {
+        // Reversión de la transacción en caso de error
+        yield transaction.rollback();
+        console.log(error.message);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error al actualizar la cita y los servicios',
+            details: error.message,
+        });
+    }
+});
+exports.deleteAppointment = deleteAppointment;
 const updateAppointmentState = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     try {

@@ -87,7 +87,7 @@ const getAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.getAppointmentService = getAppointmentService;
 const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // Obtén todos los servicios de citas con las categorías
+        // Obtén todos los servicios de citas con las categorías y el estado de la cita
         const appointmentServices = yield models_1.AppointmentService.findAll({
             include: [
                 {
@@ -107,11 +107,18 @@ const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 
                         },
                     ],
                 },
+                {
+                    model: models_1.Appointment,
+                    attributes: [],
+                    where: {
+                        state: 3, // Filtra solo las citas con estado 3
+                    },
+                },
             ],
         });
         // Agrupar por categoría y contar
-        const groupedData = appointmentServices.reduce((acc, appointment) => {
-            const categoryName = appointment.Service.category.name;
+        const groupedData = appointmentServices.reduce((acc, appointmentService) => {
+            const categoryName = appointmentService.Service.category.name;
             if (!acc[categoryName]) {
                 acc[categoryName] = { label: categoryName, value: 0 };
             }

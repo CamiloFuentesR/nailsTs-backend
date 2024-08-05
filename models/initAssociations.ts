@@ -21,3 +21,4 @@ ServicesSecondary.belongsTo(ServicesCategorySecondary, { foreignKey: 'id' });
 Client.hasMany(Appointment, { foreignKey: 'client_id' });
 Appointment.belongsTo(AppointmentSate, { foreignKey: 'state' });
 AppointmentService.belongsTo(Service, { foreignKey: 'service_id' });
+AppointmentService.belongsTo(Appointment, { foreignKey: 'appointment_id' });

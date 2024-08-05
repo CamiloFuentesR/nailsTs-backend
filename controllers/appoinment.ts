@@ -3,7 +3,6 @@ import Appointment from '../models/appointment';
 import { AppointmentService, Service, ServicesCategory } from '../models';
 import { Op, fn, col } from 'sequelize';
 import db from '../db/conection';
-import { AppointmentServiceInstance } from '../models/AppointmentService';
 
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
@@ -71,12 +70,9 @@ export const createAppointment: RequestHandler = async (
         state: appointmentData.state,
         price: appointmentData.price,
         className: appointmentData.className,
-        // parafinoterapy: appointmentData.parafinoterapy,
-        // retiro: appointmentData.retiro,
       },
       { transaction },
     );
-    console.log(servicesData);
     // Prepara los datos de servicios relacionados con la cita
     const appointmentServices = servicesData.map((service: any) => ({
       appointment_id: appointment.id,
@@ -116,7 +112,7 @@ export const getAllAppointment: RequestHandler = async (
     const appointment = await Appointment.findAll({
       where: {
         state: {
-          [Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
+          [Op.notIn]: [-1, 4],
         },
       },
     });
@@ -362,6 +358,62 @@ export const updateAppointment: RequestHandler = async (
     res.status(500).json({
       ok: false,
       msg: 'Error al actualizar la cita',
+      details: error.message,
+    });
+  }
+};
+
+export const deleteAppointment: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params;
+  console.log('id');
+  console.log(req.params);
+
+  // Inicia una transacción
+  const transaction = await db.transaction();
+
+  try {
+    const appointment = await Appointment.findOne({
+      where: { id: id },
+    });
+
+    if (!appointment) {
+      await transaction.rollback();
+      return res.status(404).json({
+        ok: false,
+        msg: 'Cita no encontrada',
+      });
+    }
+
+    // Actualiza el estado de la cita a -1
+    await appointment.update({ state: -1 }, { transaction });
+
+    // Actualiza el estado de los servicios de la cita a -1
+    await AppointmentService.update(
+      { state: -1 },
+      {
+        where: { appointment_id: id },
+        transaction,
+      },
+    );
+
+    // Confirma la transacción
+    await transaction.commit();
+
+    return res.status(200).json({
+      ok: true,
+      msg: 'Su cita ha sido cancelada con éxito.',
+      appointment,
+    });
+  } catch (error: any) {
+    // Reversión de la transacción en caso de error
+    await transaction.rollback();
+    console.log(error.message);
+    res.status(500).json({
+      ok: false,
+      msg: 'Error al actualizar la cita y los servicios',
       details: error.message,
     });
   }
