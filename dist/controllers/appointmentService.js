@@ -215,10 +215,11 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
                 },
                 {
                     model: models_1.Appointment,
-                    attributes: ['id', 'start', 'end', 'title', 'client_id'], // Ajustar según los atributos necesarios
+                    attributes: ['id', 'start', 'end', 'title', 'client_id'],
                     where: {
                         client_id: id,
                     },
+                    order: [['start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
                 },
             ],
         });
@@ -237,7 +238,10 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
             acc[appointmentId].services.push(Object.assign(Object.assign({}, curr.Service.dataValues), { price: curr.price, state: curr.state }));
             return acc;
         }, {});
-        const result = Object.values(groupedAppointments);
+        // Convertir objeto agrupado en array y ordenar por fecha de inicio de manera descendente
+        const result = Object.values(groupedAppointments).sort((a, b) => {
+            return new Date(b.start).getTime() - new Date(a.start).getTime();
+        });
         return res.status(200).json({
             ok: true,
             appointments: result,

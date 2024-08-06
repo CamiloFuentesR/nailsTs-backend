@@ -194,6 +194,7 @@ export const getAppointmentServiceByAppointment: RequestHandler = async (
     });
   }
 };
+
 export const getAppointmentServiceByClient: RequestHandler = async (
   req: Request,
   res: Response,
@@ -222,10 +223,11 @@ export const getAppointmentServiceByClient: RequestHandler = async (
         },
         {
           model: Appointment,
-          attributes: ['id', 'start', 'end', 'title', 'client_id'], // Ajustar según los atributos necesarios
+          attributes: ['id', 'start', 'end', 'title', 'client_id'],
           where: {
             client_id: id,
           },
+          order: [['start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
         },
       ],
     });
@@ -257,7 +259,10 @@ export const getAppointmentServiceByClient: RequestHandler = async (
       {},
     );
 
-    const result = Object.values(groupedAppointments);
+    // Convertir objeto agrupado en array y ordenar por fecha de inicio de manera descendente
+    const result = Object.values(groupedAppointments).sort((a: any, b: any) => {
+      return new Date(b.start).getTime() - new Date(a.start).getTime();
+    });
 
     return res.status(200).json({
       ok: true,
