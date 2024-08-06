@@ -337,8 +337,6 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
 exports.updateAppointment = updateAppointment;
 const deleteAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    console.log('id');
-    console.log(req.params);
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {

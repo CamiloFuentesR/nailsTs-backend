@@ -145,7 +145,7 @@ export const getAppointmentServiceReportByGroup = async (
   }
 };
 
-export const getAppointmentServiceById: RequestHandler = async (
+export const getAppointmentServiceByAppointment: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
@@ -185,6 +185,83 @@ export const getAppointmentServiceById: RequestHandler = async (
     return res.status(200).json({
       ok: true,
       appointment,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+export const getAppointmentServiceByClient: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+
+    const appointmentServices = await AppointmentService.findAll({
+      include: [
+        {
+          model: Service,
+          attributes: [
+            'id',
+            'name',
+            'services_category_id',
+            'price',
+            'duration',
+          ],
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: ['name'],
+            },
+          ],
+        },
+        {
+          model: Appointment,
+          attributes: ['id', 'start', 'end', 'title', 'client_id'], // Ajustar según los atributos necesarios
+          where: {
+            client_id: id,
+          },
+        },
+      ],
+    });
+
+    if (!appointmentServices || appointmentServices.length === 0) {
+      return res.status(409).json({
+        ok: false,
+        msg: 'No se encontraron citas para el cliente especificado',
+      });
+    }
+
+    // Agrupar por appointment_id
+    const groupedAppointments = appointmentServices.reduce(
+      (acc: any, curr: any) => {
+        const appointmentId = curr.appointment_id;
+        if (!acc[appointmentId]) {
+          acc[appointmentId] = {
+            ...curr.Appointment.dataValues,
+            services: [],
+          };
+        }
+        acc[appointmentId].services.push({
+          ...curr.Service.dataValues,
+          price: curr.price,
+          state: curr.state,
+        });
+        return acc;
+      },
+      {},
+    );
+
+    const result = Object.values(groupedAppointments);
+
+    return res.status(200).json({
+      ok: true,
+      appointments: result,
     });
   } catch (error: any) {
     console.log(error);

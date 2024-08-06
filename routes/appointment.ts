@@ -8,12 +8,12 @@ import {
   getAppointmentById,
   getAppointmentByMonth,
   updateAppointment,
-  updateAppointmentState,
 } from '../controllers/appoinment';
 import { check } from 'express-validator';
 import {
   categoryByIdExist,
   clientByIdExist,
+  isValidRole,
   serviceByIdExist,
 } from '../helpers/dbValidator';
 
@@ -23,9 +23,10 @@ router.post(
   '/',
   [
     validateJWT,
-    // check('service_id').custom(serviceByIdExist),
+    check('appointmentData.role').custom(isValidRole),
+    check('servicesData.*.service_id').custom(serviceByIdExist),
+    check('appointmentData.client_id').custom(clientByIdExist),
     // check('category_id').custom(categoryByIdExist),
-    // check('client_id').custom(clientByIdExist),
     validateFields,
   ],
   createAppointment,
@@ -35,7 +36,14 @@ router.get('/', validateJWT, getAllAppointment);
 router.get('/reportByMonth', validateJWT, getAppointmentByMonth);
 router.get('/reportAccept', validateJWT, getAcceptedAppointment);
 router.get('/:id', validateJWT, getAppointmentById);
-router.put('/:id', validateJWT, updateAppointment);
+router.put(
+  '/:id',
+  validateJWT,
+  check('servicesData.*.service_id').custom(serviceByIdExist),
+  check('appointmentData.client_id').custom(clientByIdExist),
+  validateFields,
+  updateAppointment,
+);
 router.delete('/:id', validateJWT, deleteAppointment);
 
 export default router;

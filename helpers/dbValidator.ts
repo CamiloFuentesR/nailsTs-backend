@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from 'express';
 import Role from '../models/role';
 import User from '../models/user';
 import { validate as isUUID } from 'uuid';
@@ -8,7 +7,8 @@ import { Service, ServicesCategory } from '../models';
 export const isValidRole = async (name = '') => {
   const roleExist = await Role.findOne({ where: { name } });
   if (!roleExist) {
-    throw new Error(`El rol ${name}, no existe en la BD`);
+    // throw new Error(`El rol ${name}, no existe en la BD`);
+    throw new Error(`No tienes permiso para ejecutar esta acción`);
   }
 };
 
@@ -20,7 +20,6 @@ export const emailExist = async (email = '') => {
 };
 
 export const userByIdExist = async (id = '') => {
-  // validUUID (id)
   const userByIdExist = await User.findByPk(id);
   if (!isUUID(id)) {
     throw new Error('ID de usuario no válido');
@@ -31,6 +30,7 @@ export const userByIdExist = async (id = '') => {
 };
 
 export const clientByIdExist = async (id = '') => {
+  console.log('clientByIdExist:', id);
   if (!id) {
     throw new Error('ID de cliente no proporcionado');
   }

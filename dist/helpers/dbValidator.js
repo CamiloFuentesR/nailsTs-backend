@@ -21,7 +21,8 @@ const models_1 = require("../models");
 const isValidRole = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (name = '') {
     const roleExist = yield role_1.default.findOne({ where: { name } });
     if (!roleExist) {
-        throw new Error(`El rol ${name}, no existe en la BD`);
+        // throw new Error(`El rol ${name}, no existe en la BD`);
+        throw new Error(`No tienes permiso para ejecutar esta acción`);
     }
 });
 exports.isValidRole = isValidRole;
@@ -33,7 +34,6 @@ const emailExist = (...args_2) => __awaiter(void 0, [...args_2], void 0, functio
 });
 exports.emailExist = emailExist;
 const userByIdExist = (...args_3) => __awaiter(void 0, [...args_3], void 0, function* (id = '') {
-    // validUUID (id)
     const userByIdExist = yield user_1.default.findByPk(id);
     if (!(0, uuid_1.validate)(id)) {
         throw new Error('ID de usuario no válido');
@@ -44,6 +44,7 @@ const userByIdExist = (...args_3) => __awaiter(void 0, [...args_3], void 0, func
 });
 exports.userByIdExist = userByIdExist;
 const clientByIdExist = (...args_4) => __awaiter(void 0, [...args_4], void 0, function* (id = '') {
+    console.log('clientByIdExist:', id);
     if (!id) {
         throw new Error('ID de cliente no proporcionado');
     }

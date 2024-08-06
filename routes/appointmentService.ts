@@ -3,7 +3,8 @@ import { validateFields, validateJWT } from '../middleware';
 import {
   createAppointmentService,
   getAppointmentService,
-  getAppointmentServiceById,
+  getAppointmentServiceByAppointment,
+  getAppointmentServiceByClient,
   getAppointmentServiceReportByGroup,
 } from '../controllers/appointmentService';
 
@@ -16,6 +17,15 @@ router.get(
   [validateJWT, validateFields],
   getAppointmentServiceReportByGroup,
 );
-router.get('/:id', [validateJWT, validateFields], getAppointmentServiceById);
+router.get(
+  '/:id',
+  [validateJWT, validateFields],
+  getAppointmentServiceByAppointment,
+);
+router.get(
+  '/byClient/:id',
+  [validateJWT, validateFields],
+  getAppointmentServiceByClient,
+);
 
 export default router;

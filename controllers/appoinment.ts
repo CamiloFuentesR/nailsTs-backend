@@ -368,8 +368,6 @@ export const deleteAppointment: RequestHandler = async (
   res: Response,
 ) => {
   const { id } = req.params;
-  console.log('id');
-  console.log(req.params);
 
   // Inicia una transacción
   const transaction = await db.transaction();

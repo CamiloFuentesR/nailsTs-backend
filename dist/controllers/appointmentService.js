@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentServiceById = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
+exports.getAppointmentServiceByClient = exports.getAppointmentServiceByAppointment = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
 const models_1 = require("../models");
 const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -144,7 +144,7 @@ const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 
     }
 });
 exports.getAppointmentServiceReportByGroup = getAppointmentServiceReportByGroup;
-const getAppointmentServiceById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const getAppointmentServiceByAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
         const appointment = yield models_1.AppointmentService.findAll({
@@ -190,5 +190,66 @@ const getAppointmentServiceById = (req, res) => __awaiter(void 0, void 0, void 0
         });
     }
 });
-exports.getAppointmentServiceById = getAppointmentServiceById;
+exports.getAppointmentServiceByAppointment = getAppointmentServiceByAppointment;
+const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const appointmentServices = yield models_1.AppointmentService.findAll({
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [
+                        'id',
+                        'name',
+                        'services_category_id',
+                        'price',
+                        'duration',
+                    ],
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: ['name'],
+                        },
+                    ],
+                },
+                {
+                    model: models_1.Appointment,
+                    attributes: ['id', 'start', 'end', 'title', 'client_id'], // Ajustar según los atributos necesarios
+                    where: {
+                        client_id: id,
+                    },
+                },
+            ],
+        });
+        if (!appointmentServices || appointmentServices.length === 0) {
+            return res.status(409).json({
+                ok: false,
+                msg: 'No se encontraron citas para el cliente especificado',
+            });
+        }
+        // Agrupar por appointment_id
+        const groupedAppointments = appointmentServices.reduce((acc, curr) => {
+            const appointmentId = curr.appointment_id;
+            if (!acc[appointmentId]) {
+                acc[appointmentId] = Object.assign(Object.assign({}, curr.Appointment.dataValues), { services: [] });
+            }
+            acc[appointmentId].services.push(Object.assign(Object.assign({}, curr.Service.dataValues), { price: curr.price, state: curr.state }));
+            return acc;
+        }, {});
+        const result = Object.values(groupedAppointments);
+        return res.status(200).json({
+            ok: true,
+            appointments: result,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.getAppointmentServiceByClient = getAppointmentServiceByClient;
 //# sourceMappingURL=appointmentService.js.map
