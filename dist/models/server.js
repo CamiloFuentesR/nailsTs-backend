@@ -100,11 +100,16 @@ class Server {
                 // Aquí podrías actualizar el evento en la base de datos
                 socket.broadcast.emit('updatedAppointment', event); // Emitir a todos los clientes
             });
-            // socket.on('eventDeleted', event => {
-            //   console.log('Evento eliminado:', event);
-            //   // Aquí podrías eliminar el evento de la base de datos
-            //   socket.broadcast.emit('eventDeleted', event); // Emitir a todos los clientes
-            // });
+            socket.on('historyEvent', event => {
+                console.log('History actualizado:', event);
+                // Aquí podrías actualizar el evento en la base de datos
+                socket.broadcast.emit('historyEvent', event); // Emitir a todos los clientes
+            });
+            socket.on('eventDeleted', event => {
+                console.log('Evento eliminado:', event);
+                // Aquí podrías eliminar el evento de la base de datos
+                socket.broadcast.emit('eventDeleted', event); // Emitir a todos los clientes
+            });
             // socket.on('businessHourAdded', businessHour => {
             //   console.log('Hora de negocio agregada:', businessHour);
             //   // Aquí podrías guardar la hora de negocio en la base de datos

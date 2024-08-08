@@ -22,6 +22,7 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAppointmentServiceByClient = exports.getAppointmentServiceByAppointment = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
 const models_1 = require("../models");
+const sequelize_1 = require("sequelize");
 const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const _a = req.body, { id } = _a, appointmentServiceData = __rest(_a, ["id"]);
@@ -215,9 +216,12 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
                 },
                 {
                     model: models_1.Appointment,
-                    attributes: ['id', 'start', 'end', 'title', 'client_id'],
+                    attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
                     where: {
                         client_id: id,
+                        state: {
+                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1 ni 4
+                        },
                     },
                     order: [['start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
                 },

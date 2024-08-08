@@ -6,6 +6,7 @@ import {
   ServicesCategory,
 } from '../models';
 import { AppointmentServiceInstance } from '../models/AppointmentService';
+import { Op } from 'sequelize';
 
 export const createAppointmentService: RequestHandler = async (
   req: Request,
@@ -201,7 +202,6 @@ export const getAppointmentServiceByClient: RequestHandler = async (
 ) => {
   try {
     const { id } = req.params;
-
     const appointmentServices = await AppointmentService.findAll({
       include: [
         {
@@ -223,9 +223,12 @@ export const getAppointmentServiceByClient: RequestHandler = async (
         },
         {
           model: Appointment,
-          attributes: ['id', 'start', 'end', 'title', 'client_id'],
+          attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
           where: {
             client_id: id,
+            state: {
+              [Op.notIn]: [-1], // Filtra los estados que no son -1 ni 4
+            },
           },
           order: [['start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
         },
