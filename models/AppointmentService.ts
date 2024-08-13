@@ -10,6 +10,7 @@ export interface AppointmentServiceProps {
   service_id: number;
   state: number;
   price: number;
+  totalEarnings?: number | undefined;
 }
 
 interface AppointmentServiceCreationAttributes

@@ -20,7 +20,7 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentServiceByClient = exports.getAppointmentServiceByAppointment = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
+exports.getEarningsByCategoryAndService = exports.getCurrentMonthEarningsByService = exports.getCurrentMonthEarningsByCategory = exports.getAppointmentServiceOneByClient = exports.getAppointmentServiceByClient = exports.getAppointmentServiceByAppointment = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
 const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -228,8 +228,8 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
             ],
         });
         if (!appointmentServices || appointmentServices.length === 0) {
-            return res.status(409).json({
-                ok: false,
+            return res.status(204).json({
+                ok: true,
                 msg: 'No se encontraron citas para el cliente especificado',
             });
         }
@@ -260,4 +260,247 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
     }
 });
 exports.getAppointmentServiceByClient = getAppointmentServiceByClient;
+const getAppointmentServiceOneByClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params; // 'id' aquí se refiere al 'appointment_id'
+        // Busca todos los servicios de la cita utilizando el 'appointment_id'
+        const appointmentServices = yield models_1.AppointmentService.findAll({
+            where: {
+                appointment_id: id, // Filtra por 'appointment_id'
+            },
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [
+                        'id',
+                        'name',
+                        'services_category_id',
+                        'price',
+                        'duration',
+                    ],
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: ['name'],
+                        },
+                    ],
+                },
+                {
+                    model: models_1.Appointment,
+                    attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+                    where: {
+                        state: {
+                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1
+                        },
+                    },
+                },
+            ],
+            order: [['Appointment', 'start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
+        });
+        return res.status(200).json({
+            ok: true,
+            appointments: appointmentServices,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.getAppointmentServiceOneByClient = getAppointmentServiceOneByClient;
+const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const currentMonthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+        const earnings = yield models_1.AppointmentService.findAll({
+            attributes: [
+                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
+                [(0, sequelize_1.col)('Service.category.name'), 'categoryName'],
+            ],
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [], // No necesitamos atributos aquí
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: ['name'], // Asegúrate de que 'name' está aquí
+                        },
+                    ],
+                },
+                {
+                    model: models_1.Appointment,
+                    attributes: [],
+                    where: {
+                        start: {
+                            [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
+                        },
+                        state: {
+                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
+                        },
+                    },
+                },
+            ],
+            group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
+            order: [[(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'DESC']], // Ordenar por el cálculo de SUM
+        });
+        const totalEarnings = earnings.reduce((sum, earning) => {
+            var _a;
+            const earningsValue = parseFloat(((_a = earning.getDataValue('totalEarnings')) === null || _a === void 0 ? void 0 : _a.toString()) || '0');
+            return sum + earningsValue;
+        }, 0);
+        return res.status(200).json({
+            ok: true,
+            earnings,
+            totalEarnings,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.getCurrentMonthEarningsByCategory = getCurrentMonthEarningsByCategory;
+const getCurrentMonthEarningsByService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const currentMonthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+        const earningsByService = yield models_1.AppointmentService.findAll({
+            attributes: [
+                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
+                [(0, sequelize_1.col)('Service.name'), 'serviceName'],
+            ],
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [],
+                },
+                {
+                    model: models_1.Appointment,
+                    attributes: [],
+                    where: {
+                        start: {
+                            [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
+                        },
+                        state: {
+                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
+                        },
+                    },
+                },
+            ],
+            group: ['Service.id', 'Service.name'], // Agrupar por ID y nombre del servicio
+            order: [[(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'DESC']], // Ordenar por el total de ganancias
+        });
+        const totalEarnings = earningsByService.reduce((sum, earning) => {
+            var _a;
+            const earningsValue = parseFloat(((_a = earning.getDataValue('totalEarnings')) === null || _a === void 0 ? void 0 : _a.toString()) || '0');
+            return sum + earningsValue;
+        }, 0);
+        return res.status(200).json({
+            ok: true,
+            earningsByService,
+            totalEarnings,
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.getCurrentMonthEarningsByService = getCurrentMonthEarningsByService;
+const getEarningsByCategoryAndService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const currentMonthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+        // Consulta para obtener los totales por categoría y por servicio
+        const earnings = yield models_1.AppointmentService.findAll({
+            attributes: [
+                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
+                [(0, sequelize_1.col)('Service->category.name'), 'categoryName'],
+                [(0, sequelize_1.col)('Service.name'), 'serviceName'], // Obtener el nombre del servicio
+            ],
+            include: [
+                {
+                    model: models_1.Service,
+                    attributes: [],
+                    include: [
+                        {
+                            model: models_1.ServicesCategory,
+                            as: 'category',
+                            attributes: [],
+                        },
+                    ],
+                },
+                {
+                    model: models_1.Appointment,
+                    attributes: [],
+                    where: {
+                        start: {
+                            [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
+                        },
+                        state: {
+                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
+                        },
+                    },
+                },
+            ],
+            group: ['Service->category.id', 'Service.id'], // Agrupar por categoría y luego por servicio
+            order: [[(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'DESC']], // Ordenar por las ganancias totales
+        });
+        let totalGlobalEarnings = 0;
+        const earningsByCategory = earnings.reduce((result, earning) => {
+            var _a;
+            const categoryName = earning.getDataValue('categoryName');
+            const serviceName = earning.getDataValue('serviceName');
+            const totalEarnings = parseFloat(((_a = earning.getDataValue('totalEarnings')) === null || _a === void 0 ? void 0 : _a.toString()) || '0');
+            // Sumar al total global
+            totalGlobalEarnings += totalEarnings;
+            // Buscar si la categoría ya existe en el resultado
+            let category = result.find(cat => cat.categoryName === categoryName);
+            // Si la categoría no existe, se crea y se agrega al array
+            if (!category) {
+                category = {
+                    categoryName,
+                    totalEarnings: 0,
+                    services: [],
+                };
+                result.push(category);
+            }
+            // Agregar el total de la categoría
+            category.totalEarnings += totalEarnings;
+            // Agregar el servicio a la categoría
+            category.services.push({
+                serviceName,
+                totalEarnings,
+            });
+            return result;
+        }, []);
+        // Ordenar las categorías por totalEarnings
+        earningsByCategory.sort((a, b) => b.totalEarnings - a.totalEarnings);
+        return res.status(200).json({
+            ok: true,
+            earningsByCategory,
+            totalGlobalEarnings, // Incluye el total global
+        });
+    }
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            ok: false,
+            msg: error.message,
+        });
+    }
+});
+exports.getEarningsByCategoryAndService = getEarningsByCategoryAndService;
 //# sourceMappingURL=appointmentService.js.map

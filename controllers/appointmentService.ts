@@ -6,7 +6,7 @@ import {
   ServicesCategory,
 } from '../models';
 import { AppointmentServiceInstance } from '../models/AppointmentService';
-import { Op } from 'sequelize';
+import { Op, fn, col, literal } from 'sequelize';
 
 export const createAppointmentService: RequestHandler = async (
   req: Request,
@@ -236,8 +236,8 @@ export const getAppointmentServiceByClient: RequestHandler = async (
     });
 
     if (!appointmentServices || appointmentServices.length === 0) {
-      return res.status(409).json({
-        ok: false,
+      return res.status(204).json({
+        ok: true,
         msg: 'No se encontraron citas para el cliente especificado',
       });
     }
@@ -273,6 +273,305 @@ export const getAppointmentServiceByClient: RequestHandler = async (
     });
   } catch (error: any) {
     console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+export const getAppointmentServiceOneByClient: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params; // 'id' aquí se refiere al 'appointment_id'
+
+    // Busca todos los servicios de la cita utilizando el 'appointment_id'
+    const appointmentServices = await AppointmentService.findAll({
+      where: {
+        appointment_id: id, // Filtra por 'appointment_id'
+      },
+      include: [
+        {
+          model: Service,
+          attributes: [
+            'id',
+            'name',
+            'services_category_id',
+            'price',
+            'duration',
+          ],
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: ['name'],
+            },
+          ],
+        },
+        {
+          model: Appointment,
+          attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+          where: {
+            state: {
+              [Op.notIn]: [-1], // Filtra los estados que no son -1
+            },
+          },
+        },
+      ],
+      order: [['Appointment', 'start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
+    });
+
+    return res.status(200).json({
+      ok: true,
+      appointments: appointmentServices,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const getCurrentMonthEarningsByCategory = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const currentMonthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const currentMonthEnd = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+
+    const earnings = await AppointmentService.findAll({
+      attributes: [
+        [fn('SUM', col('Service.price')), 'totalEarnings'],
+        [col('Service.category.name'), 'categoryName'],
+      ],
+      include: [
+        {
+          model: Service,
+          attributes: [], // No necesitamos atributos aquí
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: ['name'], // Asegúrate de que 'name' está aquí
+            },
+          ],
+        },
+        {
+          model: Appointment,
+          attributes: [],
+          where: {
+            start: {
+              [Op.between]: [currentMonthStart, currentMonthEnd],
+            },
+            state: {
+              [Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
+            },
+          },
+        },
+      ],
+      group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
+      order: [[fn('SUM', col('Service.price')), 'DESC']], // Ordenar por el cálculo de SUM
+    });
+
+    const totalEarnings = earnings.reduce((sum, earning) => {
+      const earningsValue = parseFloat(
+        earning.getDataValue('totalEarnings')?.toString() || '0',
+      );
+      return sum + earningsValue;
+    }, 0);
+
+    return res.status(200).json({
+      ok: true,
+      earnings,
+      totalEarnings,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const getCurrentMonthEarningsByService = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const currentMonthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const currentMonthEnd = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+
+    const earningsByService = await AppointmentService.findAll({
+      attributes: [
+        [fn('SUM', col('Service.price')), 'totalEarnings'],
+        [col('Service.name'), 'serviceName'],
+      ],
+      include: [
+        {
+          model: Service,
+          attributes: [],
+        },
+        {
+          model: Appointment,
+          attributes: [],
+          where: {
+            start: {
+              [Op.between]: [currentMonthStart, currentMonthEnd],
+            },
+            state: {
+              [Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
+            },
+          },
+        },
+      ],
+      group: ['Service.id', 'Service.name'], // Agrupar por ID y nombre del servicio
+      order: [[fn('SUM', col('Service.price')), 'DESC']], // Ordenar por el total de ganancias
+    });
+
+    const totalEarnings = earningsByService.reduce((sum, earning) => {
+      const earningsValue = parseFloat(
+        earning.getDataValue('totalEarnings')?.toString() || '0',
+      );
+      return sum + earningsValue;
+    }, 0);
+
+    return res.status(200).json({
+      ok: true,
+      earningsByService,
+      totalEarnings,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
+      ok: false,
+      msg: error.message,
+    });
+  }
+};
+
+export const getEarningsByCategoryAndService = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const currentMonthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const currentMonthEnd = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+
+    // Consulta para obtener los totales por categoría y por servicio
+    const earnings = await AppointmentService.findAll({
+      attributes: [
+        [fn('SUM', col('Service.price')), 'totalEarnings'],
+        [col('Service->category.name'), 'categoryName'],
+        [col('Service.name'), 'serviceName'], // Obtener el nombre del servicio
+      ],
+      include: [
+        {
+          model: Service,
+          attributes: [],
+          include: [
+            {
+              model: ServicesCategory,
+              as: 'category',
+              attributes: [],
+            },
+          ],
+        },
+        {
+          model: Appointment,
+          attributes: [],
+          where: {
+            start: {
+              [Op.between]: [currentMonthStart, currentMonthEnd],
+            },
+            state: {
+              [Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
+            },
+          },
+        },
+      ],
+      group: ['Service->category.id', 'Service.id'], // Agrupar por categoría y luego por servicio
+      order: [[fn('SUM', col('Service.price')), 'DESC']], // Ordenar por las ganancias totales
+    });
+
+    let totalGlobalEarnings = 0;
+
+    const earningsByCategory = earnings.reduce(
+      (result: any[], earning: any) => {
+        const categoryName = earning.getDataValue('categoryName');
+        const serviceName = earning.getDataValue('serviceName');
+        const totalEarnings = parseFloat(
+          earning.getDataValue('totalEarnings')?.toString() || '0',
+        );
+
+        // Sumar al total global
+        totalGlobalEarnings += totalEarnings;
+
+        // Buscar si la categoría ya existe en el resultado
+        let category = result.find(cat => cat.categoryName === categoryName);
+
+        // Si la categoría no existe, se crea y se agrega al array
+        if (!category) {
+          category = {
+            categoryName,
+            totalEarnings: 0,
+            services: [],
+          };
+          result.push(category);
+        }
+
+        // Agregar el total de la categoría
+        category.totalEarnings += totalEarnings;
+
+        // Agregar el servicio a la categoría
+        category.services.push({
+          serviceName,
+          totalEarnings,
+        });
+
+        return result;
+      },
+      [],
+    );
+
+    // Ordenar las categorías por totalEarnings
+    earningsByCategory.sort((a, b) => b.totalEarnings - a.totalEarnings);
+
+    return res.status(200).json({
+      ok: true,
+      earningsByCategory,
+      totalGlobalEarnings, // Incluye el total global
+    });
+  } catch (error: any) {
+    console.error(error);
     return res.status(500).json({
       ok: false,
       msg: error.message,
