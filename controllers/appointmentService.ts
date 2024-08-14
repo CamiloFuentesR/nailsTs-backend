@@ -223,7 +223,15 @@ export const getAppointmentServiceByClient: RequestHandler = async (
         },
         {
           model: Appointment,
-          attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+          attributes: [
+            'id',
+            'start',
+            'end',
+            'title',
+            'client_id',
+            'state',
+            'duration',
+          ],
           where: {
             client_id: id,
             state: {
@@ -236,7 +244,7 @@ export const getAppointmentServiceByClient: RequestHandler = async (
     });
 
     if (!appointmentServices || appointmentServices.length === 0) {
-      return res.status(204).json({
+      return res.status(200).json({
         ok: true,
         msg: 'No se encontraron citas para el cliente especificado',
       });
@@ -284,12 +292,12 @@ export const getAppointmentServiceOneByClient: RequestHandler = async (
   res: Response,
 ) => {
   try {
-    const { id } = req.params; // 'id' aquí se refiere al 'appointment_id'
+    const { id } = req.params;
 
     // Busca todos los servicios de la cita utilizando el 'appointment_id'
     const appointmentServices = await AppointmentService.findAll({
       where: {
-        appointment_id: id, // Filtra por 'appointment_id'
+        appointment_id: id,
       },
       include: [
         {
@@ -314,7 +322,7 @@ export const getAppointmentServiceOneByClient: RequestHandler = async (
           attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
           where: {
             state: {
-              [Op.notIn]: [-1], // Filtra los estados que no son -1
+              [Op.notIn]: [-1],
             },
           },
         },
@@ -322,9 +330,34 @@ export const getAppointmentServiceOneByClient: RequestHandler = async (
       order: [['Appointment', 'start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
     });
 
+    // Organiza los servicios agrupados por cita
+    const appointments = appointmentServices.reduce(
+      (acc, appointmentService) => {
+        const { Appointment: appointment, Service: service } =
+          appointmentService;
+
+        // Si la cita ya está en el acumulador, agrega el servicio a su array de servicios
+        if (acc[appointment.id]) {
+          acc[appointment.id].services.push(service);
+        } else {
+          // Si la cita no está en el acumulador, la agrega con sus servicios asociados
+          acc[appointment.id] = {
+            ...appointment.get(), // Obtener los datos de la cita
+            services: [service], // Agregar el primer servicio al array de servicios
+          };
+        }
+
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
+
+    // Convierte el objeto de citas agrupadas en un array
+    const result = Object.values(appointments);
+
     return res.status(200).json({
       ok: true,
-      appointments: appointmentServices,
+      appointments: result,
     });
   } catch (error: any) {
     console.log(error);

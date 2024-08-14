@@ -216,7 +216,15 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
                 },
                 {
                     model: models_1.Appointment,
-                    attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+                    attributes: [
+                        'id',
+                        'start',
+                        'end',
+                        'title',
+                        'client_id',
+                        'state',
+                        'duration',
+                    ],
                     where: {
                         client_id: id,
                         state: {
@@ -228,7 +236,7 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
             ],
         });
         if (!appointmentServices || appointmentServices.length === 0) {
-            return res.status(204).json({
+            return res.status(200).json({
                 ok: true,
                 msg: 'No se encontraron citas para el cliente especificado',
             });
@@ -262,11 +270,11 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
 exports.getAppointmentServiceByClient = getAppointmentServiceByClient;
 const getAppointmentServiceOneByClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { id } = req.params; // 'id' aquí se refiere al 'appointment_id'
+        const { id } = req.params;
         // Busca todos los servicios de la cita utilizando el 'appointment_id'
         const appointmentServices = yield models_1.AppointmentService.findAll({
             where: {
-                appointment_id: id, // Filtra por 'appointment_id'
+                appointment_id: id,
             },
             include: [
                 {
@@ -291,16 +299,31 @@ const getAppointmentServiceOneByClient = (req, res) => __awaiter(void 0, void 0,
                     attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
                     where: {
                         state: {
-                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1
+                            [sequelize_1.Op.notIn]: [-1],
                         },
                     },
                 },
             ],
             order: [['Appointment', 'start', 'DESC']], // Ordenar por fecha de inicio de manera descendente
         });
+        // Organiza los servicios agrupados por cita
+        const appointments = appointmentServices.reduce((acc, appointmentService) => {
+            const { Appointment: appointment, Service: service } = appointmentService;
+            // Si la cita ya está en el acumulador, agrega el servicio a su array de servicios
+            if (acc[appointment.id]) {
+                acc[appointment.id].services.push(service);
+            }
+            else {
+                // Si la cita no está en el acumulador, la agrega con sus servicios asociados
+                acc[appointment.id] = Object.assign(Object.assign({}, appointment.get()), { services: [service] });
+            }
+            return acc;
+        }, {});
+        // Convierte el objeto de citas agrupadas en un array
+        const result = Object.values(appointments);
         return res.status(200).json({
             ok: true,
-            appointments: appointmentServices,
+            appointments: result,
         });
     }
     catch (error) {
