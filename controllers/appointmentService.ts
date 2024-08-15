@@ -223,15 +223,7 @@ export const getAppointmentServiceByClient: RequestHandler = async (
         },
         {
           model: Appointment,
-          attributes: [
-            'id',
-            'start',
-            'end',
-            'title',
-            'client_id',
-            'state',
-            'duration',
-          ],
+          attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
           where: {
             client_id: id,
             state: {

@@ -216,15 +216,7 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
                 },
                 {
                     model: models_1.Appointment,
-                    attributes: [
-                        'id',
-                        'start',
-                        'end',
-                        'title',
-                        'client_id',
-                        'state',
-                        'duration',
-                    ],
+                    attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
                     where: {
                         client_id: id,
                         state: {
