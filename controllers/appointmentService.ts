@@ -81,6 +81,18 @@ export const getAppointmentServiceReportByGroup = async (
   res: Response,
 ) => {
   try {
+    // Calcular el inicio y fin del mes actual
+    const currentMonthStart = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const currentMonthEnd = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+
     // Obtén todos los servicios de citas con las categorías y el estado de la cita
     const appointmentServices = await AppointmentService.findAll({
       include: [
@@ -106,6 +118,9 @@ export const getAppointmentServiceReportByGroup = async (
           attributes: [],
           where: {
             state: 3, // Filtra solo las citas con estado 3
+            start: {
+              [Op.between]: [currentMonthStart, currentMonthEnd], // Filtra solo las citas dentro del mes actual
+            },
           },
         },
       ],
@@ -124,9 +139,9 @@ export const getAppointmentServiceReportByGroup = async (
       {} as Record<string, { label: string; value: number }>,
     );
 
-    // Convertir a array y ordenar por valor en orden descendente
-    const sortedData = Object.values(groupedData).sort(
-      (a, b) => b.value - a.value,
+    // Convertir a array y ordenar por nombre de categoría en orden ascendente
+    const sortedData = Object.values(groupedData).sort((a, b) =>
+      a.label.localeCompare(b.label),
     );
 
     if (appointmentServices.length > 0) {
@@ -379,7 +394,8 @@ export const getCurrentMonthEarningsByCategory = async (
     const earnings = await AppointmentService.findAll({
       attributes: [
         [fn('SUM', col('Service.price')), 'totalEarnings'],
-        [col('Service.category.name'), 'categoryName'],
+        [col('Service.category.name'), 'label'],
+        [fn('COUNT', col('Service.id')), 'value'], // Contar el número de servicios por categoría
       ],
       include: [
         {
@@ -400,14 +416,15 @@ export const getCurrentMonthEarningsByCategory = async (
             start: {
               [Op.between]: [currentMonthStart, currentMonthEnd],
             },
-            state: {
-              [Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
-            },
+            state: 3, // Filtra solo las citas con estado 3
           },
         },
       ],
       group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
-      order: [[fn('SUM', col('Service.price')), 'DESC']], // Ordenar por el cálculo de SUM
+      order: [
+        [col('value'), 'DESC'], // Ordenar por el valor (cantidad) en orden descendente
+        [col('Service.category.name'), 'ASC'], // Luego ordenar por nombre de categoría en orden ascendente
+      ],
     });
 
     const totalEarnings = earnings.reduce((sum, earning) => {
@@ -461,15 +478,19 @@ export const getCurrentMonthEarningsByService = async (
           model: Appointment,
           attributes: [],
           where: {
+            state: 3,
             start: {
               [Op.between]: [currentMonthStart, currentMonthEnd],
             },
-            state: {
-              [Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
-            },
+            // state: {
+            //   [Op.notIn]: [-1],
+            // },
           },
         },
       ],
+      where: {
+        state: 3, // Filtrar por el estado 3 en AppointmentService
+      },
       group: ['Service.id', 'Service.name'], // Agrupar por ID y nombre del servicio
       order: [[fn('SUM', col('Service.price')), 'DESC']], // Ordenar por el total de ganancias
     });

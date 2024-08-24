@@ -88,6 +88,9 @@ const getAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, fu
 exports.getAppointmentService = getAppointmentService;
 const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        // Calcular el inicio y fin del mes actual
+        const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+        const currentMonthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
         // Obtén todos los servicios de citas con las categorías y el estado de la cita
         const appointmentServices = yield models_1.AppointmentService.findAll({
             include: [
@@ -113,6 +116,9 @@ const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 
                     attributes: [],
                     where: {
                         state: 3, // Filtra solo las citas con estado 3
+                        start: {
+                            [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd], // Filtra solo las citas dentro del mes actual
+                        },
                     },
                 },
             ],
@@ -126,8 +132,8 @@ const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 
             acc[categoryName].value += 1;
             return acc;
         }, {});
-        // Convertir a array y ordenar por valor en orden descendente
-        const sortedData = Object.values(groupedData).sort((a, b) => b.value - a.value);
+        // Convertir a array y ordenar por nombre de categoría en orden ascendente
+        const sortedData = Object.values(groupedData).sort((a, b) => a.label.localeCompare(b.label));
         if (appointmentServices.length > 0) {
             return res.status(200).json({ ok: true, serviceAppointment: sortedData });
         }
@@ -334,7 +340,8 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
         const earnings = yield models_1.AppointmentService.findAll({
             attributes: [
                 [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
-                [(0, sequelize_1.col)('Service.category.name'), 'categoryName'],
+                [(0, sequelize_1.col)('Service.category.name'), 'label'],
+                [(0, sequelize_1.fn)('COUNT', (0, sequelize_1.col)('Service.id')), 'value'], // Contar el número de servicios por categoría
             ],
             include: [
                 {
@@ -355,14 +362,15 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
                         start: {
                             [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
                         },
-                        state: {
-                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
-                        },
+                        state: 3, // Filtra solo las citas con estado 3
                     },
                 },
             ],
             group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
-            order: [[(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'DESC']], // Ordenar por el cálculo de SUM
+            order: [
+                [(0, sequelize_1.col)('value'), 'DESC'], // Ordenar por el valor (cantidad) en orden descendente
+                [(0, sequelize_1.col)('Service.category.name'), 'ASC'], // Luego ordenar por nombre de categoría en orden ascendente
+            ],
         });
         const totalEarnings = earnings.reduce((sum, earning) => {
             var _a;
@@ -402,15 +410,19 @@ const getCurrentMonthEarningsByService = (req, res) => __awaiter(void 0, void 0,
                     model: models_1.Appointment,
                     attributes: [],
                     where: {
+                        state: 3,
                         start: {
                             [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
                         },
-                        state: {
-                            [sequelize_1.Op.notIn]: [-1], // Filtra los estados que no son -1 (o cualquier otro estado que indique cancelación)
-                        },
+                        // state: {
+                        //   [Op.notIn]: [-1],
+                        // },
                     },
                 },
             ],
+            where: {
+                state: 3, // Filtrar por el estado 3 en AppointmentService
+            },
             group: ['Service.id', 'Service.name'], // Agrupar por ID y nombre del servicio
             order: [[(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'DESC']], // Ordenar por el total de ganancias
         });
