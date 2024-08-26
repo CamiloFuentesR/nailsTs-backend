@@ -13,10 +13,12 @@ interface UserAttributes {
   email: string;
   password: string;
   createdAt: Date;
+  name?: string;
   // updatedAt: Date;
   state: boolean;
   role_id: number;
   Role?: Role;
+  picture?: string;
 }
 
 interface UserCreationAttributes
@@ -41,6 +43,10 @@ const User = db.define<UserInstance>('Users', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  // picture: {
+  //   type: DataTypes.STRING,
+  //   allowNull: true,
+  // },
   state: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

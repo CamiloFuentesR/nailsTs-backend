@@ -21,6 +21,10 @@ const User = conection_1.default.define('Users', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false,
     },
+    // picture: {
+    //   type: DataTypes.STRING,
+    //   allowNull: true,
+    // },
     state: {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,

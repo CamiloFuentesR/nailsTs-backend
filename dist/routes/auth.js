@@ -18,5 +18,9 @@ router.post('/', [
     middleware_1.validateFields,
 ], auth_1.login);
 router.post('/renew', middleware_1.validateJWT, auth_1.renewToken);
+router.post('/google', [
+    (0, express_validator_1.check)('id_token', 'id_Token de google es necesdario').notEmpty(),
+    // validateFields,
+], auth_1.googleSignIn);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { login, renewToken } from '../controllers/auth';
+import { googleSignIn, login, renewToken } from '../controllers/auth';
 import { validateFields, validateJWT } from '../middleware';
 
 const router = Router();
@@ -19,9 +19,18 @@ router.post(
       .withMessage('El password no puede estar vacío'),
     validateFields,
   ],
-  login
+  login,
 );
 
 router.post('/renew', validateJWT, renewToken);
+
+router.post(
+  '/google',
+  [
+    check('id_token', 'id_Token de google es necesdario').notEmpty(),
+    // validateFields,
+  ],
+  googleSignIn,
+);
 
 export default router;

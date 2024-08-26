@@ -2,6 +2,7 @@ import { Request, RequestHandler, Response } from 'express';
 import bcrypt from 'bcrypt';
 import generateJWT from '../helpers/generateJWT';
 import { Role, User, UserInstance } from '../models';
+import googleVerify from '../helpers/google-verify';
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
   let { password, email } = req.body;
@@ -57,4 +58,77 @@ export const renewToken: RequestHandler = async (
     ok: true,
     token,
   });
+};
+
+export const googleSignIn: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id_token } = req.body;
+  console.log(id_token);
+  console.log(req.body);
+  try {
+    const googleUser = await googleVerify(id_token);
+
+    if (googleUser) {
+      const { email, name, picture } = googleUser;
+
+      if (!email) {
+        return res.status(400).json({
+          ok: false,
+          msg: 'Email no proporcionado por Google',
+        });
+      }
+
+      let user = await User.findOne({
+        where: { email },
+        include: [{ model: Role, attributes: ['name'] }],
+      });
+
+      if (!user) {
+        user = await User.create({
+          email,
+          password: ':p', // Considera no usar contraseñas en texto plano
+          role_id: 2,
+          state: true,
+        });
+
+        const token = await generateJWT(user.id, email, 'USER_ROLE');
+        return res.status(201).json({
+          ok: true,
+          msg: 'Usuario creado con éxito',
+          token,
+        });
+      }
+
+      if (!user.state) {
+        return res.status(401).json({
+          msg: 'Usuario inhabilitado',
+        });
+      }
+      const token = await generateJWT(user.id, email, 'USER_ROLE');
+      return res.status(201).json({
+        ok: true,
+        token,
+      });
+
+      // return res.status(200).json({
+      //   ok: true,
+      //   msg: 'Usuario ya existente',
+      //   user,
+      // });
+    }
+
+    return res.status(400).json({
+      ok: false,
+      msg: 'No se pudo obtener el Token',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: 'El Token no se pudo verificar',
+      error,
+    });
+  }
 };

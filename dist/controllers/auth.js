@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.renewToken = exports.login = void 0;
+exports.googleSignIn = exports.renewToken = exports.login = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const models_1 = require("../models");
+const google_verify_1 = __importDefault(require("../helpers/google-verify"));
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let { password, email } = req.body;
@@ -68,4 +69,67 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     });
 });
 exports.renewToken = renewToken;
+const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id_token } = req.body;
+    console.log(id_token);
+    console.log(req.body);
+    try {
+        const googleUser = yield (0, google_verify_1.default)(id_token);
+        if (googleUser) {
+            const { email, name, picture } = googleUser;
+            if (!email) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Email no proporcionado por Google',
+                });
+            }
+            let user = yield models_1.User.findOne({
+                where: { email },
+                include: [{ model: models_1.Role, attributes: ['name'] }],
+            });
+            if (!user) {
+                user = yield models_1.User.create({
+                    email,
+                    password: ':p', // Considera no usar contraseñas en texto plano
+                    role_id: 2,
+                    state: true,
+                });
+                const token = yield (0, generateJWT_1.default)(user.id, email, 'USER_ROLE');
+                return res.status(201).json({
+                    ok: true,
+                    msg: 'Usuario creado con éxito',
+                    token,
+                });
+            }
+            if (!user.state) {
+                return res.status(401).json({
+                    msg: 'Usuario inhabilitado',
+                });
+            }
+            const token = yield (0, generateJWT_1.default)(user.id, email, 'USER_ROLE');
+            return res.status(201).json({
+                ok: true,
+                token,
+            });
+            // return res.status(200).json({
+            //   ok: true,
+            //   msg: 'Usuario ya existente',
+            //   user,
+            // });
+        }
+        return res.status(400).json({
+            ok: false,
+            msg: 'No se pudo obtener el Token',
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'El Token no se pudo verificar',
+            error,
+        });
+    }
+});
+exports.googleSignIn = googleSignIn;
 //# sourceMappingURL=auth.js.map
