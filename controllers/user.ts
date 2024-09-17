@@ -118,7 +118,7 @@ export const createUser: RequestHandler = async (
     user = User.build(req.body);
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
-    user.role_id = 2;
+    user.role_id = 3;
     user.state = true;
     const roleName = user.dataValues.Role?.name || 'unknown';
     const userSave = await user.save();
@@ -144,7 +144,35 @@ export const updateUser: RequestHandler = async (
 ) => {
   const { id } = req.params;
   const { body } = req;
-  updateUserAndClientState(id, body, res);
+  const client = await Client.findByPk(id);
+
+  if (client?.name) {
+    updateUserAndClientState(id, body, res);
+    return;
+  }
+  const [updatedRowsCount, updatedUserArray] = await User.update(
+    { state: body.state, email: body.email, role_id: body.role_id },
+    {
+      where: { id },
+      returning: true,
+    },
+  );
+  if (
+    updatedRowsCount === 0 ||
+    !updatedUserArray ||
+    updatedUserArray.length === 0
+  ) {
+    return res.status(404).json({
+      ok: false,
+      msg: 'Usuario no encontrado o no actualizado',
+    });
+  }
+  const updatedUser = updatedUserArray[0];
+  return res.status(200).json({
+    ok: true,
+    msg: 'Cliente actualizado correctamente',
+    updatedUser,
+  });
 };
 
 export const deleteUser: RequestHandler = async (

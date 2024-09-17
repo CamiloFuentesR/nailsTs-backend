@@ -71,8 +71,6 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 exports.renewToken = renewToken;
 const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id_token } = req.body;
-    console.log(id_token);
-    console.log(req.body);
     try {
         const googleUser = yield (0, google_verify_1.default)(id_token);
         if (googleUser) {
@@ -90,8 +88,8 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             if (!user) {
                 user = yield models_1.User.create({
                     email,
-                    password: ':p', // Considera no usar contraseñas en texto plano
-                    role_id: 2,
+                    password: ':p',
+                    role_id: 3,
                     state: true,
                 });
                 const token = yield (0, generateJWT_1.default)(user.id, email, 'USER_ROLE');

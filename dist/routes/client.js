@@ -19,10 +19,8 @@ router.post('/', [
     (0, express_validator_1.check)('phone_number')
         .notEmpty()
         .withMessage('Debe ingresar teléfono')
-        .isLength({ min: 9, max: 9 })
-        .withMessage('Teléfono inválido')
-        .isNumeric()
-        .withMessage('Teléfono inválido'),
+        .isLength({ min: 8, max: 8 })
+        .withMessage('El teléfono debe tener 8 dígitos'),
     validateFields_1.validateFields,
 ], client_1.createClient);
 router.put('/:id', [
@@ -33,7 +31,7 @@ router.put('/:id', [
     (0, express_validator_1.check)('phone_number')
         .notEmpty()
         .withMessage('Debe ingresar teléfono')
-        .isLength({ min: 9, max: 9 })
+        .isLength({ min: 8, max: 8 })
         .withMessage('Teléfono inválido')
         .isNumeric()
         .withMessage('Teléfono inválido'),

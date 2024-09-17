@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from 'express';
-import { Client, ClientInstance } from '../models';
+import { Client, ClientInstance, User } from '../models';
+import { json } from 'sequelize';
 
 const showAllClient = async (
   req: Request,
@@ -138,10 +139,19 @@ export const createClient: RequestHandler = async (
     client = Client.build(req.body);
     client.user_id = id;
     const clientSave = await client.save();
+    const [afectedRowUser, [userUpdate]] = await User.update(
+      { role_id: 2 },
+      {
+        where: { id },
+        returning: true,
+      },
+    );
+
     res.status(201).json({
       ok: true,
       msg: 'usuario creado con éxito',
       client: clientSave,
+      userUpdate,
     });
   } catch (error: any) {
     console.log(error);
@@ -164,6 +174,7 @@ export const updateClient: RequestHandler = async (
 ) => {
   const { id } = req.params;
   const { body } = req;
+  console.log(req);
 
   try {
     const [updatedRowsCount, updatedClients] = await Client.update(body, {

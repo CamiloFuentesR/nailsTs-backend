@@ -3,7 +3,7 @@ import { NextFunction, Request, RequestHandler, Response } from 'express';
 export const isAdminRole: RequestHandler = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   if (!req.role) {
     return res.status(500).json({
@@ -15,7 +15,8 @@ export const isAdminRole: RequestHandler = (
 
   if (role !== 'ADMIN_ROLE') {
     return res.status(401).json({
-      msg: ` '${name}' no es un Administrador autorizado`,
+      ok: false,
+      msg: ` '${req.user.Client.name}' no es un Administrador autorizado`,
     });
   }
   next();

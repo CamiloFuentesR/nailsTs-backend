@@ -11,7 +11,8 @@ const isAdminRole = (req, res, next) => {
     const role = req.role;
     if (role !== 'ADMIN_ROLE') {
         return res.status(401).json({
-            msg: ` '${name}' no es un Administrador autorizado`,
+            ok: false,
+            msg: ` '${req.user.Client.name}' no es un Administrador autorizado`,
         });
     }
     next();

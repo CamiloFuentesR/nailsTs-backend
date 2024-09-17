@@ -119,7 +119,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         user = models_1.User.build(req.body);
         const salt = yield bcrypt_1.default.genSalt(10);
         user.password = yield bcrypt_1.default.hash(password, salt);
-        user.role_id = 2;
+        user.role_id = 3;
         user.state = true;
         const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'unknown';
         const userSave = yield user.save();
@@ -142,7 +142,29 @@ exports.createUser = createUser;
 const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
-    (0, updateUserClient_1.updateUserAndClientState)(id, body, res);
+    const client = yield models_1.Client.findByPk(id);
+    if (client === null || client === void 0 ? void 0 : client.name) {
+        (0, updateUserClient_1.updateUserAndClientState)(id, body, res);
+        return;
+    }
+    const [updatedRowsCount, updatedUserArray] = yield models_1.User.update({ state: body.state, email: body.email, role_id: body.role_id }, {
+        where: { id },
+        returning: true,
+    });
+    if (updatedRowsCount === 0 ||
+        !updatedUserArray ||
+        updatedUserArray.length === 0) {
+        return res.status(404).json({
+            ok: false,
+            msg: 'Usuario no encontrado o no actualizado',
+        });
+    }
+    const updatedUser = updatedUserArray[0];
+    return res.status(200).json({
+        ok: true,
+        msg: 'Cliente actualizado correctamente',
+        updatedUser,
+    });
 });
 exports.updateUser = updateUser;
 const deleteUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {

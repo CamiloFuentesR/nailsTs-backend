@@ -127,10 +127,15 @@ const createClient = (req, res) => __awaiter(void 0, void 0, void 0, function* (
         client = models_1.Client.build(req.body);
         client.user_id = id;
         const clientSave = yield client.save();
+        const [afectedRowUser, [userUpdate]] = yield models_1.User.update({ role_id: 2 }, {
+            where: { id },
+            returning: true,
+        });
         res.status(201).json({
             ok: true,
             msg: 'usuario creado con éxito',
             client: clientSave,
+            userUpdate,
         });
     }
     catch (error) {
@@ -151,6 +156,7 @@ exports.createClient = createClient;
 const updateClient = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
+    console.log(req);
     try {
         const [updatedRowsCount, updatedClients] = yield models_1.Client.update(body, {
             where: { id },

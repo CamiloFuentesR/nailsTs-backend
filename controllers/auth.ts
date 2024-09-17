@@ -65,8 +65,6 @@ export const googleSignIn: RequestHandler = async (
   res: Response,
 ) => {
   const { id_token } = req.body;
-  console.log(id_token);
-  console.log(req.body);
   try {
     const googleUser = await googleVerify(id_token);
 
@@ -88,8 +86,8 @@ export const googleSignIn: RequestHandler = async (
       if (!user) {
         user = await User.create({
           email,
-          password: ':p', // Considera no usar contraseñas en texto plano
-          role_id: 2,
+          password: ':p',
+          role_id: 3,
           state: true,
         });
 
