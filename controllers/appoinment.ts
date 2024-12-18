@@ -158,7 +158,8 @@ export const getAcceptedAppointment: RequestHandler = async (
             start: {
               [Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
             },
-            state: 2, // Filtra las citas aprobadas
+            // state: 2,
+            state: [2, 3],
           },
         }),
         Appointment.count({
@@ -215,9 +216,10 @@ export const getAppointmentByMonth: RequestHandler = async (
         [fn('COUNT', col('id')), 'totalCitas'], // Cuenta el número de citas
       ],
       where: {
-        state: {
-          [Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
-        },
+        // state: {
+        //   [Op.notIn]: [-1, 4],
+        // },
+        state: 3,
       },
       group: ['mes'], // Agrupa por mes
       order: [['mes', 'ASC']], // Ordena por mes en orden ascendente

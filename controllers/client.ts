@@ -172,15 +172,17 @@ export const updateClient: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const { id } = req.params;
+  const { id } = req.params; // ID del cliente a actualizar
   const { body } = req;
-  console.log(req);
 
   try {
+    // Actualiza el cliente
     const [updatedRowsCount, updatedClients] = await Client.update(body, {
       where: { id },
       returning: true,
     });
+
+    // Verifica si el cliente fue actualizado
     if (
       updatedRowsCount === 0 ||
       !updatedClients ||
@@ -191,10 +193,49 @@ export const updateClient: RequestHandler = async (
         msg: 'Cliente no encontrado o no actualizado',
       });
     }
+
+    const updatedClient = updatedClients[0];
+    const userId = updatedClient.user_id; // Obtiene el user_id del cliente actualizado
+
+    // Obtiene el usuario relacionado
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        msg: 'Usuario no encontrado',
+      });
+    }
+
+    // Solo actualiza el role_id si no es 1
+    let updatedUser;
+    if (user.role_id !== 1) {
+      const [updatedRowsCountUser, updatedUserArray] = await User.update(
+        { role_id: 2 }, // Cambia según tus necesidades
+        {
+          where: { id: userId }, // Usa user_id del cliente
+          returning: true,
+        },
+      );
+      if (
+        updatedRowsCountUser === 0 ||
+        !updatedUserArray ||
+        updatedUserArray.length === 0
+      ) {
+        return res.status(404).json({
+          ok: false,
+          msg: 'Usuario no encontrado o no actualizado',
+        });
+      }
+      updatedUser = updatedUserArray[0];
+    } else {
+      updatedUser = user; // Mantiene el usuario sin cambios
+    }
+
     return res.status(200).json({
       ok: true,
-      msg: 'Cliente actualizado correctamente',
-      client: updatedClients[0],
+      msg: 'Cliente y usuario actualizados correctamente',
+      client: updatedClient,
+      updatedUser,
     });
   } catch (error: any) {
     console.error('Error al actualizar el cliente:', error);

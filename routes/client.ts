@@ -45,7 +45,7 @@ router.put(
   '/:id',
   [
     validateJWT,
-    isAdminRole,
+    // isAdminRole,
     check('id').custom(clientByIdExist),
     check('name').notEmpty().withMessage('Debe ingresar nombre'),
     check('phone_number')

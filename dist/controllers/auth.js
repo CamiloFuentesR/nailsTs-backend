@@ -70,6 +70,7 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.renewToken = renewToken;
 const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _b, _c;
     const { id_token } = req.body;
     try {
         const googleUser = yield (0, google_verify_1.default)(id_token);
@@ -92,7 +93,8 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     role_id: 3,
                     state: true,
                 });
-                const token = yield (0, generateJWT_1.default)(user.id, email, 'USER_ROLE');
+                const roleName = ((_b = user.dataValues.Role) === null || _b === void 0 ? void 0 : _b.name) || 'unknown';
+                const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
                 return res.status(201).json({
                     ok: true,
                     msg: 'Usuario creado con éxito',
@@ -104,7 +106,8 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     msg: 'Usuario inhabilitado',
                 });
             }
-            const token = yield (0, generateJWT_1.default)(user.id, email, 'USER_ROLE');
+            const roleName = ((_c = user.dataValues.Role) === null || _c === void 0 ? void 0 : _c.name) || 'unknown';
+            const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
             return res.status(201).json({
                 ok: true,
                 token,

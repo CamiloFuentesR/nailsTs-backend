@@ -90,8 +90,8 @@ export const googleSignIn: RequestHandler = async (
           role_id: 3,
           state: true,
         });
-
-        const token = await generateJWT(user.id, email, 'USER_ROLE');
+        const roleName = user.dataValues.Role?.name || 'unknown';
+        const token = await generateJWT(user.id, email, roleName);
         return res.status(201).json({
           ok: true,
           msg: 'Usuario creado con éxito',
@@ -104,7 +104,8 @@ export const googleSignIn: RequestHandler = async (
           msg: 'Usuario inhabilitado',
         });
       }
-      const token = await generateJWT(user.id, email, 'USER_ROLE');
+      const roleName = user.dataValues.Role?.name || 'unknown';
+      const token = await generateJWT(user.id, email, roleName);
       return res.status(201).json({
         ok: true,
         token,

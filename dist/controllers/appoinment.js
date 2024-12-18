@@ -150,7 +150,8 @@ const getAcceptedAppointment = (req, res) => __awaiter(void 0, void 0, void 0, f
                     start: {
                         [sequelize_1.Op.gte]: currentDate, // Filtra las citas a partir de la fecha actual
                     },
-                    state: 2, // Filtra las citas aprobadas
+                    // state: 2,
+                    state: [2, 3],
                 },
             }),
             appointment_1.default.count({
@@ -203,9 +204,10 @@ const getAppointmentByMonth = (req, res) => __awaiter(void 0, void 0, void 0, fu
                 [(0, sequelize_1.fn)('COUNT', (0, sequelize_1.col)('id')), 'totalCitas'], // Cuenta el número de citas
             ],
             where: {
-                state: {
-                    [sequelize_1.Op.notIn]: [-1, 4], // Filtra los estados que no son -1 ni 4
-                },
+                // state: {
+                //   [Op.notIn]: [-1, 4],
+                // },
+                state: 3,
             },
             group: ['mes'], // Agrupa por mes
             order: [['mes', 'ASC']], // Ordena por mes en orden ascendente

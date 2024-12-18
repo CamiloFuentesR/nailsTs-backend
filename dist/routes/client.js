@@ -6,7 +6,6 @@ const client_1 = require("../controllers/client");
 const express_1 = require("express");
 const validateJWT_1 = require("../middleware/validateJWT");
 const dbValidator_1 = require("../helpers/dbValidator");
-const validateRole_1 = require("../middleware/validateRole");
 const router = (0, express_1.Router)();
 router.get('/', validateJWT_1.validateJWT, client_1.showAllCliens);
 router.get('/active', client_1.showAllClientActive);
@@ -25,7 +24,7 @@ router.post('/', [
 ], client_1.createClient);
 router.put('/:id', [
     validateJWT_1.validateJWT,
-    validateRole_1.isAdminRole,
+    // isAdminRole,
     (0, express_validator_1.check)('id').custom(dbValidator_1.clientByIdExist),
     (0, express_validator_1.check)('name').notEmpty().withMessage('Debe ingresar nombre'),
     (0, express_validator_1.check)('phone_number')
