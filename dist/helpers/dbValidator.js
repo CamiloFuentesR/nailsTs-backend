@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validUUID = exports.categoryByIdExist = exports.serviceByIdExist = exports.clientByIdExist = exports.userByIdExist = exports.emailExist = exports.isValidRole = void 0;
+exports.authorizedCollection = exports.validUUID = exports.categoryByIdExist = exports.serviceByIdExist = exports.clientByIdExist = exports.userByIdExist = exports.emailExist = exports.isValidRole = void 0;
 const role_1 = __importDefault(require("../models/role"));
 const user_1 = __importDefault(require("../models/user"));
 const uuid_1 = require("uuid");
@@ -87,4 +87,12 @@ const validUUID = (value) => __awaiter(void 0, void 0, void 0, function* () {
     return true;
 });
 exports.validUUID = validUUID;
+const authorizedCollection = (collection = '', collections = []) => {
+    const include = collections.includes(collection);
+    if (!include) {
+        throw new Error(`La coleccion ${collection} no es permitida, - ${collections} `);
+    }
+    return true;
+};
+exports.authorizedCollection = authorizedCollection;
 //# sourceMappingURL=dbValidator.js.map

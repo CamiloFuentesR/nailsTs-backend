@@ -10,6 +10,7 @@ import userRoutes from '../routes/user';
 import servicesCategorySecondaryRoutes from '../routes/serviceCategorySecondary';
 import servicesSecondaryRoutes from '../routes/servicesSecondaries';
 import appointmentServiceRoute from '../routes/appointmentService';
+import fileUploadTo from '../routes/files';
 
 export {
   appointmentRoutes,
@@ -24,4 +25,5 @@ export {
   userRoutes,
   servicesCategorySecondaryRoutes,
   servicesSecondaryRoutes,
+  fileUploadTo,
 };

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.servicesSecondaryRoutes = exports.servicesCategorySecondaryRoutes = exports.userRoutes = exports.servicesCategory = exports.services = exports.roleRoutes = exports.clientRoutes = exports.businessHourRoutes = exports.authRoutes = exports.appointmentServiceRoute = exports.appointmentStateRoutes = exports.appointmentRoutes = void 0;
+exports.fileUploadTo = exports.servicesSecondaryRoutes = exports.servicesCategorySecondaryRoutes = exports.userRoutes = exports.servicesCategory = exports.services = exports.roleRoutes = exports.clientRoutes = exports.businessHourRoutes = exports.authRoutes = exports.appointmentServiceRoute = exports.appointmentStateRoutes = exports.appointmentRoutes = void 0;
 const appointment_1 = __importDefault(require("../routes/appointment"));
 exports.appointmentRoutes = appointment_1.default;
 const appointmentState_1 = __importDefault(require("../routes/appointmentState"));
@@ -28,4 +28,6 @@ const servicesSecondaries_1 = __importDefault(require("../routes/servicesSeconda
 exports.servicesSecondaryRoutes = servicesSecondaries_1.default;
 const appointmentService_1 = __importDefault(require("../routes/appointmentService"));
 exports.appointmentServiceRoute = appointmentService_1.default;
+const files_1 = __importDefault(require("../routes/files"));
+exports.fileUploadTo = files_1.default;
 //# sourceMappingURL=index.js.map

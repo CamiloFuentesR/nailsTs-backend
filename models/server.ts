@@ -18,7 +18,9 @@ import {
   userRoutes,
   servicesCategorySecondaryRoutes,
   servicesSecondaryRoutes,
+  fileUploadTo,
 } from '../routes';
+import fileUpload from 'express-fileupload';
 
 injectSpeedInsights();
 
@@ -40,6 +42,7 @@ class Server {
     categorySecondary: '/api/categorySecondary',
     serviceSecondary: '/api/serviceSecondary',
     appointmentServoce: '/api/appointmentService',
+    fileUpload: '/api/upload',
   };
 
   constructor() {
@@ -54,7 +57,7 @@ class Server {
       cors: {
         origin: [
           'https://mozzafiato-manicure.netlify.app',
-          'http://localhost:5170',
+          'http://localhost:5173',
           'http://localhost:4173',
         ],
         // origin: 'http://localhost:3000',
@@ -85,6 +88,13 @@ class Server {
     this.app.use(cors());
     this.app.use(express.json());
     this.app.use(express.static('public'));
+    this.app.use(
+      fileUpload({
+        useTempFiles: true,
+        tempFileDir: '/tmp/',
+        createParentPath: true,
+      }),
+    );
   }
 
   private routes(): void {
@@ -103,6 +113,7 @@ class Server {
     );
     this.app.use(this.apiPaths.serviceSecondary, servicesSecondaryRoutes);
     this.app.use(this.apiPaths.appointmentServoce, appointmentServiceRoute);
+    this.app.use(this.apiPaths.fileUpload, fileUploadTo);
   }
   private sockets(): void {
     this.io.on('connection', socket => {

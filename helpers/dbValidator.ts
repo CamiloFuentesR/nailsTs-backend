@@ -71,3 +71,17 @@ export const validUUID = async (value: string): Promise<boolean> => {
   }
   return true;
 };
+
+export const authorizedCollection = (
+  collection = '',
+  collections: string[] = [],
+) => {
+  const include = collections.includes(collection);
+  if (!include) {
+    throw new Error(
+      `La coleccion ${collection} no es permitida, - ${collections} `,
+    );
+  }
+
+  return true;
+};

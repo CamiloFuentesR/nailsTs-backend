@@ -20,6 +20,7 @@ const conection_1 = __importDefault(require("../db/conection"));
 const errorHandler_1 = require("../middleware/errorHandler");
 const speed_insights_1 = require("@vercel/speed-insights");
 const routes_1 = require("../routes");
+const express_fileupload_1 = __importDefault(require("express-fileupload"));
 (0, speed_insights_1.injectSpeedInsights)();
 class Server {
     constructor() {
@@ -36,6 +37,7 @@ class Server {
             categorySecondary: '/api/categorySecondary',
             serviceSecondary: '/api/serviceSecondary',
             appointmentServoce: '/api/appointmentService',
+            fileUpload: '/api/upload',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -46,7 +48,7 @@ class Server {
             cors: {
                 origin: [
                     'https://mozzafiato-manicure.netlify.app',
-                    'http://localhost:5170',
+                    'http://localhost:5173',
                     'http://localhost:4173',
                 ],
                 // origin: 'http://localhost:3000',
@@ -76,6 +78,11 @@ class Server {
         this.app.use((0, cors_1.default)());
         this.app.use(express_1.default.json());
         this.app.use(express_1.default.static('public'));
+        this.app.use((0, express_fileupload_1.default)({
+            useTempFiles: true,
+            tempFileDir: '/tmp/',
+            createParentPath: true,
+        }));
     }
     routes() {
         this.app.use(this.apiPaths.auth, routes_1.authRoutes);
@@ -90,6 +97,7 @@ class Server {
         this.app.use(this.apiPaths.categorySecondary, routes_1.servicesCategorySecondaryRoutes);
         this.app.use(this.apiPaths.serviceSecondary, routes_1.servicesSecondaryRoutes);
         this.app.use(this.apiPaths.appointmentServoce, routes_1.appointmentServiceRoute);
+        this.app.use(this.apiPaths.fileUpload, routes_1.fileUploadTo);
     }
     sockets() {
         this.io.on('connection', socket => {

@@ -8,3 +8,5 @@ node_modules
 .render
 
 .env.production
+
+uploads/
