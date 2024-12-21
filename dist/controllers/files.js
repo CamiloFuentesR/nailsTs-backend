@@ -72,7 +72,7 @@ const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 });
         }
         if (model.img) {
-            const pathImg = path_1.default.join(__dirname, '../../uploads/', collection, model.img);
+            const pathImg = path_1.default.join(__dirname, '../uploads/', collection, model.img);
             if (fs_1.default.existsSync(pathImg)) {
                 fs_1.default.unlinkSync(pathImg);
             }
@@ -122,12 +122,12 @@ const showFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 });
         }
         if (model.img) {
-            const pathImg = path_1.default.join(__dirname, '../../uploads/', collection, model.img);
+            const pathImg = path_1.default.join(__dirname, '../uploads/', collection, model.img);
             if (fs_1.default.existsSync(pathImg)) {
                 return res.sendFile(pathImg);
             }
         }
-        const pathImg = path_1.default.join(__dirname, '../../uploads/nodata/', 'no-image.jpeg');
+        const pathImg = path_1.default.join(__dirname, '../uploads/nodata/', 'no-image.jpeg');
         res.sendFile(pathImg);
     }
     catch (error) {

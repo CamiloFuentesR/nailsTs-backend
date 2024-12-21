@@ -69,7 +69,7 @@ export const updateFile = async (req: Request, res: Response) => {
     if (model.img) {
       const pathImg = path.join(
         __dirname,
-        '../../uploads/',
+        '../uploads/',
         collection,
         model.img,
       );
@@ -128,7 +128,7 @@ export const showFile = async (req: Request, res: Response) => {
     if (model.img) {
       const pathImg = path.join(
         __dirname,
-        '../../uploads/',
+        '../uploads/',
         collection,
         model.img,
       );
@@ -137,11 +137,7 @@ export const showFile = async (req: Request, res: Response) => {
       }
     }
 
-    const pathImg = path.join(
-      __dirname,
-      '../../uploads/nodata/',
-      'no-image.jpeg',
-    );
+    const pathImg = path.join(__dirname, '../uploads/nodata/', 'no-image.jpeg');
     res.sendFile(pathImg);
   } catch (error) {
     console.log(error);

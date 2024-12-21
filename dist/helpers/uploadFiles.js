@@ -21,7 +21,7 @@ const uploadFiles = (file, validExtensions = validExtensio, folder = '') => {
         // Generar un nombre único para el archivo
         const tempName = (0, uuid_1.v4)() + '.' + extension;
         // Ruta donde se almacenará el archivo
-        const uploadPath = path_1.default.join(__dirname, '../../uploads/', folder, tempName);
+        const uploadPath = path_1.default.join(__dirname, '../uploads/', folder, tempName);
         // Mover el archivo a la carpeta de destino
         file.mv(uploadPath, err => {
             if (err) {

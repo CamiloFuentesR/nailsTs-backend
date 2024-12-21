@@ -27,7 +27,7 @@ export const uploadFiles = (
     const tempName = uuidv4() + '.' + extension;
 
     // Ruta donde se almacenará el archivo
-    const uploadPath = path.join(__dirname, '../../uploads/', folder, tempName);
+    const uploadPath = path.join(__dirname, '../uploads/', folder, tempName);
 
     // Mover el archivo a la carpeta de destino
     file.mv(uploadPath, err => {
