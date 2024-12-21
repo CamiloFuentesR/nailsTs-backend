@@ -93,7 +93,7 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     role_id: 3,
                     state: true,
                 });
-                const roleName = ((_b = user.dataValues.Role) === null || _b === void 0 ? void 0 : _b.name) || 'unknown';
+                const roleName = ((_b = user.dataValues.Role) === null || _b === void 0 ? void 0 : _b.name) || 'INVITE_ROLE';
                 const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
                 return res.status(201).json({
                     ok: true,

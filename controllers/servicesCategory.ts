@@ -26,28 +26,33 @@ export const getServicesCategory: RequestHandler = async (
   }
 };
 
-export const createServicesCategory: RequestHandler = async (
-  req: Request,
-  res: Response,
-) => {
-  const name = req.body.name.toUpperCase();
-  if (name === '') {
-    return res.status(401).json({
+export const createServicesCategory: RequestHandler = async (req, res) => {
+  const name = req.body.name?.toUpperCase();
+
+  if (!name || name.trim() === '') {
+    return res.status(400).json({
       ok: false,
       msg: 'El nombre no puede estar vacío',
     });
   }
+
   try {
     const categoryExist = await ServicesCategory.findOne({ where: { name } });
     if (categoryExist) {
-      return res.status(404).json({
+      return res.status(409).json({
         ok: false,
         msg: 'Ya existe una categoría con ese nombre',
       });
     }
+
+    // Asigna valores predeterminados a los campos obligatorios
     const data = {
       name,
+      state: req.body.state || 'active', // Valor predeterminado si no se envía
+      information: req.body.information || null, // Campo opcional
+      img: req.body.img || null, // Campo opcional
     };
+
     const category = await ServicesCategory.create(data);
 
     res.status(201).json({
@@ -56,6 +61,10 @@ export const createServicesCategory: RequestHandler = async (
     });
   } catch (error) {
     console.error(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'Error al crear la categoría',
+    });
   }
 };
 

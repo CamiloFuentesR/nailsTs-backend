@@ -13,7 +13,14 @@ exports.updateservice = exports.createService = exports.getServicesById = export
 const models_1 = require("../models");
 const getServices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const services = yield models_1.Service.findAll();
+        const services = yield models_1.Service.findAll({
+            include: [
+                {
+                    model: models_1.ServicesCategory,
+                    as: 'category',
+                },
+            ],
+        });
         if (services.length === 0) {
             return res.status(404).json({
                 ok: false,
@@ -142,6 +149,14 @@ exports.createService = createService;
 const updateservice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
+    // Verificar y transformar el estado en booleano si es 1 o 2
+    if (body.state === 1) {
+        body.state = true;
+    }
+    else if (body.state === 2) {
+        body.state = false;
+    }
+    // Buscar el servicio por su id
     let service = yield models_1.Service.findByPk(id);
     if (!service) {
         return res.status(400).json({
@@ -149,16 +164,19 @@ const updateservice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             msg: 'No se encontró este servicio',
         });
     }
+    // Actualizar el servicio con los nuevos datos
     const [updatedRowsCount, updateService] = yield models_1.Service.update(body, {
         where: { id },
         returning: true,
     });
+    // Verificar si la actualización se realizó correctamente
     if (updatedRowsCount === 0 || !updateService || updateService.length === 0) {
         return res.status(404).json({
             ok: false,
             msg: 'Cliente no encontrado o no actualizado',
         });
     }
+    // Responder con éxito si se actualizó el servicio
     res.status(201).json({
         ok: true,
         msg: 'Servicio actualizado correctamente',

@@ -90,7 +90,7 @@ export const googleSignIn: RequestHandler = async (
           role_id: 3,
           state: true,
         });
-        const roleName = user.dataValues.Role?.name || 'unknown';
+        const roleName = user.dataValues.Role?.name || 'INVITE_ROLE';
         const token = await generateJWT(user.id, email, roleName);
         return res.status(201).json({
           ok: true,

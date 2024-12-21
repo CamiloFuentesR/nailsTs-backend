@@ -35,9 +35,10 @@ const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, func
 });
 exports.getServicesCategory = getServicesCategory;
 const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const name = req.body.name.toUpperCase();
-    if (name === '') {
-        return res.status(401).json({
+    var _a;
+    const name = (_a = req.body.name) === null || _a === void 0 ? void 0 : _a.toUpperCase();
+    if (!name || name.trim() === '') {
+        return res.status(400).json({
             ok: false,
             msg: 'El nombre no puede estar vacío',
         });
@@ -45,13 +46,17 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     try {
         const categoryExist = yield models_1.ServicesCategory.findOne({ where: { name } });
         if (categoryExist) {
-            return res.status(404).json({
+            return res.status(409).json({
                 ok: false,
                 msg: 'Ya existe una categoría con ese nombre',
             });
         }
+        // Asigna valores predeterminados a los campos obligatorios
         const data = {
             name,
+            state: req.body.state || 'active', // Valor predeterminado si no se envía
+            information: req.body.information || null, // Campo opcional
+            img: req.body.img || null, // Campo opcional
         };
         const category = yield models_1.ServicesCategory.create(data);
         res.status(201).json({
@@ -61,6 +66,10 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
     catch (error) {
         console.error(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Error al crear la categoría',
+        });
     }
 });
 exports.createServicesCategory = createServicesCategory;

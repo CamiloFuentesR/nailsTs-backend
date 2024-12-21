@@ -1,9 +1,16 @@
 import { Response, Request, RequestHandler } from 'express';
-import { Service } from '../models';
+import { Service, ServicesCategory } from '../models';
 
 export const getServices = async (req: Request, res: Response) => {
   try {
-    const services = await Service.findAll();
+    const services = await Service.findAll({
+      include: [
+        {
+          model: ServicesCategory,
+          as: 'category',
+        },
+      ],
+    });
 
     if (services.length === 0) {
       return res.status(404).json({
@@ -139,6 +146,15 @@ export const updateservice: RequestHandler = async (
 ) => {
   const { id } = req.params;
   const { body } = req;
+
+  // Verificar y transformar el estado en booleano si es 1 o 2
+  if (body.state === 1) {
+    body.state = true;
+  } else if (body.state === 2) {
+    body.state = false;
+  }
+
+  // Buscar el servicio por su id
   let service = await Service.findByPk(id);
 
   if (!service) {
@@ -148,16 +164,21 @@ export const updateservice: RequestHandler = async (
     });
   }
 
+  // Actualizar el servicio con los nuevos datos
   const [updatedRowsCount, updateService] = await Service.update(body, {
     where: { id },
     returning: true,
   });
+
+  // Verificar si la actualización se realizó correctamente
   if (updatedRowsCount === 0 || !updateService || updateService.length === 0) {
     return res.status(404).json({
       ok: false,
       msg: 'Cliente no encontrado o no actualizado',
     });
   }
+
+  // Responder con éxito si se actualizó el servicio
   res.status(201).json({
     ok: true,
     msg: 'Servicio actualizado correctamente',
