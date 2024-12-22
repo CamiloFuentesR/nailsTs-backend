@@ -8,8 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateservice = exports.createService = exports.getServicesById = exports.getServicesByCategory = exports.getServices = void 0;
+exports.updateService = exports.createService = exports.getServicesById = exports.getServicesByCategory = exports.getServices = void 0;
 const models_1 = require("../models");
 const getServices = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -102,7 +113,7 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     else if (services_category_id === '') {
         return res.status(401).json({
             ok: false,
-            msg: 'La descripción no puede estar vacío',
+            msg: 'La id no puede estar vacía',
         });
     }
     else if (price === '') {
@@ -112,23 +123,33 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
         });
     }
     try {
-        const categoryExist = yield models_1.Service.findOne({ where: { name } });
-        if (categoryExist) {
+        const serviceExist = yield models_1.Service.findOne({ where: { name } });
+        if (serviceExist) {
             return res.status(404).json({
                 ok: false,
-                msg: 'Ya existe una categoría con ese nombre',
+                msg: 'Ya existe un servicio con ese nombre',
             });
         }
         const data = {
             name,
             price,
             duration,
+            state: true,
             services_category_id,
         };
         const service = yield models_1.Service.create(data);
-        res.status(201).json({
+        // Consulta el servicio recién creado para incluir la categoría
+        const serviceWithCategory = yield models_1.Service.findByPk(service.id, {
+            include: [
+                {
+                    model: models_1.ServicesCategory,
+                    as: 'category',
+                },
+            ],
+        });
+        return res.status(201).json({
             ok: true,
-            service,
+            service: serviceWithCategory,
         });
     }
     catch (error) {
@@ -146,9 +167,9 @@ const createService = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.createService = createService;
-const updateservice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const updateService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { body } = req;
+    let { body } = req;
     // Verificar y transformar el estado en booleano si es 1 o 2
     if (body.state === 1) {
         body.state = true;
@@ -156,32 +177,50 @@ const updateservice = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     else if (body.state === 2) {
         body.state = false;
     }
-    // Buscar el servicio por su id
-    let service = yield models_1.Service.findByPk(id);
-    if (!service) {
-        return res.status(400).json({
-            ok: false,
-            msg: 'No se encontró este servicio',
+    // Crear una copia del cuerpo y excluir el campo `id`
+    const { id: _ } = body, bodyWithoutId = __rest(body, ["id"]);
+    try {
+        // Buscar el servicio por su id
+        let service = yield models_1.Service.findByPk(id);
+        if (!service) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'No se encontró este servicio',
+            });
+        }
+        // Actualizar el servicio con los nuevos datos
+        const [updatedRowsCount] = yield models_1.Service.update(bodyWithoutId, {
+            where: { id },
+        });
+        // Verificar si la actualización se realizó correctamente
+        if (updatedRowsCount === 0) {
+            return res.status(404).json({
+                ok: false,
+                msg: 'Servicio no encontrado o no actualizado',
+            });
+        }
+        // Obtener el servicio actualizado con su categoría
+        const updatedService = yield models_1.Service.findByPk(id, {
+            include: [
+                {
+                    model: models_1.ServicesCategory,
+                    as: 'category',
+                },
+            ],
+        });
+        return res.status(201).json({
+            ok: true,
+            msg: 'Servicio actualizado correctamente',
+            service: updatedService,
         });
     }
-    // Actualizar el servicio con los nuevos datos
-    const [updatedRowsCount, updateService] = yield models_1.Service.update(body, {
-        where: { id },
-        returning: true,
-    });
-    // Verificar si la actualización se realizó correctamente
-    if (updatedRowsCount === 0 || !updateService || updateService.length === 0) {
-        return res.status(404).json({
+    catch (error) {
+        console.error(error);
+        return res.status(500).json({
             ok: false,
-            msg: 'Cliente no encontrado o no actualizado',
+            msg: 'Error interno del servidor',
         });
     }
-    // Responder con éxito si se actualizó el servicio
-    res.status(201).json({
-        ok: true,
-        msg: 'Servicio actualizado correctamente',
-        service: updateService[0],
-    });
 });
-exports.updateservice = updateservice;
+exports.updateService = updateService;
 //# sourceMappingURL=service.js.map

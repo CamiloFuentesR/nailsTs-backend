@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { validateFields, validateJWT } from '../middleware';
-import { showFile, updateFile, uploadFile } from '../controllers/files';
+import {
+  showFile,
+  updateFile,
+  updateFileClaudinary,
+  uploadFile,
+} from '../controllers/files';
 import { check } from 'express-validator';
 import { authorizedCollection } from '../helpers/dbValidator';
 import { validateUpload } from '../helpers/validateUpload';
@@ -17,7 +22,8 @@ router.put(
     authorizedCollection(c, ['users', 'category']),
   ),
   validateFields,
-  updateFile,
+  //   updateFile,
+  updateFileClaudinary,
 );
 
 router.get(

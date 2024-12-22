@@ -8,6 +8,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateServicesCategory = exports.showServiceCategoryById = exports.createServicesCategory = exports.getServicesCategory = void 0;
 const models_1 = require("../models");
@@ -100,17 +111,44 @@ exports.showServiceCategoryById = showServiceCategoryById;
 const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;
+    // Buscar la categoría del servicio
     const serCat = yield models_1.ServicesCategory.findByPk(id);
+    // Si no existe el servicio, devolver un error
     if (!serCat) {
         return res.status(401).json({
             ok: false,
-            msg: 'Servicio_categoria - no exixte',
+            msg: 'Servicio_categoria - no existe',
         });
     }
+    // Conversión de state de 1/2 a booleano
+    if (body.state === 1) {
+        body.state = true;
+    }
+    else if (body.state === 2) {
+        body.state = false;
+    }
+    else if (typeof body.state === 'string') {
+        // Si es una cadena, lo convertimos a booleano (opcional)
+        body.state = body.state.toLowerCase() === 'true';
+    }
+    // Eliminar el ID del body para la actualización
+    const { id: _ } = body, bodyWithoutId = __rest(body, ["id"]);
+    // Actualizar la categoría del servicio
+    const [updatedRowsCount, updatedServiceCategoryArray] = yield models_1.ServicesCategory.update(bodyWithoutId, {
+        where: { id },
+        returning: true,
+    });
+    // Verificar si se actualizó el servicio
+    if (updatedRowsCount === 0) {
+        return res.status(404).json({
+            ok: false,
+            msg: 'Servicio no encontrado o no actualizado',
+        });
+    }
+    // Devolver la respuesta con el servicio actualizado
     return res.status(200).json({
         ok: true,
-        serCat,
-        body,
+        body: updatedServiceCategoryArray,
     });
 });
 exports.updateServicesCategory = updateServicesCategory;

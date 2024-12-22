@@ -31,6 +31,7 @@ export const getServices = async (req: Request, res: Response) => {
     });
   }
 };
+
 export const getServicesByCategory: RequestHandler = async (
   req: Request,
   res: Response,
@@ -96,7 +97,7 @@ export const createService = async (req: Request, res: Response) => {
   } else if (services_category_id === '') {
     return res.status(401).json({
       ok: false,
-      msg: 'La descripción no puede estar vacío',
+      msg: 'La id no puede estar vacía',
     });
   } else if (price === '') {
     return res.status(401).json({
@@ -104,26 +105,40 @@ export const createService = async (req: Request, res: Response) => {
       msg: 'El precio no puede estar vacío',
     });
   }
-  try {
-    const categoryExist = await Service.findOne({ where: { name } });
 
-    if (categoryExist) {
+  try {
+    const serviceExist = await Service.findOne({ where: { name } });
+
+    if (serviceExist) {
       return res.status(404).json({
         ok: false,
-        msg: 'Ya existe una categoría con ese nombre',
+        msg: 'Ya existe un servicio con ese nombre',
       });
     }
+
     const data = {
       name,
       price,
       duration,
+      state: true,
       services_category_id,
     };
+
     const service = await Service.create(data);
 
-    res.status(201).json({
+    // Consulta el servicio recién creado para incluir la categoría
+    const serviceWithCategory = await Service.findByPk(service.id, {
+      include: [
+        {
+          model: ServicesCategory,
+          as: 'category',
+        },
+      ],
+    });
+
+    return res.status(201).json({
       ok: true,
-      service,
+      service: serviceWithCategory,
     });
   } catch (error: any) {
     console.error(error);
@@ -140,12 +155,12 @@ export const createService = async (req: Request, res: Response) => {
   }
 };
 
-export const updateservice: RequestHandler = async (
+export const updateService: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
   const { id } = req.params;
-  const { body } = req;
+  let { body } = req;
 
   // Verificar y transformar el estado en booleano si es 1 o 2
   if (body.state === 1) {
@@ -154,34 +169,53 @@ export const updateservice: RequestHandler = async (
     body.state = false;
   }
 
-  // Buscar el servicio por su id
-  let service = await Service.findByPk(id);
+  // Crear una copia del cuerpo y excluir el campo `id`
+  const { id: _, ...bodyWithoutId } = body;
 
-  if (!service) {
-    return res.status(400).json({
+  try {
+    // Buscar el servicio por su id
+    let service = await Service.findByPk(id);
+
+    if (!service) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'No se encontró este servicio',
+      });
+    }
+
+    // Actualizar el servicio con los nuevos datos
+    const [updatedRowsCount] = await Service.update(bodyWithoutId, {
+      where: { id },
+    });
+
+    // Verificar si la actualización se realizó correctamente
+    if (updatedRowsCount === 0) {
+      return res.status(404).json({
+        ok: false,
+        msg: 'Servicio no encontrado o no actualizado',
+      });
+    }
+
+    // Obtener el servicio actualizado con su categoría
+    const updatedService = await Service.findByPk(id, {
+      include: [
+        {
+          model: ServicesCategory,
+          as: 'category',
+        },
+      ],
+    });
+
+    return res.status(201).json({
+      ok: true,
+      msg: 'Servicio actualizado correctamente',
+      service: updatedService,
+    });
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({
       ok: false,
-      msg: 'No se encontró este servicio',
+      msg: 'Error interno del servidor',
     });
   }
-
-  // Actualizar el servicio con los nuevos datos
-  const [updatedRowsCount, updateService] = await Service.update(body, {
-    where: { id },
-    returning: true,
-  });
-
-  // Verificar si la actualización se realizó correctamente
-  if (updatedRowsCount === 0 || !updateService || updateService.length === 0) {
-    return res.status(404).json({
-      ok: false,
-      msg: 'Cliente no encontrado o no actualizado',
-    });
-  }
-
-  // Responder con éxito si se actualizó el servicio
-  res.status(201).json({
-    ok: true,
-    msg: 'Servicio actualizado correctamente',
-    service: updateService[0],
-  });
 };

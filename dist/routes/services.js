@@ -8,6 +8,6 @@ router.get('/', service_1.getServices);
 router.post('/', validateJWT_1.validateJWT, service_1.createService);
 router.get('/:id', validateJWT_1.validateJWT, service_1.getServicesById);
 router.get('/bycat/:id', validateJWT_1.validateJWT, service_1.getServicesByCategory);
-router.put('/:id', validateJWT_1.validateJWT, service_1.updateservice);
+router.put('/:id', validateJWT_1.validateJWT, service_1.updateService);
 exports.default = router;
 //# sourceMappingURL=services.js.map

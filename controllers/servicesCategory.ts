@@ -46,6 +46,7 @@ export const createServicesCategory: RequestHandler = async (req, res) => {
     }
 
     // Asigna valores predeterminados a los campos obligatorios
+
     const data = {
       name,
       state: req.body.state || 'active', // Valor predeterminado si no se envía
@@ -100,18 +101,49 @@ export const updateServicesCategory: RequestHandler = async (
 ) => {
   const { id } = req.params;
   const { body } = req;
+
+  // Buscar la categoría del servicio
   const serCat = await ServicesCategory.findByPk(id);
 
+  // Si no existe el servicio, devolver un error
   if (!serCat) {
     return res.status(401).json({
       ok: false,
-      msg: 'Servicio_categoria - no exixte',
+      msg: 'Servicio_categoria - no existe',
     });
   }
 
+  // Conversión de state de 1/2 a booleano
+  if (body.state === 1) {
+    body.state = true;
+  } else if (body.state === 2) {
+    body.state = false;
+  } else if (typeof body.state === 'string') {
+    // Si es una cadena, lo convertimos a booleano (opcional)
+    body.state = body.state.toLowerCase() === 'true';
+  }
+
+  // Eliminar el ID del body para la actualización
+  const { id: _, ...bodyWithoutId } = body;
+
+  // Actualizar la categoría del servicio
+  const [updatedRowsCount, updatedServiceCategoryArray] =
+    await ServicesCategory.update(bodyWithoutId, {
+      where: { id },
+      returning: true,
+    });
+
+  // Verificar si se actualizó el servicio
+  if (updatedRowsCount === 0) {
+    return res.status(404).json({
+      ok: false,
+      msg: 'Servicio no encontrado o no actualizado',
+    });
+  }
+
+  // Devolver la respuesta con el servicio actualizado
   return res.status(200).json({
     ok: true,
-    serCat,
-    body,
+    body: updatedServiceCategoryArray,
   });
 };
