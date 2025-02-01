@@ -162,7 +162,6 @@ export const updateService: RequestHandler = async (
   const { id } = req.params;
   let { body } = req;
 
-  // Verificar y transformar el estado en booleano si es 1 o 2
   if (body.state === 1) {
     body.state = true;
   } else if (body.state === 2) {

@@ -170,7 +170,6 @@ exports.createService = createService;
 const updateService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     let { body } = req;
-    // Verificar y transformar el estado en booleano si es 1 o 2
     if (body.state === 1) {
         body.state = true;
     }

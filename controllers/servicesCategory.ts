@@ -112,18 +112,14 @@ export const updateServicesCategory: RequestHandler = async (
       msg: 'Servicio_categoria - no existe',
     });
   }
-  console.log(body.state);
-  // Conversión de state de 1/2 a booleano
+
   if (Number(body.state) === 1) {
-    console.log('true');
     body.state = true;
   } else if (Number(body.state) === 2) {
-    console.log('false');
     body.state = false;
   } else if (typeof body.state === 'string') {
     body.state = body.state.toLowerCase() === 'true';
   }
-  console.log(body.state);
 
   // Eliminar el ID del body para la actualización
   const { id: _, ...bodyWithoutId } = body;
