@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { validateFields, validateJWT } from '../middleware';
 import {
+  postFileClaudinary,
   showFile,
   updateFile,
   updateFileClaudinary,
@@ -12,14 +13,20 @@ import { validateUpload } from '../helpers/validateUpload';
 
 const router = Router();
 
-router.post('/:collection', validateJWT, validateUpload, uploadFile);
+router.post(
+  '/:collection/:id',
+  validateJWT,
+  validateUpload,
+  validateFields,
+  postFileClaudinary,
+);
 
 router.put(
   '/:collection/:id',
   validateJWT,
   validateUpload,
   check('collection').custom(c =>
-    authorizedCollection(c, ['users', 'category']),
+    authorizedCollection(c, ['user', 'category']),
   ),
   validateFields,
   //   updateFile,
@@ -29,7 +36,7 @@ router.put(
 router.get(
   '/:collection/:id',
   check('collection').custom(c =>
-    authorizedCollection(c, ['users', 'category']),
+    authorizedCollection(c, ['user', 'category']),
   ),
   showFile,
 );

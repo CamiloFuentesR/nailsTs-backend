@@ -18,7 +18,7 @@ interface UserAttributes {
   state: boolean;
   role_id: number;
   Role?: Role;
-  picture?: string;
+  img?: string;
 }
 
 interface UserCreationAttributes
@@ -39,6 +39,7 @@ const User = db.define<UserInstance>('Users', {
     allowNull: false,
     unique: true,
   },
+
   password: {
     type: DataTypes.STRING,
     allowNull: false,

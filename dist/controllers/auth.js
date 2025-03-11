@@ -70,7 +70,7 @@ const renewToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.renewToken = renewToken;
 const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b, _c;
+    var _a, _b;
     const { id_token } = req.body;
     try {
         const googleUser = yield (0, google_verify_1.default)(id_token);
@@ -93,7 +93,7 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     role_id: 3,
                     state: true,
                 });
-                const roleName = ((_b = user.dataValues.Role) === null || _b === void 0 ? void 0 : _b.name) || 'INVITE_ROLE';
+                const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'INVITE_ROLE';
                 const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
                 return res.status(201).json({
                     ok: true,
@@ -106,7 +106,7 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                     msg: 'Usuario inhabilitado',
                 });
             }
-            const roleName = ((_c = user.dataValues.Role) === null || _c === void 0 ? void 0 : _c.name) || 'unknown';
+            const roleName = ((_b = user.dataValues.Role) === null || _b === void 0 ? void 0 : _b.name) || 'unknown';
             const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
             return res.status(201).json({
                 ok: true,

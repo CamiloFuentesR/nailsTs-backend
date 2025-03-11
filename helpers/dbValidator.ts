@@ -74,8 +74,11 @@ export const validUUID = async (value: string): Promise<boolean> => {
 
 export const authorizedCollection = (
   collection = '',
+
   collections: string[] = [],
 ) => {
+  console.log('authorize');
+  console.log(collection);
   const include = collections.includes(collection);
   if (!include) {
     throw new Error(

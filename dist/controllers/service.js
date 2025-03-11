@@ -56,7 +56,7 @@ const getServicesByCategory = (req, res) => __awaiter(void 0, void 0, void 0, fu
     try {
         const { id } = req.params;
         const services = yield models_1.Service.findAll({
-            where: { services_category_id: id },
+            where: { services_category_id: id, state: true },
         });
         if (!services) {
             return res.status(409).json({

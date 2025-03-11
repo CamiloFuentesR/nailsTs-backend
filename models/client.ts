@@ -6,6 +6,7 @@ import User from './user';
 interface ClientAttributes {
   id: UUIDVersion;
   name?: string | undefined;
+  img: string | undefined;
   phone_number?: string | undefined;
   user_id: UUIDVersion;
   state: boolean;
@@ -40,7 +41,10 @@ const Client = db.define<ClientInstance>('Clients', {
       key: 'id',
     },
   },
-
+  img: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   state: {
     type: DataTypes.BOOLEAN,
     allowNull: false,

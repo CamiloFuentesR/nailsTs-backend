@@ -39,7 +39,7 @@ export const getServicesByCategory: RequestHandler = async (
   try {
     const { id } = req.params;
     const services = await Service.findAll({
-      where: { services_category_id: id },
+      where: { services_category_id: id, state: true },
     });
     if (!services) {
       return res.status(409).json({

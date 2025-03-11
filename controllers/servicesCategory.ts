@@ -51,8 +51,9 @@ export const createServicesCategory: RequestHandler = async (req, res) => {
       name,
       state: req.body.state || 'active', // Valor predeterminado si no se envía
       information: req.body.information || null, // Campo opcional
-      img: req.body.img || null, // Campo opcional
+      img: req.body.img.name || null, // Campo opcional
     };
+    console.log(data);
 
     const category = await ServicesCategory.create(data);
 

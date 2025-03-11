@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.showFile = exports.updateFileClaudinary = exports.updateFile = exports.uploadFile = void 0;
+exports.showFile = exports.updateFileClaudinary = exports.postFileClaudinary = exports.updateFile = exports.uploadFile = void 0;
 const uploadFiles_1 = require("../helpers/uploadFiles");
 const models_1 = require("../models");
 const path_1 = __importDefault(require("path"));
@@ -48,13 +48,13 @@ const uploadFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.uploadFile = uploadFile;
 const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _a;
     const { id, collection } = req.params;
     let model;
     try {
         switch (collection) {
             case 'user': {
-                const user = yield models_1.User.findByPk(id);
+                const user = yield models_1.Client.findByPk(id);
                 if (!user) {
                     return res.status(400).json({
                         msg: `No existe un usuario con el id ${id}`,
@@ -84,7 +84,7 @@ const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 fs_1.default.unlinkSync(pathImg);
             }
         }
-        const file = (_b = req.files) === null || _b === void 0 ? void 0 : _b.file;
+        const file = (_a = req.files) === null || _a === void 0 ? void 0 : _a.file;
         const name = yield (0, uploadFiles_1.uploadFiles)(file, undefined, collection);
         model.img = name;
         yield model.save();
@@ -98,14 +98,52 @@ const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateFile = updateFile;
+const postFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const { id, collection } = req.params;
+    console.log(req.files);
+    let model;
+    console.log(collection);
+    console.log(req.body);
+    console.log(id);
+    // const category = await ServicesCategory.findByPk(id);
+    // if (!category) {
+    //   return res.status(400).json({
+    //     msg: `No existe un producto con el id ${id}`,
+    //   });
+    // }
+    // model = collection.cartegory as ModelWithImg;
+    // if (model.img) {
+    //   const nombreArr = model.img.split('/');
+    //   const nombre = nombreArr[nombreArr.length - 1];
+    //   const [public_id] = nombre.split('.');
+    //   cloudinary.uploader.destroy(`${id}/${public_id}`);
+    // }
+    const { tempFilePath } = (_a = req.files) === null || _a === void 0 ? void 0 : _a.file;
+    // Crear la carpeta dinámica según la colección
+    const folderPath = `RestServer NodeJs/${id}`;
+    const { secure_url } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
+        folder: id,
+    });
+    // Puedes guardar el URL en el modelo o hacer lo que necesites
+    // model.img = secure_url;
+    // await model.save();
+    res.json({
+        ok: true,
+        // model,
+    });
+});
+exports.postFileClaudinary = postFileClaudinary;
 const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _a;
     const { id, collection } = req.params;
     let model;
+    console.log('collection');
+    console.log(collection);
     try {
         switch (collection) {
             case 'user': {
-                const user = yield models_1.User.findByPk(id);
+                const user = yield models_1.Client.findByPk(id);
                 if (!user) {
                     return res.status(400).json({
                         msg: `No existe un usuario con el id ${id}`,
@@ -115,13 +153,13 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 break;
             }
             case 'category': {
-                const product = yield models_1.ServicesCategory.findByPk(id);
-                if (!product) {
+                const category = yield models_1.ServicesCategory.findByPk(id);
+                if (!category) {
                     return res.status(400).json({
                         msg: `No existe un producto con el id ${id}`,
                     });
                 }
-                model = product;
+                model = category;
                 break;
             }
             default:
@@ -135,12 +173,13 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
             const [public_id] = nombre.split('.');
             cloudinary_1.v2.uploader.destroy(`${collection}/${public_id}`);
         }
-        const { tempFilePath } = (_c = req.files) === null || _c === void 0 ? void 0 : _c.file;
+        const { tempFilePath } = (_a = req.files) === null || _a === void 0 ? void 0 : _a.file;
         // Crear la carpeta dinámica según la colección
         const folderPath = `RestServer NodeJs/${collection}`;
         const { secure_url } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
             folder: collection,
         });
+        console.log(model);
         // Puedes guardar el URL en el modelo o hacer lo que necesites
         model.img = secure_url;
         yield model.save();
@@ -160,7 +199,7 @@ const showFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         switch (collection) {
             case 'user': {
-                const user = yield models_1.User.findByPk(id);
+                const user = yield models_1.Client.findByPk(id);
                 if (!user) {
                     return res.status(400).json({
                         msg: `No existe un usuario con el id ${id}`,

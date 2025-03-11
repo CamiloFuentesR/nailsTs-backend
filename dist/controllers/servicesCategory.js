@@ -67,8 +67,9 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
             name,
             state: req.body.state || 'active', // Valor predeterminado si no se envía
             information: req.body.information || null, // Campo opcional
-            img: req.body.img || null, // Campo opcional
+            img: req.body.img.name || null, // Campo opcional
         };
+        console.log(data);
         const category = yield models_1.ServicesCategory.create(data);
         res.status(201).json({
             ok: true,

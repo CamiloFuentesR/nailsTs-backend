@@ -27,6 +27,7 @@ const updateUserAndClientState = (userId, body, res) => __awaiter(void 0, void 0
             const client = models_1.Client.build({
                 name: clientData === null || clientData === void 0 ? void 0 : clientData.name,
                 phone_number: clientData === null || clientData === void 0 ? void 0 : clientData.phone_number,
+                img: clientData === null || clientData === void 0 ? void 0 : clientData.img,
                 user_id: user.id,
                 state: true,
             });

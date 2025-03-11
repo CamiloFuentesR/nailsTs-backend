@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { uploadFiles } from '../helpers/uploadFiles';
 import { UploadedFile } from 'express-fileupload';
-import { ServicesCategory, User } from '../models';
+import { Client, ServicesCategory, User } from '../models';
 import path from 'path';
 import fs from 'fs';
 import { v2 as cloudinary } from 'cloudinary';
@@ -48,7 +48,7 @@ export const updateFile = async (req: Request, res: Response) => {
   try {
     switch (collection) {
       case 'user': {
-        const user = await User.findByPk(id);
+        const user = await Client.findByPk(id);
         if (!user) {
           return res.status(400).json({
             msg: `No existe un usuario con el id ${id}`,
@@ -100,14 +100,57 @@ export const updateFile = async (req: Request, res: Response) => {
   }
 };
 
+export const postFileClaudinary = async (req: Request, res: Response) => {
+  const { id, collection } = req.params;
+  console.log(req.files);
+  let model: ModelWithImg;
+  console.log(collection);
+  console.log(req.body);
+  console.log(id);
+
+  // const category = await ServicesCategory.findByPk(id);
+  // if (!category) {
+  //   return res.status(400).json({
+  //     msg: `No existe un producto con el id ${id}`,
+  //   });
+  // }
+  // model = collection.cartegory as ModelWithImg;
+
+  // if (model.img) {
+  //   const nombreArr = model.img.split('/');
+  //   const nombre = nombreArr[nombreArr.length - 1];
+  //   const [public_id] = nombre.split('.');
+  //   cloudinary.uploader.destroy(`${id}/${public_id}`);
+  // }
+
+  const { tempFilePath } = req.files?.file as UploadedFile;
+
+  // Crear la carpeta dinámica según la colección
+  const folderPath = `RestServer NodeJs/${id}`;
+
+  const { secure_url } = await cloudinary.uploader.upload(tempFilePath, {
+    folder: id,
+  });
+
+  // Puedes guardar el URL en el modelo o hacer lo que necesites
+  // model.img = secure_url;
+  // await model.save();
+
+  res.json({
+    ok: true,
+    // model,
+  });
+};
 export const updateFileClaudinary = async (req: Request, res: Response) => {
   const { id, collection } = req.params;
   let model: ModelWithImg;
+  console.log('collection');
+  console.log(collection);
 
   try {
     switch (collection) {
       case 'user': {
-        const user = await User.findByPk(id);
+        const user = await Client.findByPk(id);
         if (!user) {
           return res.status(400).json({
             msg: `No existe un usuario con el id ${id}`,
@@ -117,13 +160,13 @@ export const updateFileClaudinary = async (req: Request, res: Response) => {
         break;
       }
       case 'category': {
-        const product = await ServicesCategory.findByPk(id);
-        if (!product) {
+        const category = await ServicesCategory.findByPk(id);
+        if (!category) {
           return res.status(400).json({
             msg: `No existe un producto con el id ${id}`,
           });
         }
-        model = product as ModelWithImg;
+        model = category as ModelWithImg;
         break;
       }
       default:
@@ -148,6 +191,7 @@ export const updateFileClaudinary = async (req: Request, res: Response) => {
       folder: collection,
     });
 
+    console.log(model);
     // Puedes guardar el URL en el modelo o hacer lo que necesites
     model.img = secure_url;
     await model.save();
@@ -168,7 +212,7 @@ export const showFile = async (req: Request, res: Response) => {
   try {
     switch (collection) {
       case 'user': {
-        const user = await User.findByPk(id);
+        const user = await Client.findByPk(id);
         if (!user) {
           return res.status(400).json({
             msg: `No existe un usuario con el id ${id}`,

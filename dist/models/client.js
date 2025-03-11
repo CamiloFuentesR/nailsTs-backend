@@ -29,6 +29,10 @@ const Client = conection_1.default.define('Clients', {
             key: 'id',
         },
     },
+    img: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
     state: {
         type: sequelize_1.DataTypes.BOOLEAN,
         allowNull: false,

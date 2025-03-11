@@ -6,6 +6,7 @@ interface Client {
   phone_number?: string | undefined;
   user_id: UUIDVersion;
   state: boolean;
+  img: string | undefined;
 }
 
 interface Role {

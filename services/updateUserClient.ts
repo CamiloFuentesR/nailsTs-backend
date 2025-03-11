@@ -20,6 +20,7 @@ export const updateUserAndClientState = async (
       const client = Client.build({
         name: clientData?.name,
         phone_number: clientData?.phone_number,
+        img: clientData?.img,
         user_id: user.id,
         state: true,
       });
