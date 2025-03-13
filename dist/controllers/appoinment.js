@@ -74,6 +74,7 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             state: appointmentData.state,
             price: appointmentData.price,
             className: appointmentData.className,
+            img: appointmentData.img,
         }, { transaction });
         // Prepara los datos de servicios relacionados con la cita
         const appointmentServices = servicesData.map((service) => ({
@@ -280,6 +281,7 @@ exports.getAppointmentByMonth = getAppointmentByMonth;
 // };
 const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { appointmentData, servicesData } = req.body;
+    console.log(appointmentData);
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {
@@ -303,6 +305,7 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             state: appointmentData.state,
             price: appointmentData.price,
             className: appointmentData.className,
+            img: appointmentData.img,
         }, { transaction });
         yield models_1.AppointmentService.destroy({
             where: { appointment_id: appointmentData.id },

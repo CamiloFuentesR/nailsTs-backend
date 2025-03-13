@@ -70,6 +70,7 @@ export const createAppointment: RequestHandler = async (
         state: appointmentData.state,
         price: appointmentData.price,
         className: appointmentData.className,
+        img: appointmentData.img,
       },
       { transaction },
     );
@@ -296,7 +297,7 @@ export const updateAppointment: RequestHandler = async (
   res: Response,
 ) => {
   const { appointmentData, servicesData } = req.body;
-
+  console.log(appointmentData);
   // Inicia una transacción
   const transaction = await db.transaction();
 
@@ -324,6 +325,7 @@ export const updateAppointment: RequestHandler = async (
         state: appointmentData.state,
         price: appointmentData.price,
         className: appointmentData.className,
+        img: appointmentData.img,
       },
       { transaction },
     );

@@ -174,10 +174,21 @@ const getAppointmentServiceByAppointment = (req, res) => __awaiter(void 0, void 
                             as: 'category',
                             attributes: ['name'],
                         },
+                        // {
+                        //   model: Appointment,
+                        //   as: 'appointment',
+                        //   attributes: ['img'],
+                        // },
                     ],
+                },
+                {
+                    model: models_1.Appointment,
+                    // as: 'appointment',
+                    attributes: ['img'],
                 },
             ],
         });
+        console.log(appointment);
         if (!appointment) {
             return res.status(409).json({
                 ok: false,
@@ -222,7 +233,15 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
                 },
                 {
                     model: models_1.Appointment,
-                    attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+                    attributes: [
+                        'id',
+                        'start',
+                        'end',
+                        'title',
+                        'client_id',
+                        'img',
+                        'state',
+                    ],
                     where: {
                         client_id: id,
                         state: {
@@ -294,7 +313,15 @@ const getAppointmentServiceOneByClient = (req, res) => __awaiter(void 0, void 0,
                 },
                 {
                     model: models_1.Appointment,
-                    attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+                    attributes: [
+                        'id',
+                        'start',
+                        'end',
+                        'title',
+                        'client_id',
+                        'state',
+                        'img',
+                    ],
                     where: {
                         state: {
                             [sequelize_1.Op.notIn]: [-1],

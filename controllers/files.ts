@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { uploadFiles } from '../helpers/uploadFiles';
 import { UploadedFile } from 'express-fileupload';
-import { Client, ServicesCategory, User } from '../models';
+import { Appointment, Client, ServicesCategory, User } from '../models';
 import path from 'path';
 import fs from 'fs';
 import { v2 as cloudinary } from 'cloudinary';
@@ -191,7 +191,6 @@ export const updateFileClaudinary = async (req: Request, res: Response) => {
       folder: collection,
     });
 
-    console.log(model);
     // Puedes guardar el URL en el modelo o hacer lo que necesites
     model.img = secure_url;
     await model.save();
@@ -201,6 +200,77 @@ export const updateFileClaudinary = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
+    res.status(400).json({ error });
+  }
+};
+
+export const updateFileClientNailsClaudinary = async (
+  req: Request,
+  res: Response,
+) => {
+  const { id } = req.params; // ID de la cita (Appointment)
+  let model: ModelWithImg;
+
+  try {
+    // 🔍 Buscar la cita y obtener el cliente asociado
+    const appointment = await Appointment.findByPk(id);
+
+    if (!appointment) {
+      return res.status(400).json({
+        msg: `No existe una cita con el id ${id} o no tiene un cliente asociado`,
+      });
+    }
+
+    // 🔍 Obtener el ID del cliente
+    const clientId = appointment.client_id;
+    model = appointment as ModelWithImg;
+
+    console.log('clientId:', clientId);
+    console.log('Imagen actual:', model.img);
+
+    // 🔥 Si existe una imagen previa, eliminarla de Cloudinary
+    if (model.img) {
+      const urlParts = model.img.split('/');
+      const fileName = urlParts[urlParts.length - 1]; // Extrae "nombre.ext"
+      const [public_id] = fileName.split('.'); // Elimina la extensión
+      const fullPublicId = `nails/${clientId}/${public_id}`; // Ruta completa
+
+      console.log('Intentando eliminar:', fullPublicId);
+
+      // 🚀 Ahora usamos `await` y verificamos la respuesta
+      const result = await cloudinary.uploader.destroy(fullPublicId);
+      console.log('Resultado eliminación:', result);
+    }
+
+    // 📌 Asegurar que se suba un archivo
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({ msg: 'No se ha subido ningún archivo' });
+    }
+
+    const { tempFilePath } = req.files.file as UploadedFile;
+
+    // 📌 Usar la ID del cliente en la carpeta de Cloudinary
+    const folderPath = `nails/${clientId}`;
+
+    // 📌 Subir archivo a Cloudinary
+    const { secure_url, public_id } = await cloudinary.uploader.upload(
+      tempFilePath,
+      {
+        folder: folderPath, // Guardar en la carpeta del cliente
+      },
+    );
+
+    console.log('Nueva imagen subida:', public_id);
+
+    // 📌 Guardar la nueva URL en el modelo
+    model.img = secure_url;
+    await model.save();
+
+    res.json({
+      model,
+    });
+  } catch (error) {
+    console.error('Error en la subida/eliminación de imagen:', error);
     res.status(400).json({ error });
   }
 };

@@ -1,6 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import db from '../db/conection';
 import { UUIDVersion } from 'express-validator/lib/options';
+import { ClientInstance } from './client';
 
 export interface AppointmentProps {
   id: UUIDVersion;
@@ -10,6 +11,7 @@ export interface AppointmentProps {
   client_id: UUIDVersion;
   backgroundColor: string;
   className: string;
+  img?: string;
   state: number;
   title: string;
 }
@@ -19,7 +21,9 @@ interface AppointmentCreationAttributes
 
 export interface AppointmentInstance
   extends Model<AppointmentProps, AppointmentCreationAttributes>,
-    AppointmentProps {}
+    AppointmentProps {
+  client?: ClientInstance;
+}
 
 const Appointment = db.define<AppointmentInstance>('Appointments', {
   id: {
@@ -43,7 +47,10 @@ const Appointment = db.define<AppointmentInstance>('Appointments', {
     type: DataTypes.FLOAT,
     allowNull: true,
   },
-
+  img: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
   title: {
     type: DataTypes.STRING,
     allowNull: true,

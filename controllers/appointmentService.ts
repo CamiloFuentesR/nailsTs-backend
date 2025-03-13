@@ -187,11 +187,21 @@ export const getAppointmentServiceByAppointment: RequestHandler = async (
               as: 'category',
               attributes: ['name'],
             },
+            // {
+            //   model: Appointment,
+            //   as: 'appointment',
+            //   attributes: ['img'],
+            // },
           ],
+        },
+        {
+          model: Appointment,
+          // as: 'appointment',
+          attributes: ['img'],
         },
       ],
     });
-
+    console.log(appointment);
     if (!appointment) {
       return res.status(409).json({
         ok: false,
@@ -238,7 +248,15 @@ export const getAppointmentServiceByClient: RequestHandler = async (
         },
         {
           model: Appointment,
-          attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+          attributes: [
+            'id',
+            'start',
+            'end',
+            'title',
+            'client_id',
+            'img',
+            'state',
+          ],
           where: {
             client_id: id,
             state: {
@@ -326,7 +344,15 @@ export const getAppointmentServiceOneByClient: RequestHandler = async (
         },
         {
           model: Appointment,
-          attributes: ['id', 'start', 'end', 'title', 'client_id', 'state'],
+          attributes: [
+            'id',
+            'start',
+            'end',
+            'title',
+            'client_id',
+            'state',
+            'img',
+          ],
           where: {
             state: {
               [Op.notIn]: [-1],

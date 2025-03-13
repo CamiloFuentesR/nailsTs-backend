@@ -26,4 +26,5 @@ client_1.default.hasMany(appointment_1.default, { foreignKey: 'client_id' });
 appointment_1.default.belongsTo(appointmentState_1.default, { foreignKey: 'state' });
 _1.AppointmentService.belongsTo(service_1.default, { foreignKey: 'service_id' });
 _1.AppointmentService.belongsTo(appointment_1.default, { foreignKey: 'appointment_id' });
+appointment_1.default.belongsTo(client_1.default, { foreignKey: 'client_id' });
 //# sourceMappingURL=initAssociations.js.map

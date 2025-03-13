@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.showFile = exports.updateFileClaudinary = exports.postFileClaudinary = exports.updateFile = exports.uploadFile = void 0;
+exports.showFile = exports.updateFileClientNailsClaudinary = exports.updateFileClaudinary = exports.postFileClaudinary = exports.updateFile = exports.uploadFile = void 0;
 const uploadFiles_1 = require("../helpers/uploadFiles");
 const models_1 = require("../models");
 const path_1 = __importDefault(require("path"));
@@ -179,7 +179,6 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
         const { secure_url } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
             folder: collection,
         });
-        console.log(model);
         // Puedes guardar el URL en el modelo o hacer lo que necesites
         model.img = secure_url;
         yield model.save();
@@ -193,6 +192,58 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.updateFileClaudinary = updateFileClaudinary;
+const updateFileClientNailsClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params; // ID de la cita (Appointment)
+    let model;
+    try {
+        // 🔍 Buscar la cita y obtener el cliente asociado
+        const appointment = yield models_1.Appointment.findByPk(id);
+        if (!appointment) {
+            return res.status(400).json({
+                msg: `No existe una cita con el id ${id} o no tiene un cliente asociado`,
+            });
+        }
+        // 🔍 Obtener el ID del cliente
+        const clientId = appointment.client_id;
+        model = appointment;
+        console.log('clientId:', clientId);
+        console.log('Imagen actual:', model.img);
+        // 🔥 Si existe una imagen previa, eliminarla de Cloudinary
+        if (model.img) {
+            const urlParts = model.img.split('/');
+            const fileName = urlParts[urlParts.length - 1]; // Extrae "nombre.ext"
+            const [public_id] = fileName.split('.'); // Elimina la extensión
+            const fullPublicId = `nails/${clientId}/${public_id}`; // Ruta completa
+            console.log('Intentando eliminar:', fullPublicId);
+            // 🚀 Ahora usamos `await` y verificamos la respuesta
+            const result = yield cloudinary_1.v2.uploader.destroy(fullPublicId);
+            console.log('Resultado eliminación:', result);
+        }
+        // 📌 Asegurar que se suba un archivo
+        if (!req.files || !req.files.file) {
+            return res.status(400).json({ msg: 'No se ha subido ningún archivo' });
+        }
+        const { tempFilePath } = req.files.file;
+        // 📌 Usar la ID del cliente en la carpeta de Cloudinary
+        const folderPath = `nails/${clientId}`;
+        // 📌 Subir archivo a Cloudinary
+        const { secure_url, public_id } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
+            folder: folderPath, // Guardar en la carpeta del cliente
+        });
+        console.log('Nueva imagen subida:', public_id);
+        // 📌 Guardar la nueva URL en el modelo
+        model.img = secure_url;
+        yield model.save();
+        res.json({
+            model,
+        });
+    }
+    catch (error) {
+        console.error('Error en la subida/eliminación de imagen:', error);
+        res.status(400).json({ error });
+    }
+});
+exports.updateFileClientNailsClaudinary = updateFileClientNailsClaudinary;
 const showFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id, collection } = req.params;
     let model;

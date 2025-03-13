@@ -5,6 +5,7 @@ import {
   showFile,
   updateFile,
   updateFileClaudinary,
+  updateFileClientNailsClaudinary,
   uploadFile,
 } from '../controllers/files';
 import { check } from 'express-validator';
@@ -19,6 +20,18 @@ router.post(
   validateUpload,
   validateFields,
   postFileClaudinary,
+);
+
+router.put(
+  '/nails/:collection/:id',
+  validateJWT,
+  validateUpload,
+  // check('collection').custom(c =>
+  //   authorizedCollection(c, ['user', 'category']),
+  // ),
+  validateFields,
+  //   updateFile,
+  updateFileClientNailsClaudinary,
 );
 
 router.put(

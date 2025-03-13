@@ -27,6 +27,10 @@ const Appointment = conection_1.default.define('Appointments', {
         type: sequelize_1.DataTypes.FLOAT,
         allowNull: true,
     },
+    img: {
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: true,
+    },
     title: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
