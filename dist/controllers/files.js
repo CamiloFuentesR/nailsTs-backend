@@ -179,7 +179,7 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
         const { secure_url } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
             folder: collection,
             transformation: [
-                { width: 500, height: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
+                { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
                 { quality: 35 }, // Reducir calidad al 35%
                 { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
             ],
@@ -235,7 +235,7 @@ const updateFileClientNailsClaudinary = (req, res) => __awaiter(void 0, void 0, 
         const { secure_url, public_id } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
             folder: folderPath,
             transformation: [
-                { width: 500, height: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
+                { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
                 { quality: 35 }, // Reducir calidad al 35%
                 { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
             ],

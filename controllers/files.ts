@@ -190,7 +190,7 @@ export const updateFileClaudinary = async (req: Request, res: Response) => {
     const { secure_url } = await cloudinary.uploader.upload(tempFilePath, {
       folder: collection,
       transformation: [
-        { width: 500, height: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
+        { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
         { quality: 35 }, // Reducir calidad al 35%
         { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
       ],
@@ -263,7 +263,7 @@ export const updateFileClientNailsClaudinary = async (
       {
         folder: folderPath,
         transformation: [
-          { width: 500, height: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
+          { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
           { quality: 35 }, // Reducir calidad al 35%
           { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
         ],
