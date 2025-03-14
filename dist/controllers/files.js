@@ -180,7 +180,7 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
             folder: collection,
             transformation: [
                 { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
-                { quality: 35 }, // Reducir calidad al 35%
+                { quality: 60 }, // Reducir calidad al 35%
                 { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
             ],
         });
@@ -236,7 +236,7 @@ const updateFileClientNailsClaudinary = (req, res) => __awaiter(void 0, void 0, 
             folder: folderPath,
             transformation: [
                 { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
-                { quality: 35 }, // Reducir calidad al 35%
+                { quality: 60 }, // Reducir calidad al 35%
                 { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
             ],
         });
