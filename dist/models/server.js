@@ -109,8 +109,11 @@ class Server {
             });
             socket.on('updateAppointment', event => {
                 console.log('Evento actualizado:', event);
-                // Aquí podrías actualizar el evento en la base de datos
-                socket.broadcast.emit('updatedAppointment', event); // Emitir a todos los clientes
+                if (event.img instanceof Buffer) {
+                    event.img = `data:image/jpeg;base64,${event.img.toString('base64')}`;
+                }
+                console.log(event);
+                socket.broadcast.emit('updatedAppointment', event);
             });
             socket.on('eventDeleted', event => {
                 console.log('Evento eliminado:', event);

@@ -144,8 +144,6 @@ export const postFileClaudinary = async (req: Request, res: Response) => {
 export const updateFileClaudinary = async (req: Request, res: Response) => {
   const { id, collection } = req.params;
   let model: ModelWithImg;
-  console.log('collection');
-  console.log(collection);
 
   try {
     switch (collection) {
@@ -230,9 +228,6 @@ export const updateFileClientNailsClaudinary = async (
     const clientId = appointment.client_id;
     model = appointment as ModelWithImg;
 
-    console.log('clientId:', clientId);
-    console.log('Imagen actual:', model.img);
-
     // 🔥 Si existe una imagen previa, eliminarla de Cloudinary
     if (model.img) {
       const urlParts = model.img.split('/');
@@ -258,21 +253,16 @@ export const updateFileClientNailsClaudinary = async (
     const folderPath = `nails/${clientId}`;
 
     // 📌 Subir archivo a Cloudinary
-    const { secure_url, public_id } = await cloudinary.uploader.upload(
-      tempFilePath,
-      {
-        folder: folderPath,
-        transformation: [
-          { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
-          { quality: 60 }, // Reducir calidad al 35%
-          { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
-        ],
-      },
-    );
+    const { secure_url } = await cloudinary.uploader.upload(tempFilePath, {
+      folder: folderPath,
+      transformation: [
+        { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
+        { quality: 60 }, // Reducir calidad al 35%
+        { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
+      ],
+    });
 
-    console.log('Nueva imagen subida:', public_id);
-
-    // 📌 Guardar la nueva URL en el modelo
+    //  Guardar la nueva URL en el modelo
     model.img = secure_url;
     await model.save();
 
