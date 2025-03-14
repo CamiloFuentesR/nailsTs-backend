@@ -114,19 +114,16 @@ class Server {
             });
             socket.on('eventDeleted', event => {
                 console.log('Evento eliminado:', event);
-                // Aquí podrías eliminar el evento de la base de datos
                 socket.broadcast.emit('eventDeleted', event); // Emitir a todos los clientes
             });
-            // socket.on('businessHourAdded', businessHour => {
-            //   console.log('Hora de negocio agregada:', businessHour);
-            //   // Aquí podrías guardar la hora de negocio en la base de datos
-            //   socket.broadcast.emit('businessHourAdded', businessHour); // Emitir a todos los clientes
-            // });
-            // socket.on('businessHourUpdated', businessHour => {
-            //   console.log('Hora de negocio actualizada:', businessHour);
-            //   // Aquí podrías actualizar la hora de negocio en la base de datos
-            //   socket.broadcast.emit('businessHourUpdated', businessHour); // Emitir a todos los clientes
-            // });
+            socket.on('saveBussines', businessHours => {
+                console.log('Hora de negocio agregada:', businessHours);
+                socket.broadcast.emit('onAddNewBusiness', businessHours);
+            });
+            socket.on('updateBussines', businessHours => {
+                console.log('Hora de negocio editada:', businessHours);
+                socket.broadcast.emit('onUpdateBusiness', businessHours);
+            });
             socket.on('disconnect', () => {
                 console.log('Cliente desconectado');
             });

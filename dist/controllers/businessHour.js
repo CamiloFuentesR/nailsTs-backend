@@ -26,7 +26,6 @@ const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, funct
     const _a = req.body, { id } = _a, businessHourData = __rest(_a, ["id"]);
     try {
         const existingBusinessHour = yield models_1.BusinessHour.findByPk(id);
-        console.log(existingBusinessHour);
         if (existingBusinessHour) {
             return res.status(500).json({
                 ok: false,

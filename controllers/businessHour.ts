@@ -9,7 +9,6 @@ export const createBusinessHour: RequestHandler = async (
 
   try {
     const existingBusinessHour = await BusinessHour.findByPk(id);
-    console.log(existingBusinessHour);
     if (existingBusinessHour) {
       return res.status(500).json({
         ok: false,
