@@ -121,6 +121,7 @@ export const createUser: RequestHandler = async (
     user.role_id = 3;
     user.state = true;
     const roleName = user.dataValues.Role?.name || 'unknown';
+
     const userSave = await user.save();
     const token = await generateJWT(user.id, user.email, 'INVITE_ROLE');
 
