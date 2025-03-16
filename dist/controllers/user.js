@@ -123,7 +123,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         user.state = true;
         const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'unknown';
         const userSave = yield user.save();
-        const token = yield (0, generateJWT_1.default)(user.id, user.email, 'USER_ROLE');
+        const token = yield (0, generateJWT_1.default)(user.id, user.email, 'INVITE_ROLE');
         res.status(201).json({
             ok: true,
             msg: 'usuario creado con éxito',
