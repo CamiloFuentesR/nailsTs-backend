@@ -48,6 +48,7 @@ class Server {
             cors: {
                 origin: [
                     'https://mozzafiato-manicure.netlify.app',
+                    'https://mozzafiato-manicure.cl',
                     'http://localhost:5173',
                     'http://localhost:4173',
                 ],
