@@ -7,6 +7,7 @@ import {
   getUsersInactive,
   createUser,
   activeteUser,
+  getUsers,
 } from '../controllers/user';
 import { check } from 'express-validator';
 import { validateFields } from '../middleware/validateFields';
@@ -15,13 +16,14 @@ import { userByIdExist } from '../helpers/dbValidator';
 
 const router = Router();
 
+router.get('/', validateJWT, getUsers);
 router.get('/active', validateJWT, getUsersActive);
 router.get('/inactive', validateJWT, getUsersInactive);
 
 router.get(
   '/:id',
   [validateJWT, check('id').custom(userByIdExist), validateFields],
-  getUserByid
+  getUserByid,
 );
 
 router.post(
@@ -38,7 +40,7 @@ router.post(
       .withMessage('El password debe tener al menos 5 caracteres'),
     validateFields,
   ],
-  createUser
+  createUser,
 );
 
 router.put(
@@ -53,18 +55,18 @@ router.put(
     check('state').notEmpty(),
     validateFields,
   ],
-  updateUser
+  updateUser,
 );
 
 router.delete(
   '/:id',
   [validateJWT, check('id').custom(userByIdExist), validateFields],
-  deleteUser
+  deleteUser,
 );
 router.put(
   '/active/:id',
   [validateJWT, check('id').custom(userByIdExist), validateFields],
-  activeteUser
+  activeteUser,
 );
 
 export default router;

@@ -7,6 +7,7 @@ const validateFields_1 = require("../middleware/validateFields");
 const validateJWT_1 = require("../middleware/validateJWT");
 const dbValidator_1 = require("../helpers/dbValidator");
 const router = (0, express_1.Router)();
+router.get('/', validateJWT_1.validateJWT, user_1.getUsers);
 router.get('/active', validateJWT_1.validateJWT, user_1.getUsersActive);
 router.get('/inactive', validateJWT_1.validateJWT, user_1.getUsersInactive);
 router.get('/:id', [validateJWT_1.validateJWT, (0, express_validator_1.check)('id').custom(dbValidator_1.userByIdExist), validateFields_1.validateFields], user_1.getUserByid);

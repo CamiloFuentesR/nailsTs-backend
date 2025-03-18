@@ -90,7 +90,7 @@ const showClientByUserId = (req, res) => __awaiter(void 0, void 0, void 0, funct
         const { id } = req.params;
         const client = yield models_1.Client.findOne({
             where: { user_id: id },
-            attributes: ['id', 'name', 'phone_number'],
+            attributes: ['id', 'name', 'phone_number', 'img'],
         });
         if (!client) {
             return res.status(200).json({

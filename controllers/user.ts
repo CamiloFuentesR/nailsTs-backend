@@ -7,6 +7,38 @@ import { Client, Role, User } from '../models';
 import { activeUserAndClientState } from '../services/activeUserCLient';
 import { updateUserAndClientState } from '../services/updateUserClient';
 
+export const getUsers: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    const users = await User.findAll({
+      include: [
+        {
+          model: Client,
+        },
+        {
+          model: Role,
+          attributes: ['name'],
+        },
+      ],
+    });
+    if (users.length === 0) {
+      return res.status(400).json({
+        msg: 'No hay usuarios',
+      });
+    }
+    console.log('users');
+    console.log(users);
+    res.json({
+      ok: true,
+      msg: 'getUsers',
+      users,
+    });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      msg: error.message,
+    });
+  }
+};
 export const getUsersActive: RequestHandler = async (
   req: Request,
   res: Response,

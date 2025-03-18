@@ -12,13 +12,47 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.activeteUser = exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserByid = exports.getUsersInactive = exports.getUsersActive = void 0;
+exports.activeteUser = exports.deleteUser = exports.updateUser = exports.createUser = exports.getUserByid = exports.getUsersInactive = exports.getUsersActive = exports.getUsers = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const deleteUserClient_1 = require("../services/deleteUserClient");
 const models_1 = require("../models");
 const activeUserCLient_1 = require("../services/activeUserCLient");
 const updateUserClient_1 = require("../services/updateUserClient");
+const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield models_1.User.findAll({
+            include: [
+                {
+                    model: models_1.Client,
+                },
+                {
+                    model: models_1.Role,
+                    attributes: ['name'],
+                },
+            ],
+        });
+        if (users.length === 0) {
+            return res.status(400).json({
+                msg: 'No hay usuarios',
+            });
+        }
+        console.log('users');
+        console.log(users);
+        res.json({
+            ok: true,
+            msg: 'getUsers',
+            users,
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            msg: error.message,
+        });
+    }
+});
+exports.getUsers = getUsers;
 const getUsersActive = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const users = yield models_1.User.findAll({

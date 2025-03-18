@@ -22,5 +22,9 @@ router.post('/google', [
     (0, express_validator_1.check)('id_token', 'id_Token de google es necesdario').notEmpty(),
     // validateFields,
 ], auth_1.googleSignIn);
+router.post('/googleFirebase', [
+    (0, express_validator_1.check)('id_token', 'id_Token de google es necesdario').notEmpty(),
+    // validateFields,
+], auth_1.googleSignInFirebase);
 exports.default = router;
 //# sourceMappingURL=auth.js.map

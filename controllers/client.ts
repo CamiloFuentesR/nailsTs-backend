@@ -100,7 +100,7 @@ export const showClientByUserId: RequestHandler = async (
     const { id } = req.params;
     const client = await Client.findOne({
       where: { user_id: id },
-      attributes: ['id', 'name', 'phone_number'],
+      attributes: ['id', 'name', 'phone_number', 'img'],
     });
     if (!client) {
       return res.status(200).json({

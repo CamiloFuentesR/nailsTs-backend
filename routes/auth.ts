@@ -1,6 +1,11 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
-import { googleSignIn, login, renewToken } from '../controllers/auth';
+import {
+  googleSignIn,
+  googleSignInFirebase,
+  login,
+  renewToken,
+} from '../controllers/auth';
 import { validateFields, validateJWT } from '../middleware';
 
 const router = Router();
@@ -31,6 +36,14 @@ router.post(
     // validateFields,
   ],
   googleSignIn,
+);
+router.post(
+  '/googleFirebase',
+  [
+    check('id_token', 'id_Token de google es necesdario').notEmpty(),
+    // validateFields,
+  ],
+  googleSignInFirebase,
 );
 
 export default router;
