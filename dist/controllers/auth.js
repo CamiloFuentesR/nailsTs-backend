@@ -17,6 +17,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const models_1 = require("../models");
 const google_verify_1 = __importDefault(require("../helpers/google-verify"));
+// import { firebaseAdminAuth } from '../firebase/firebase-admin';
 // import { firebaseAdminAuth } from '../config/firebase-admin';
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
@@ -28,7 +29,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         });
         if (!user) {
             return res.status(400).json({
-                msg: 'Usuario o contraseña incorrecto',
+                msg: 'Usuario o contraseña incorrectos',
             });
         }
         if (!user.state) {

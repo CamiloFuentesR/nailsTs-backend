@@ -103,8 +103,8 @@ export const showClientByUserId: RequestHandler = async (
       attributes: ['id', 'name', 'phone_number', 'img'],
     });
     if (!client) {
-      return res.status(200).json({
-        ok: true,
+      return res.status(203).json({
+        ok: false,
         msg: 'Se le recuerda ingresar sus datos de contacto',
       });
     }

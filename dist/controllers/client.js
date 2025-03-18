@@ -93,8 +93,8 @@ const showClientByUserId = (req, res) => __awaiter(void 0, void 0, void 0, funct
             attributes: ['id', 'name', 'phone_number', 'img'],
         });
         if (!client) {
-            return res.status(200).json({
-                ok: true,
+            return res.status(203).json({
+                ok: false,
                 msg: 'Se le recuerda ingresar sus datos de contacto',
             });
         }

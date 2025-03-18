@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import generateJWT from '../helpers/generateJWT';
 import { Role, User, UserInstance } from '../models';
 import googleVerify from '../helpers/google-verify';
-import { firebaseAdminAuth } from '../firebase/firebase-admin';
+// import { firebaseAdminAuth } from '../firebase/firebase-admin';
 // import { firebaseAdminAuth } from '../config/firebase-admin';
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
@@ -16,7 +16,7 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
     });
     if (!user) {
       return res.status(400).json({
-        msg: 'Usuario o contraseña incorrecto',
+        msg: 'Usuario o contraseña incorrectos',
       });
     }
     if (!user.state) {
