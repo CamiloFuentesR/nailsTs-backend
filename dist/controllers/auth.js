@@ -139,8 +139,9 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.googleSignIn = googleSignIn;
 const googleSignInFirebase = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
-    const { email } = req.body;
+    const { email, token } = req.body;
     console.log('id_token');
+    console.log(token);
     // console.log(id_token);
     try {
         // const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);

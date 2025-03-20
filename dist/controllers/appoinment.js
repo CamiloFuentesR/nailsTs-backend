@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAppointmentById = exports.updateAppointmentState = exports.deleteAppointment = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAcceptedAppointment = exports.getAllAppointment = exports.createAppointment = void 0;
+exports.getAppointmentById = exports.updateAppointmentState = exports.deleteAppointment = exports.updateAppointment = exports.getAppointmentByMonth = exports.getAcceptedAppointment = exports.getAllAppointmentByDate = exports.getAllAppointment = exports.createAppointment = void 0;
 const appointment_1 = __importDefault(require("../models/appointment"));
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
@@ -132,6 +132,47 @@ const getAllAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.getAllAppointment = getAllAppointment;
+const getAllAppointmentByDate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { start, end } = req.query;
+        if (!start || !end) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Los parámetros "start" y "end" son requeridos',
+            });
+        }
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        console.log('Fechas recibidas en el backend:', start, end);
+        console.log('Fechas convertidas:', startDate, endDate);
+        const appointment = yield appointment_1.default.findAll({
+            where: {
+                start: {
+                    [sequelize_1.Op.between]: [startDate, endDate],
+                },
+                state: {
+                    [sequelize_1.Op.notIn]: [-1, 4],
+                },
+            },
+        });
+        if (appointment) {
+            res.status(200).json({
+                ok: true,
+                msg: 'Se obtuvieron las citas con éxito',
+                appointment,
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'No se pudieron cargar datos',
+            details: error.message,
+        });
+    }
+});
+exports.getAllAppointmentByDate = getAllAppointmentByDate;
 const getAcceptedAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const currentDate = new Date();

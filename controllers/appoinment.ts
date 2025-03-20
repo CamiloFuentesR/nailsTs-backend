@@ -135,6 +135,53 @@ export const getAllAppointment: RequestHandler = async (
   }
 };
 
+export const getAllAppointmentByDate: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { start, end } = req.query;
+
+    if (!start || !end) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'Los parámetros "start" y "end" son requeridos',
+      });
+    }
+
+    const startDate = new Date(start as string);
+    const endDate = new Date(end as string);
+
+    console.log('Fechas recibidas en el backend:', start, end);
+    console.log('Fechas convertidas:', startDate, endDate);
+    const appointment = await Appointment.findAll({
+      where: {
+        start: {
+          [Op.between]: [startDate, endDate],
+        },
+        state: {
+          [Op.notIn]: [-1, 4],
+        },
+      },
+    });
+
+    if (appointment) {
+      res.status(200).json({
+        ok: true,
+        msg: 'Se obtuvieron las citas con éxito',
+        appointment,
+      });
+    }
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'No se pudieron cargar datos',
+      details: error.message,
+    });
+  }
+};
+
 export const getAcceptedAppointment: RequestHandler = async (
   req: Request,
   res: Response,

@@ -39,6 +39,7 @@
     "express-validator": "^7.1.0",
     "firebase-admin": "^13.2.0",
     "google-auth-library": "^9.14.0",
+    "googleapis": "^146.0.0",
     "http": "^0.0.1-security",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",

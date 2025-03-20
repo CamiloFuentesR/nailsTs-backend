@@ -38,6 +38,7 @@ class Server {
             serviceSecondary: '/api/serviceSecondary',
             appointmentServoce: '/api/appointmentService',
             fileUpload: '/api/upload',
+            googleAnalisis: '/api/googleAnatytics',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -100,6 +101,7 @@ class Server {
         this.app.use(this.apiPaths.serviceSecondary, routes_1.servicesSecondaryRoutes);
         this.app.use(this.apiPaths.appointmentServoce, routes_1.appointmentServiceRoute);
         this.app.use(this.apiPaths.fileUpload, routes_1.fileUploadTo);
+        this.app.use(this.apiPaths.googleAnalisis, routes_1.googleAnalytics);
     }
     sockets() {
         this.io.on('connection', socket => {

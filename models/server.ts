@@ -19,6 +19,7 @@ import {
   servicesCategorySecondaryRoutes,
   servicesSecondaryRoutes,
   fileUploadTo,
+  googleAnalytics,
 } from '../routes';
 import fileUpload from 'express-fileupload';
 
@@ -43,6 +44,7 @@ class Server {
     serviceSecondary: '/api/serviceSecondary',
     appointmentServoce: '/api/appointmentService',
     fileUpload: '/api/upload',
+    googleAnalisis: '/api/googleAnatytics',
   };
 
   constructor() {
@@ -116,6 +118,7 @@ class Server {
     this.app.use(this.apiPaths.serviceSecondary, servicesSecondaryRoutes);
     this.app.use(this.apiPaths.appointmentServoce, appointmentServiceRoute);
     this.app.use(this.apiPaths.fileUpload, fileUploadTo);
+    this.app.use(this.apiPaths.googleAnalisis, googleAnalytics);
   }
   private sockets(): void {
     this.io.on('connection', socket => {

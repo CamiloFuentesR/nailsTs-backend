@@ -11,6 +11,7 @@ import servicesCategorySecondaryRoutes from '../routes/serviceCategorySecondary'
 import servicesSecondaryRoutes from '../routes/servicesSecondaries';
 import appointmentServiceRoute from '../routes/appointmentService';
 import fileUploadTo from '../routes/files';
+import googleAnalytics from '../routes/googleAnalytics';
 
 export {
   appointmentRoutes,
@@ -26,4 +27,5 @@ export {
   servicesCategorySecondaryRoutes,
   servicesSecondaryRoutes,
   fileUploadTo,
+  googleAnalytics,
 };

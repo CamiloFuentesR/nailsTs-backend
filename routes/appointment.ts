@@ -5,6 +5,7 @@ import {
   deleteAppointment,
   getAcceptedAppointment,
   getAllAppointment,
+  getAllAppointmentByDate,
   getAppointmentById,
   getAppointmentByMonth,
   updateAppointment,
@@ -33,6 +34,7 @@ router.post(
 );
 
 router.get('/', validateJWT, getAllAppointment);
+router.get('/ByData', validateJWT, getAllAppointmentByDate);
 router.get('/reportByMonth', validateJWT, getAppointmentByMonth);
 router.get('/reportAccept', validateJWT, getAcceptedAppointment);
 router.get('/:id', validateJWT, getAppointmentById);
