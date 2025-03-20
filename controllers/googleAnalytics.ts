@@ -24,7 +24,10 @@ export const getGoogleAnalyticsEventsByPage: RequestHandler = async (
 
     const startDate = 'today';
     const endDate = 'today';
-
+    console.log(
+      'Clave privada:',
+      process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    );
     const response = await analytics.properties.runReport({
       property: propertyId,
       requestBody: {

@@ -25,10 +25,12 @@ const analytics = googleapis_1.google.analyticsdata({
     auth,
 });
 const getGoogleAnalyticsEventsByPage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     try {
         const propertyId = `properties/${process.env.GOOGLE_ANALYTICS_PROPERTY_ID}`;
         const startDate = 'today';
         const endDate = 'today';
+        console.log('Clave privada:', (_a = process.env.GOOGLE_PRIVATE_KEY) === null || _a === void 0 ? void 0 : _a.replace(/\\n/g, '\n'));
         const response = yield analytics.properties.runReport({
             property: propertyId,
             requestBody: {
