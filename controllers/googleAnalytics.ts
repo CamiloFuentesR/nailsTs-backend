@@ -22,7 +22,7 @@ export const getGoogleAnalyticsEventsByPage: RequestHandler = async (
   try {
     const propertyId = `properties/${process.env.GOOGLE_ANALYTICS_PROPERTY_ID}`;
 
-    const startDate = 'today';
+    const startDate = '7daysAgo';
     const endDate = 'today';
     console.log(
       'Clave privada:',
