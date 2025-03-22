@@ -24,15 +24,12 @@ export const getGoogleAnalyticsEventsByPage: RequestHandler = async (
 
     const startDate = '7daysAgo';
     const endDate = 'today';
-    console.log(
-      'Clave privada:',
-      process.env.GOOGLE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    );
+
     const response = await analytics.properties.runReport({
       property: propertyId,
       requestBody: {
         dateRanges: [{ startDate, endDate }],
-        dimensions: [{ name: 'eventName' }, { name: 'pagePath' }],
+        dimensions: [{ name: 'eventName' }, { name: 'pageTitle' }],
         metrics: [{ name: 'eventCount' }],
         dimensionFilter: {
           filter: {
@@ -47,6 +44,33 @@ export const getGoogleAnalyticsEventsByPage: RequestHandler = async (
     });
 
     // Responde con los datos obtenidos de los eventos
+    res.json(response.data);
+  } catch (error) {
+    console.error('Error al obtener datos de Analytics:', error);
+    res.status(500).json({ error: 'Error al obtener los datos de Analytics' });
+  }
+};
+
+export const getGoogleAnalyticsUsersByPage: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const propertyId = `properties/${process.env.GOOGLE_ANALYTICS_PROPERTY_ID}`;
+
+    const startDate = '7daysAgo';
+    const endDate = 'today';
+
+    const response = await analytics.properties.runReport({
+      property: propertyId,
+      requestBody: {
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'pageTitle' }],
+        metrics: [{ name: 'activeUsers' }],
+      },
+    });
+
+    // Responde con los datos obtenidos de la cantidad de usuarios por página
     res.json(response.data);
   } catch (error) {
     console.error('Error al obtener datos de Analytics:', error);

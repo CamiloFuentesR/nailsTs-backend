@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getGoogleAnalyticsEventsByPage = void 0;
+exports.getGoogleAnalyticsUsersByPage = exports.getGoogleAnalyticsEventsByPage = void 0;
 const googleapis_1 = require("googleapis");
 // Inicializa la API de Google Analytics Data v1 (GA4)
 const auth = new googleapis_1.google.auth.GoogleAuth({
@@ -25,17 +25,15 @@ const analytics = googleapis_1.google.analyticsdata({
     auth,
 });
 const getGoogleAnalyticsEventsByPage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
         const propertyId = `properties/${process.env.GOOGLE_ANALYTICS_PROPERTY_ID}`;
         const startDate = '7daysAgo';
         const endDate = 'today';
-        console.log('Clave privada:', (_a = process.env.GOOGLE_PRIVATE_KEY) === null || _a === void 0 ? void 0 : _a.replace(/\\n/g, '\n'));
         const response = yield analytics.properties.runReport({
             property: propertyId,
             requestBody: {
                 dateRanges: [{ startDate, endDate }],
-                dimensions: [{ name: 'eventName' }, { name: 'pagePath' }],
+                dimensions: [{ name: 'eventName' }, { name: 'pageTitle' }],
                 metrics: [{ name: 'eventCount' }],
                 dimensionFilter: {
                     filter: {
@@ -57,4 +55,26 @@ const getGoogleAnalyticsEventsByPage = (req, res) => __awaiter(void 0, void 0, v
     }
 });
 exports.getGoogleAnalyticsEventsByPage = getGoogleAnalyticsEventsByPage;
+const getGoogleAnalyticsUsersByPage = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const propertyId = `properties/${process.env.GOOGLE_ANALYTICS_PROPERTY_ID}`;
+        const startDate = '7daysAgo';
+        const endDate = 'today';
+        const response = yield analytics.properties.runReport({
+            property: propertyId,
+            requestBody: {
+                dateRanges: [{ startDate, endDate }],
+                dimensions: [{ name: 'pageTitle' }],
+                metrics: [{ name: 'activeUsers' }],
+            },
+        });
+        // Responde con los datos obtenidos de la cantidad de usuarios por página
+        res.json(response.data);
+    }
+    catch (error) {
+        console.error('Error al obtener datos de Analytics:', error);
+        res.status(500).json({ error: 'Error al obtener los datos de Analytics' });
+    }
+});
+exports.getGoogleAnalyticsUsersByPage = getGoogleAnalyticsUsersByPage;
 //# sourceMappingURL=googleAnalytics.js.map
