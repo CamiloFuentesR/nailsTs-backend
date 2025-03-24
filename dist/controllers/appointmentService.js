@@ -188,7 +188,6 @@ const getAppointmentServiceByAppointment = (req, res) => __awaiter(void 0, void 
                 },
             ],
         });
-        console.log(appointment);
         if (!appointment) {
             return res.status(409).json({
                 ok: false,

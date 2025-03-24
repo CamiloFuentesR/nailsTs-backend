@@ -22,7 +22,7 @@ const generateJWT = async (
 
   try {
     const token = await new Promise<string>((resolve, reject) => {
-      jwt.sign(payload, secretKey, { expiresIn: '1d' }, (err, token) => {
+      jwt.sign(payload, secretKey, { expiresIn: '365d' }, (err, token) => {
         if (err || !token) {
           console.error('Error al generar el token:', err);
           reject('No se pudo generar el token');

@@ -143,8 +143,6 @@ const getAllAppointmentByDate = (req, res) => __awaiter(void 0, void 0, void 0, 
         }
         const startDate = new Date(start);
         const endDate = new Date(end);
-        console.log('Fechas recibidas en el backend:', start, end);
-        console.log('Fechas convertidas:', startDate, endDate);
         const appointment = yield appointment_1.default.findAll({
             where: {
                 start: {
@@ -322,7 +320,6 @@ exports.getAppointmentByMonth = getAppointmentByMonth;
 // };
 const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { appointmentData, servicesData } = req.body;
-    console.log(appointmentData);
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {

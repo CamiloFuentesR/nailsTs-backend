@@ -201,7 +201,6 @@ export const getAppointmentServiceByAppointment: RequestHandler = async (
         },
       ],
     });
-    console.log(appointment);
     if (!appointment) {
       return res.status(409).json({
         ok: false,

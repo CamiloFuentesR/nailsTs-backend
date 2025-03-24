@@ -30,7 +30,6 @@ export const userByIdExist = async (id = '') => {
 };
 
 export const clientByIdExist = async (id = '') => {
-  console.log('clientByIdExist:', id);
   if (!id) {
     throw new Error('ID de cliente no proporcionado');
   }

@@ -112,11 +112,10 @@ class Server {
                 socket.broadcast.emit('savedAppointment', event); // Emitir a todos los clientes
             });
             socket.on('updateAppointment', event => {
-                console.log('Evento actualizado:', event);
                 if (event.img instanceof Buffer) {
                     event.img = `data:image/jpeg;base64,${event.img.toString('base64')}`;
                 }
-                console.log(event);
+                console.log('Evento actualizado:', event);
                 socket.broadcast.emit('updatedAppointment', event);
             });
             socket.on('eventDeleted', event => {

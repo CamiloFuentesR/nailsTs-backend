@@ -44,7 +44,6 @@ const userByIdExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, func
 });
 exports.userByIdExist = userByIdExist;
 const clientByIdExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (id = '') {
-    console.log('clientByIdExist:', id);
     if (!id) {
         throw new Error('ID de cliente no proporcionado');
     }

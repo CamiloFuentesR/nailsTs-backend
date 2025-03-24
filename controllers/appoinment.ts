@@ -152,8 +152,6 @@ export const getAllAppointmentByDate: RequestHandler = async (
     const startDate = new Date(start as string);
     const endDate = new Date(end as string);
 
-    console.log('Fechas recibidas en el backend:', start, end);
-    console.log('Fechas convertidas:', startDate, endDate);
     const appointment = await Appointment.findAll({
       where: {
         start: {
@@ -344,7 +342,6 @@ export const updateAppointment: RequestHandler = async (
   res: Response,
 ) => {
   const { appointmentData, servicesData } = req.body;
-  console.log(appointmentData);
   // Inicia una transacción
   const transaction = await db.transaction();
 

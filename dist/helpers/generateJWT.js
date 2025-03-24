@@ -28,7 +28,7 @@ const generateJWT = (id_1, ...args_1) => __awaiter(void 0, [id_1, ...args_1], vo
     }
     try {
         const token = yield new Promise((resolve, reject) => {
-            jsonwebtoken_1.default.sign(payload, secretKey, { expiresIn: '1d' }, (err, token) => {
+            jsonwebtoken_1.default.sign(payload, secretKey, { expiresIn: '365d' }, (err, token) => {
                 if (err || !token) {
                     console.error('Error al generar el token:', err);
                     reject('No se pudo generar el token');
