@@ -30,7 +30,7 @@ router.get(
 );
 router.get(
   '/:id',
-  [validateJWT, validateFields],
+  // [validateJWT, validateFields],
   getAppointmentServiceByAppointment,
 );
 router.get(

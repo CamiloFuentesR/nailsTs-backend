@@ -11,7 +11,7 @@ const router = Router();
 
 router.post('/', validateJWT, createBusinessHour);
 router.put('/:id', validateJWT, updateBusinessHour);
-router.get('/', validateJWT, getAllBusinessHours);
+router.get('/', getAllBusinessHours);
 router.get('/:id', validateJWT, getBusinessHourById);
 // router.get('/', validateJWT, getAllBusinessHours);
 export default router;

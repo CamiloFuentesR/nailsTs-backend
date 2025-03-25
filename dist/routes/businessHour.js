@@ -6,7 +6,7 @@ const businessHour_1 = require("../controllers/businessHour");
 const router = (0, express_1.Router)();
 router.post('/', middleware_1.validateJWT, businessHour_1.createBusinessHour);
 router.put('/:id', middleware_1.validateJWT, businessHour_1.updateBusinessHour);
-router.get('/', middleware_1.validateJWT, businessHour_1.getAllBusinessHours);
+router.get('/', businessHour_1.getAllBusinessHours);
 router.get('/:id', middleware_1.validateJWT, businessHour_1.getBusinessHourById);
 // router.get('/', validateJWT, getAllBusinessHours);
 exports.default = router;

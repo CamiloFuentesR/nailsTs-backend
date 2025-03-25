@@ -10,7 +10,7 @@ import { validateFields } from '../middleware';
 
 const router = Router();
 
-router.get('/', validateJWT, getServicesCategory);
+router.get('/', getServicesCategory);
 router.post('/', validateJWT, validateFields, createServicesCategory);
 router.put('/:id', validateJWT, updateServicesCategory);
 router.get('/:id', validateJWT, showServiceCategoryById);

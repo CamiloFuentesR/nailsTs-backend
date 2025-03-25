@@ -10,7 +10,9 @@ router.get('/earningsByCategory', appointmentService_1.getCurrentMonthEarningsBy
 router.get('/earningsByServices', appointmentService_1.getCurrentMonthEarningsByService);
 router.get('/reportByGroup', [middleware_1.validateJWT, middleware_1.validateFields], appointmentService_1.getAppointmentServiceReportByGroup);
 router.get('/reportByCategoryAndService', [middleware_1.validateJWT, middleware_1.validateFields], appointmentService_1.getEarningsByCategoryAndService);
-router.get('/:id', [middleware_1.validateJWT, middleware_1.validateFields], appointmentService_1.getAppointmentServiceByAppointment);
+router.get('/:id', 
+// [validateJWT, validateFields],
+appointmentService_1.getAppointmentServiceByAppointment);
 router.get('/byClient/:id', [middleware_1.validateJWT, middleware_1.validateFields], appointmentService_1.getAppointmentServiceByClient);
 router.get('/onebyClient/:id', [middleware_1.validateJWT, middleware_1.validateFields], appointmentService_1.getAppointmentServiceOneByClient);
 exports.default = router;
