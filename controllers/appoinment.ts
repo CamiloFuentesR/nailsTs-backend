@@ -287,7 +287,7 @@ export const getAppointmentByMonth: RequestHandler = async (
         appointmentByMonth: resultados,
       });
     } else {
-      res.status(404).json({
+      res.status(204).json({
         ok: false,
         msg: 'No se encontraron citas',
       });
