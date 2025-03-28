@@ -14,7 +14,7 @@ router.post('/', [
     // check('category_id').custom(categoryByIdExist),
     middleware_1.validateFields,
 ], appoinment_1.createAppointment);
-router.get('/', middleware_1.validateJWT, appoinment_1.getAllAppointment);
+router.get('/', appoinment_1.getAllAppointment);
 router.get('/ByData', appoinment_1.getAllAppointmentByDate);
 router.get('/reportByMonth', middleware_1.validateJWT, appoinment_1.getAppointmentByMonth);
 router.get('/reportAccept', middleware_1.validateJWT, appoinment_1.getAcceptedAppointment);

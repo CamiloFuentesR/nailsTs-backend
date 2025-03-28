@@ -45,7 +45,8 @@ export const createAppointment: RequestHandler = async (
   res: Response,
 ) => {
   const { servicesData, appointmentData } = req.body;
-
+  console.log(servicesData);
+  console.log(appointmentData);
   // Inicia una transacción
   const transaction = await db.transaction();
 
