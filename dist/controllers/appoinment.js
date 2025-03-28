@@ -53,6 +53,8 @@ const conection_1 = __importDefault(require("../db/conection"));
 // };
 const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { servicesData, appointmentData } = req.body;
+    console.log(servicesData);
+    console.log(appointmentData);
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {

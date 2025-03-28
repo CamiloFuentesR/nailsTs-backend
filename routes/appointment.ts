@@ -33,7 +33,7 @@ router.post(
   createAppointment,
 );
 
-router.get('/', validateJWT, getAllAppointment);
+router.get('/', getAllAppointment);
 router.get('/ByData', getAllAppointmentByDate);
 router.get('/reportByMonth', validateJWT, getAppointmentByMonth);
 router.get('/reportAccept', validateJWT, getAcceptedAppointment);
