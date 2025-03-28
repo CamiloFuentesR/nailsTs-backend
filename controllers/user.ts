@@ -25,8 +25,7 @@ export const getUsers: RequestHandler = async (req: Request, res: Response) => {
         msg: 'No hay usuarios',
       });
     }
-    console.log('users');
-    console.log(users);
+
     res.json({
       ok: true,
       msg: 'getUsers',

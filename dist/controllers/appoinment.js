@@ -270,7 +270,7 @@ const getAppointmentByMonth = (req, res) => __awaiter(void 0, void 0, void 0, fu
             });
         }
         else {
-            res.status(404).json({
+            res.status(204).json({
                 ok: false,
                 msg: 'No se encontraron citas',
             });

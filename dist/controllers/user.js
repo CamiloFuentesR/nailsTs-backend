@@ -37,8 +37,6 @@ const getUsers = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 msg: 'No hay usuarios',
             });
         }
-        console.log('users');
-        console.log(users);
         res.json({
             ok: true,
             msg: 'getUsers',
