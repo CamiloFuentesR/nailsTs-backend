@@ -8,6 +8,13 @@ import {
 import { AppointmentServiceInstance } from '../models/AppointmentService';
 import { Op, fn, col, literal } from 'sequelize';
 
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 export const createAppointmentService: RequestHandler = async (
   req: Request,
   res: Response,
@@ -405,16 +412,13 @@ export const getCurrentMonthEarningsByCategory = async (
   res: Response,
 ) => {
   try {
-    const currentMonthStart = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1,
-    );
-    const currentMonthEnd = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    );
+    // Definir la zona horaria de Chile
+    const tz = 'America/Santiago';
+    const now = dayjs().tz(tz);
+
+    // Obtener el primer y último día del mes en UTC
+    const currentMonthStart = now.startOf('month').utc().toDate();
+    const currentMonthEnd = now.endOf('month').utc().toDate();
 
     const earnings = await AppointmentService.findAll({
       attributes: [
@@ -447,8 +451,8 @@ export const getCurrentMonthEarningsByCategory = async (
       ],
       group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
       order: [
-        [col('value'), 'DESC'], // Ordenar por el valor (cantidad) en orden descendente
-        [col('Service.category.name'), 'ASC'], // Luego ordenar por nombre de categoría en orden ascendente
+        [col('value'), 'DESC'], // Ordenar por cantidad de servicios
+        [col('Service.category.name'), 'ASC'], // Ordenar por nombre de categoría
       ],
     });
 
@@ -478,16 +482,12 @@ export const getCurrentMonthEarningsByService = async (
   res: Response,
 ) => {
   try {
-    const currentMonthStart = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1,
-    );
-    const currentMonthEnd = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    );
+    const tz = 'America/Santiago';
+    const now = dayjs().tz(tz);
+
+    // Obtener el primer y último día del mes en UTC
+    const currentMonthStart = now.startOf('month').utc().toDate();
+    const currentMonthEnd = now.endOf('month').utc().toDate();
 
     const earningsByService = await AppointmentService.findAll({
       attributes: [
@@ -507,9 +507,6 @@ export const getCurrentMonthEarningsByService = async (
             start: {
               [Op.between]: [currentMonthStart, currentMonthEnd],
             },
-            // state: {
-            //   [Op.notIn]: [-1],
-            // },
           },
         },
       ],

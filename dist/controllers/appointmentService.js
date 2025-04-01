@@ -19,10 +19,18 @@ var __rest = (this && this.__rest) || function (s, e) {
         }
     return t;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getEarningsByCategoryAndService = exports.getCurrentMonthEarningsByService = exports.getCurrentMonthEarningsByCategory = exports.getAppointmentServiceOneByClient = exports.getAppointmentServiceByClient = exports.getAppointmentServiceByAppointment = exports.getAppointmentServiceReportByGroup = exports.getAppointmentService = exports.createAppointmentService = void 0;
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
+const dayjs_1 = __importDefault(require("dayjs"));
+const utc_1 = __importDefault(require("dayjs/plugin/utc"));
+const timezone_1 = __importDefault(require("dayjs/plugin/timezone"));
+dayjs_1.default.extend(utc_1.default);
+dayjs_1.default.extend(timezone_1.default);
 const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const _a = req.body, { id } = _a, appointmentServiceData = __rest(_a, ["id"]);
@@ -361,8 +369,12 @@ const getAppointmentServiceOneByClient = (req, res) => __awaiter(void 0, void 0,
 exports.getAppointmentServiceOneByClient = getAppointmentServiceOneByClient;
 const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const currentMonthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+        // Definir la zona horaria de Chile
+        const tz = 'America/Santiago';
+        const now = (0, dayjs_1.default)().tz(tz);
+        // Obtener el primer y último día del mes en UTC
+        const currentMonthStart = now.startOf('month').utc().toDate();
+        const currentMonthEnd = now.endOf('month').utc().toDate();
         const earnings = yield models_1.AppointmentService.findAll({
             attributes: [
                 [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
@@ -394,8 +406,8 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
             ],
             group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
             order: [
-                [(0, sequelize_1.col)('value'), 'DESC'], // Ordenar por el valor (cantidad) en orden descendente
-                [(0, sequelize_1.col)('Service.category.name'), 'ASC'], // Luego ordenar por nombre de categoría en orden ascendente
+                [(0, sequelize_1.col)('value'), 'DESC'], // Ordenar por cantidad de servicios
+                [(0, sequelize_1.col)('Service.category.name'), 'ASC'], // Ordenar por nombre de categoría
             ],
         });
         const totalEarnings = earnings.reduce((sum, earning) => {
@@ -420,8 +432,11 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
 exports.getCurrentMonthEarningsByCategory = getCurrentMonthEarningsByCategory;
 const getCurrentMonthEarningsByService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-        const currentMonthEnd = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
+        const tz = 'America/Santiago';
+        const now = (0, dayjs_1.default)().tz(tz);
+        // Obtener el primer y último día del mes en UTC
+        const currentMonthStart = now.startOf('month').utc().toDate();
+        const currentMonthEnd = now.endOf('month').utc().toDate();
         const earningsByService = yield models_1.AppointmentService.findAll({
             attributes: [
                 [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
@@ -440,9 +455,6 @@ const getCurrentMonthEarningsByService = (req, res) => __awaiter(void 0, void 0,
                         start: {
                             [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
                         },
-                        // state: {
-                        //   [Op.notIn]: [-1],
-                        // },
                     },
                 },
             ],
