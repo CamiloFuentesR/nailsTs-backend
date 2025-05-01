@@ -143,6 +143,7 @@ export const googleSignInFirebase: RequestHandler = async (
   const { email, token } = req.body;
   console.log('id_token');
   console.log(token);
+  console.log(email);
   // console.log(id_token);
   try {
     // const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);

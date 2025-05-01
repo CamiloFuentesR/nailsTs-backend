@@ -257,7 +257,7 @@ export const updateFileClientNailsClaudinary = async (
       folder: folderPath,
       transformation: [
         { width: 500, crop: 'scale' }, // Escalar la imagen a 500px de ancho
-        { quality: 60 }, // Reducir calidad al 35%
+        { quality: 80 }, // Reducir calidad al 35%
         { fetch_format: 'auto' }, // Elegir el mejor formato automáticamente
       ],
     });
