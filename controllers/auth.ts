@@ -115,12 +115,6 @@ export const googleSignIn: RequestHandler = async (
         ok: true,
         token,
       });
-
-      // return res.status(200).json({
-      //   ok: true,
-      //   msg: 'Usuario ya existente',
-      //   user,
-      // });
     }
 
     return res.status(400).json({
@@ -140,11 +134,7 @@ export const googleSignInFirebase: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const { email, token } = req.body;
-  console.log('id_token');
-  console.log(token);
-  console.log(email);
-  // console.log(id_token);
+  const { email } = req.body;
   try {
     // const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);
     // console.log('firebaseGoogleUser');
@@ -191,12 +181,6 @@ export const googleSignInFirebase: RequestHandler = async (
         ok: true,
         token,
       });
-
-      // return res.status(200).json({
-      //   ok: true,
-      //   msg: 'Usuario ya existente',
-      //   user,
-      // });
     }
     return res.status(400).json({
       ok: false,

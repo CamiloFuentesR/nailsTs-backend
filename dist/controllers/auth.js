@@ -116,11 +116,6 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
                 ok: true,
                 token,
             });
-            // return res.status(200).json({
-            //   ok: true,
-            //   msg: 'Usuario ya existente',
-            //   user,
-            // });
         }
         return res.status(400).json({
             ok: false,
@@ -139,11 +134,7 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 exports.googleSignIn = googleSignIn;
 const googleSignInFirebase = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _d, _e;
-    const { email, token } = req.body;
-    console.log('id_token');
-    console.log(token);
-    console.log(email);
-    // console.log(id_token);
+    const { email } = req.body;
     try {
         // const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);
         // console.log('firebaseGoogleUser');
@@ -186,11 +177,6 @@ const googleSignInFirebase = (req, res) => __awaiter(void 0, void 0, void 0, fun
                 ok: true,
                 token,
             });
-            // return res.status(200).json({
-            //   ok: true,
-            //   msg: 'Usuario ya existente',
-            //   user,
-            // });
         }
         return res.status(400).json({
             ok: false,
