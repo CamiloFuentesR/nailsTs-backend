@@ -9,7 +9,7 @@ router.post('/', [
     (0, express_validator_1.check)('email')
         .notEmpty()
         .withMessage('Debe ingresar el email')
-        .normalizeEmail()
+        // .normalizeEmail()
         .isEmail()
         .withMessage('ingresar email válido'),
     (0, express_validator_1.check)('password')

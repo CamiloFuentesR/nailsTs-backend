@@ -12,10 +12,8 @@ router.get('/active', validateJWT_1.validateJWT, user_1.getUsersActive);
 router.get('/inactive', validateJWT_1.validateJWT, user_1.getUsersInactive);
 router.get('/:id', [validateJWT_1.validateJWT, (0, express_validator_1.check)('id').custom(dbValidator_1.userByIdExist), validateFields_1.validateFields], user_1.getUserByid);
 router.post('/', [
-    (0, express_validator_1.check)('email')
-        .isEmail()
-        .withMessage('El email no es válido')
-        .normalizeEmail(),
+    (0, express_validator_1.check)('email').isEmail().withMessage('El email no es válido'),
+    // .normalizeEmail(),
     (0, express_validator_1.check)('password')
         .notEmpty()
         .withMessage('Debe ingresar un password')

@@ -16,7 +16,7 @@ router.post(
     check('email')
       .notEmpty()
       .withMessage('Debe ingresar el email')
-      .normalizeEmail()
+      // .normalizeEmail()
       .isEmail()
       .withMessage('ingresar email válido'),
     check('password')

@@ -22,6 +22,10 @@ const google_verify_1 = __importDefault(require("../helpers/google-verify"));
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let { password, email } = req.body;
+    console.log('req body');
+    console.log(req.body);
+    console.log('email');
+    console.log(email);
     try {
         const user = yield models_1.User.findOne({
             where: { email },

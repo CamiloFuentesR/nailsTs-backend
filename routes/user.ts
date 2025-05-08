@@ -29,10 +29,8 @@ router.get(
 router.post(
   '/',
   [
-    check('email')
-      .isEmail()
-      .withMessage('El email no es válido')
-      .normalizeEmail(),
+    check('email').isEmail().withMessage('El email no es válido'),
+    // .normalizeEmail(),
     check('password')
       .notEmpty()
       .withMessage('Debe ingresar un password')
