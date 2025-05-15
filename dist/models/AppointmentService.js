@@ -25,7 +25,7 @@ const AppointmentService = conection_1.default.define('appointment_services', {
         type: sequelize_1.DataTypes.SMALLINT,
         allowNull: false,
     },
-    price: {
+    appointment_service_price: {
         type: sequelize_1.DataTypes.INTEGER,
         allowNull: false,
     },

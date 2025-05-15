@@ -34,7 +34,10 @@ dayjs_1.default.extend(timezone_1.default);
 const createAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const _a = req.body, { id } = _a, appointmentServiceData = __rest(_a, ["id"]);
+        console.log(appointmentServiceData);
         const apService = yield models_1.AppointmentService.findByPk(id);
+        console.log('Evento creado');
+        console.log(apService);
         if (apService) {
             return res.status(500).json({
                 ok: false,
@@ -192,7 +195,7 @@ const getAppointmentServiceByAppointment = (req, res) => __awaiter(void 0, void 
                 {
                     model: models_1.Appointment,
                     // as: 'appointment',
-                    attributes: ['img'],
+                    attributes: ['img', 'discount'],
                 },
             ],
         });
@@ -377,19 +380,19 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
         const currentMonthEnd = now.endOf('month').utc().toDate();
         const earnings = yield models_1.AppointmentService.findAll({
             attributes: [
-                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
+                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('appointment_service_price')), 'totalEarnings'], // ← ahora correcto
                 [(0, sequelize_1.col)('Service.category.name'), 'label'],
-                [(0, sequelize_1.fn)('COUNT', (0, sequelize_1.col)('Service.id')), 'value'], // Contar el número de servicios por categoría
+                [(0, sequelize_1.fn)('COUNT', (0, sequelize_1.col)('Service.id')), 'value'],
             ],
             include: [
                 {
                     model: models_1.Service,
-                    attributes: [], // No necesitamos atributos aquí
+                    attributes: [],
                     include: [
                         {
                             model: models_1.ServicesCategory,
                             as: 'category',
-                            attributes: ['name'], // Asegúrate de que 'name' está aquí
+                            attributes: ['name'],
                         },
                     ],
                 },
@@ -400,16 +403,17 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
                         start: {
                             [sequelize_1.Op.between]: [currentMonthStart, currentMonthEnd],
                         },
-                        state: 3, // Filtra solo las citas con estado 3
+                        state: 3,
                     },
                 },
             ],
-            group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
+            group: ['Service.category.id', 'Service.category.name'],
             order: [
-                [(0, sequelize_1.col)('value'), 'DESC'], // Ordenar por cantidad de servicios
-                [(0, sequelize_1.col)('Service.category.name'), 'ASC'], // Ordenar por nombre de categoría
+                [(0, sequelize_1.col)('value'), 'DESC'],
+                [(0, sequelize_1.col)('Service.category.name'), 'ASC'],
             ],
         });
+        console.log(earnings);
         const totalEarnings = earnings.reduce((sum, earning) => {
             var _a;
             const earningsValue = parseFloat(((_a = earning.getDataValue('totalEarnings')) === null || _a === void 0 ? void 0 : _a.toString()) || '0');
@@ -439,7 +443,7 @@ const getCurrentMonthEarningsByService = (req, res) => __awaiter(void 0, void 0,
         const currentMonthEnd = now.endOf('month').utc().toDate();
         const earningsByService = yield models_1.AppointmentService.findAll({
             attributes: [
-                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
+                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('AppointmentService.price')), 'totalEarnings'],
                 [(0, sequelize_1.col)('Service.name'), 'serviceName'],
             ],
             include: [
@@ -491,7 +495,7 @@ const getEarningsByCategoryAndService = (req, res) => __awaiter(void 0, void 0, 
         // Consulta para obtener los totales por categoría y por servicio
         const earnings = yield models_1.AppointmentService.findAll({
             attributes: [
-                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'totalEarnings'],
+                [(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('AppointmentService.price')), 'totalEarnings'],
                 [(0, sequelize_1.col)('Service->category.name'), 'categoryName'],
                 [(0, sequelize_1.col)('Service.name'), 'serviceName'], // Obtener el nombre del servicio
             ],
@@ -524,6 +528,7 @@ const getEarningsByCategoryAndService = (req, res) => __awaiter(void 0, void 0, 
             order: [[(0, sequelize_1.fn)('SUM', (0, sequelize_1.col)('Service.price')), 'DESC']], // Ordenar por las ganancias totales
         });
         let totalGlobalEarnings = 0;
+        console.log(earnings);
         const earningsByCategory = earnings.reduce((result, earning) => {
             var _a;
             const categoryName = earning.getDataValue('categoryName');

@@ -73,6 +73,7 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             end: appointmentData.end,
             title: appointmentData.title,
             backgroundColor: appointmentData.backgroundColor,
+            discount: appointmentData.discount,
             state: appointmentData.state,
             price: appointmentData.price,
             className: appointmentData.className,
@@ -83,7 +84,7 @@ const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             appointment_id: appointment.id,
             service_id: service.service_id,
             state: service.state,
-            price: service.price,
+            appointment_service_price: service.price,
         }));
         // Guarda los servicios relacionados
         yield models_1.AppointmentService.bulkCreate(appointmentServices, { transaction });
@@ -343,6 +344,7 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             title: appointmentData.title,
             backgroundColor: appointmentData.backgroundColor,
             state: appointmentData.state,
+            discount: appointmentData.discount,
             price: appointmentData.price,
             className: appointmentData.className,
             img: appointmentData.img,
@@ -355,7 +357,7 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             appointment_id: appointmentData.id,
             service_id: service.service_id,
             state: service.state,
-            price: service.price,
+            appointment_service_price: service.price,
         }));
         yield models_1.AppointmentService.bulkCreate(appointmentServices, { transaction });
         // Confirma la transacción

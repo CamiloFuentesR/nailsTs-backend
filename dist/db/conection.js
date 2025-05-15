@@ -34,10 +34,6 @@ const db = new sequelize_1.Sequelize(dbDatabase, dbUser, dbPassword, {
                 rejectUnauthorized: false,
             }
             : null,
-        // ssl: {
-        //   require: true,
-        //   rejectUnauthorized: false,
-        // },
     },
     logging: false,
 });

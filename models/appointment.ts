@@ -11,6 +11,7 @@ export interface AppointmentProps {
   client_id: UUIDVersion;
   backgroundColor: string;
   className: string;
+  discount: number;
   img?: string;
   state: number;
   title: string;
@@ -45,6 +46,10 @@ const Appointment = db.define<AppointmentInstance>('Appointments', {
   },
   price: {
     type: DataTypes.FLOAT,
+    allowNull: true,
+  },
+  discount: {
+    type: DataTypes.INTEGER,
     allowNull: true,
   },
   img: {

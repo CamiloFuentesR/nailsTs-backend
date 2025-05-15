@@ -21,7 +21,10 @@ export const createAppointmentService: RequestHandler = async (
 ) => {
   try {
     const { id, ...appointmentServiceData } = req.body;
+    console.log(appointmentServiceData);
     const apService = await AppointmentService.findByPk(id);
+    console.log('Evento creado');
+    console.log(apService);
     if (apService) {
       return res.status(500).json({
         ok: false,
@@ -204,7 +207,7 @@ export const getAppointmentServiceByAppointment: RequestHandler = async (
         {
           model: Appointment,
           // as: 'appointment',
-          attributes: ['img'],
+          attributes: ['img', 'discount'],
         },
       ],
     });
@@ -422,19 +425,19 @@ export const getCurrentMonthEarningsByCategory = async (
 
     const earnings = await AppointmentService.findAll({
       attributes: [
-        [fn('SUM', col('Service.price')), 'totalEarnings'],
+        [fn('SUM', col('appointment_service_price')), 'totalEarnings'], // ← ahora correcto
         [col('Service.category.name'), 'label'],
-        [fn('COUNT', col('Service.id')), 'value'], // Contar el número de servicios por categoría
+        [fn('COUNT', col('Service.id')), 'value'],
       ],
       include: [
         {
           model: Service,
-          attributes: [], // No necesitamos atributos aquí
+          attributes: [],
           include: [
             {
               model: ServicesCategory,
               as: 'category',
-              attributes: ['name'], // Asegúrate de que 'name' está aquí
+              attributes: ['name'],
             },
           ],
         },
@@ -445,17 +448,17 @@ export const getCurrentMonthEarningsByCategory = async (
             start: {
               [Op.between]: [currentMonthStart, currentMonthEnd],
             },
-            state: 3, // Filtra solo las citas con estado 3
+            state: 3,
           },
         },
       ],
-      group: ['Service.category.id', 'Service.category.name'], // Agrupar por ID y nombre de categoría
+      group: ['Service.category.id', 'Service.category.name'],
       order: [
-        [col('value'), 'DESC'], // Ordenar por cantidad de servicios
-        [col('Service.category.name'), 'ASC'], // Ordenar por nombre de categoría
+        [col('value'), 'DESC'],
+        [col('Service.category.name'), 'ASC'],
       ],
     });
-
+    console.log(earnings);
     const totalEarnings = earnings.reduce((sum, earning) => {
       const earningsValue = parseFloat(
         earning.getDataValue('totalEarnings')?.toString() || '0',
@@ -491,7 +494,7 @@ export const getCurrentMonthEarningsByService = async (
 
     const earningsByService = await AppointmentService.findAll({
       attributes: [
-        [fn('SUM', col('Service.price')), 'totalEarnings'],
+        [fn('SUM', col('AppointmentService.price')), 'totalEarnings'],
         [col('Service.name'), 'serviceName'],
       ],
       include: [
@@ -557,7 +560,7 @@ export const getEarningsByCategoryAndService = async (
     // Consulta para obtener los totales por categoría y por servicio
     const earnings = await AppointmentService.findAll({
       attributes: [
-        [fn('SUM', col('Service.price')), 'totalEarnings'],
+        [fn('SUM', col('AppointmentService.price')), 'totalEarnings'],
         [col('Service->category.name'), 'categoryName'],
         [col('Service.name'), 'serviceName'], // Obtener el nombre del servicio
       ],
@@ -591,7 +594,7 @@ export const getEarningsByCategoryAndService = async (
     });
 
     let totalGlobalEarnings = 0;
-
+    console.log(earnings);
     const earningsByCategory = earnings.reduce(
       (result: any[], earning: any) => {
         const categoryName = earning.getDataValue('categoryName');

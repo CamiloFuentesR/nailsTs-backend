@@ -9,7 +9,7 @@ export interface AppointmentServiceProps {
   appointment_id: UUIDVersion;
   service_id: number;
   state: number;
-  price: number;
+  appointment_service_price: number;
   totalEarnings?: number | undefined;
 }
 
@@ -43,7 +43,7 @@ const AppointmentService = db.define<AppointmentServiceInstance>(
       type: DataTypes.SMALLINT,
       allowNull: false,
     },
-    price: {
+    appointment_service_price: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },

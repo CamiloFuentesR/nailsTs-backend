@@ -68,6 +68,7 @@ export const createAppointment: RequestHandler = async (
         end: appointmentData.end,
         title: appointmentData.title,
         backgroundColor: appointmentData.backgroundColor,
+        discount: appointmentData.discount,
         state: appointmentData.state,
         price: appointmentData.price,
         className: appointmentData.className,
@@ -80,7 +81,7 @@ export const createAppointment: RequestHandler = async (
       appointment_id: appointment.id,
       service_id: service.service_id,
       state: service.state,
-      price: service.price,
+      appointment_service_price: service.price,
     }));
 
     // Guarda los servicios relacionados
@@ -368,6 +369,7 @@ export const updateAppointment: RequestHandler = async (
         title: appointmentData.title,
         backgroundColor: appointmentData.backgroundColor,
         state: appointmentData.state,
+        discount: appointmentData.discount,
         price: appointmentData.price,
         className: appointmentData.className,
         img: appointmentData.img,
@@ -384,7 +386,7 @@ export const updateAppointment: RequestHandler = async (
       appointment_id: appointmentData.id,
       service_id: service.service_id,
       state: service.state,
-      price: service.price,
+      appointment_service_price: service.price,
     }));
 
     await AppointmentService.bulkCreate(appointmentServices, { transaction });
