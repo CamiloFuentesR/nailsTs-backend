@@ -53,7 +53,7 @@ export const createServicesCategory: RequestHandler = async (req, res) => {
       information: req.body.information || null, // Campo opcional
       img: req.body.img.name || null, // Campo opcional
     };
-    console.log(data);
+    console.log('data',data);
 
     const category = await ServicesCategory.create(data);
 

@@ -413,7 +413,7 @@ const getCurrentMonthEarningsByCategory = (req, res) => __awaiter(void 0, void 0
                 [(0, sequelize_1.col)('Service.category.name'), 'ASC'],
             ],
         });
-        console.log(earnings);
+        console.log('earnings', earnings);
         const totalEarnings = earnings.reduce((sum, earning) => {
             var _a;
             const earningsValue = parseFloat(((_a = earning.getDataValue('totalEarnings')) === null || _a === void 0 ? void 0 : _a.toString()) || '0');

@@ -458,7 +458,7 @@ export const getCurrentMonthEarningsByCategory = async (
         [col('Service.category.name'), 'ASC'],
       ],
     });
-    console.log(earnings);
+    console.log('earnings',earnings);
     const totalEarnings = earnings.reduce((sum, earning) => {
       const earningsValue = parseFloat(
         earning.getDataValue('totalEarnings')?.toString() || '0',
