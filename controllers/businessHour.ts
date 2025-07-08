@@ -1,5 +1,6 @@
 import { Request, RequestHandler, Response } from 'express';
 import { BusinessHour } from '../models';
+import { Op } from 'sequelize';
 
 export const createBusinessHour: RequestHandler = async (
   req: Request,
@@ -40,6 +41,47 @@ export const getAllBusinessHours: RequestHandler = async (
 ) => {
   try {
     const businessHours = await BusinessHour.findAll();
+
+    if (businessHours) {
+      res.status(200).json({
+        ok: true,
+        msg: 'Se obtuvieron los horarios con éxito',
+        businessHours,
+      });
+    }
+  } catch (error: any) {
+    console.log(error);
+    res.status(500).json({
+      ok: false,
+      msg: 'No se pudieron cargar los datos',
+      details: error.message,
+    });
+  }
+};
+export const getAllBusinessHoursByData: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { start, end } = req.query;
+
+    if (!start || !end) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'Los parámetros "start" y "end" son requeridos',
+      });
+    }
+
+    const startDate = new Date(start as string);
+    const endDate = new Date(end as string);
+
+    const businessHours = await BusinessHour.findAll({
+      where: {
+        start: {
+          [Op.between]: [startDate, endDate],
+        },
+      },
+    });
 
     if (businessHours) {
       res.status(200).json({

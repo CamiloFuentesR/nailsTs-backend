@@ -20,8 +20,9 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBusinessHourById = exports.updateBusinessHour = exports.getAllBusinessHours = exports.createBusinessHour = void 0;
+exports.getBusinessHourById = exports.updateBusinessHour = exports.getAllBusinessHoursByData = exports.getAllBusinessHours = exports.createBusinessHour = void 0;
 const models_1 = require("../models");
+const sequelize_1 = require("sequelize");
 const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { id } = _a, businessHourData = __rest(_a, ["id"]);
     try {
@@ -69,6 +70,42 @@ const getAllBusinessHours = (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.getAllBusinessHours = getAllBusinessHours;
+const getAllBusinessHoursByData = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { start, end } = req.query;
+        if (!start || !end) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'Los parámetros "start" y "end" son requeridos',
+            });
+        }
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const businessHours = yield models_1.BusinessHour.findAll({
+            where: {
+                start: {
+                    [sequelize_1.Op.between]: [startDate, endDate],
+                },
+            },
+        });
+        if (businessHours) {
+            res.status(200).json({
+                ok: true,
+                msg: 'Se obtuvieron los horarios con éxito',
+                businessHours,
+            });
+        }
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'No se pudieron cargar los datos',
+            details: error.message,
+        });
+    }
+});
+exports.getAllBusinessHoursByData = getAllBusinessHoursByData;
 const updateBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const { body } = req;

@@ -26,14 +26,14 @@ const isValidRole = (...args_1) => __awaiter(void 0, [...args_1], void 0, functi
     }
 });
 exports.isValidRole = isValidRole;
-const emailExist = (...args_2) => __awaiter(void 0, [...args_2], void 0, function* (email = '') {
+const emailExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (email = '') {
     const userExist = yield user_1.default.findOne({ where: { email } });
     if (userExist) {
         throw new Error(`Este email de usuario: '${email}', ya existe en la bdd`);
     }
 });
 exports.emailExist = emailExist;
-const userByIdExist = (...args_3) => __awaiter(void 0, [...args_3], void 0, function* (id = '') {
+const userByIdExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (id = '') {
     const userByIdExist = yield user_1.default.findByPk(id);
     if (!(0, uuid_1.validate)(id)) {
         throw new Error('ID de usuario no válido');
@@ -43,7 +43,7 @@ const userByIdExist = (...args_3) => __awaiter(void 0, [...args_3], void 0, func
     }
 });
 exports.userByIdExist = userByIdExist;
-const clientByIdExist = (...args_4) => __awaiter(void 0, [...args_4], void 0, function* (id = '') {
+const clientByIdExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (id = '') {
     if (!id) {
         throw new Error('ID de cliente no proporcionado');
     }
@@ -57,7 +57,7 @@ const clientByIdExist = (...args_4) => __awaiter(void 0, [...args_4], void 0, fu
     return client;
 });
 exports.clientByIdExist = clientByIdExist;
-const serviceByIdExist = (...args_5) => __awaiter(void 0, [...args_5], void 0, function* (id = '') {
+const serviceByIdExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (id = '') {
     if (!id) {
         throw new Error('ID del servicio no proporcionado');
     }
@@ -68,7 +68,7 @@ const serviceByIdExist = (...args_5) => __awaiter(void 0, [...args_5], void 0, f
     return service;
 });
 exports.serviceByIdExist = serviceByIdExist;
-const categoryByIdExist = (...args_6) => __awaiter(void 0, [...args_6], void 0, function* (id = '') {
+const categoryByIdExist = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (id = '') {
     if (!id) {
         throw new Error('ID de la categoria no proporcionado');
     }

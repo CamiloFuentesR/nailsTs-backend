@@ -3,6 +3,7 @@ import { validateJWT } from '../middleware';
 import {
   createBusinessHour,
   getAllBusinessHours,
+  getAllBusinessHoursByData,
   getBusinessHourById,
   updateBusinessHour,
 } from '../controllers/businessHour';
@@ -10,8 +11,9 @@ import {
 const router = Router();
 
 router.post('/', validateJWT, createBusinessHour);
-router.put('/:id', validateJWT, updateBusinessHour);
 router.get('/', getAllBusinessHours);
+router.get('/bydata', getAllBusinessHoursByData);
+router.put('/:id', validateJWT, updateBusinessHour);
 router.get('/:id', validateJWT, getBusinessHourById);
 // router.get('/', validateJWT, getAllBusinessHours);
 export default router;
