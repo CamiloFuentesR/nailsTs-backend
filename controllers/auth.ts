@@ -8,10 +8,7 @@ import googleVerify from '../helpers/google-verify';
 
 export const login: RequestHandler = async (req: Request, res: Response) => {
   let { password, email } = req.body;
-  console.log('req body');
-  console.log(req.body);
-  console.log('email');
-  console.log(email);
+
 
   try {
     const user: UserInstance | null = await User.findOne({

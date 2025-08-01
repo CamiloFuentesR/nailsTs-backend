@@ -53,6 +53,8 @@ const conection_1 = __importDefault(require("../db/conection"));
 // };
 const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { servicesData, appointmentData } = req.body;
+    console.log('Creating appointment with data:');
+    console.log(req.body);
     // console.log(servicesData);
     // console.log(appointmentData);
     // Inicia una transacción
@@ -147,10 +149,13 @@ const getAllAppointmentByDate = (req, res) => __awaiter(void 0, void 0, void 0, 
         const startDate = new Date(start);
         const endDate = new Date(end);
         const appointment = yield appointment_1.default.findAll({
+            // where: {
+            //   start: {
+            //     [Op.between]: [startDate, endDate],
+            //   },
+            // },
             where: {
-                start: {
-                    [sequelize_1.Op.between]: [startDate, endDate],
-                },
+                start: { [sequelize_1.Op.gte]: new Date(start) },
                 state: {
                     [sequelize_1.Op.notIn]: [-1, 4],
                 },

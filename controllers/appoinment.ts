@@ -45,6 +45,8 @@ export const createAppointment: RequestHandler = async (
   res: Response,
 ) => {
   const { servicesData, appointmentData } = req.body;
+  console.log('Creating appointment with data:');
+  console.log(req.body);
   // console.log(servicesData);
   // console.log(appointmentData);
   // Inicia una transacción
@@ -155,10 +157,13 @@ export const getAllAppointmentByDate: RequestHandler = async (
     const endDate = new Date(end as string);
 
     const appointment = await Appointment.findAll({
+      // where: {
+      //   start: {
+      //     [Op.between]: [startDate, endDate],
+      //   },
+      // },
       where: {
-        start: {
-          [Op.between]: [startDate, endDate],
-        },
+        start: { [Op.gte]: new Date(start as string) },
         state: {
           [Op.notIn]: [-1, 4],
         },
