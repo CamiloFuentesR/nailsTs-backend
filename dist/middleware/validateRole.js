@@ -25,7 +25,7 @@ const haveRole = (...roles) => {
                 msg: 'Se quiere verifcar el rol sin validar el token',
             });
         }
-        if (!roles.includes(req.user.role)) {
+        if (!roles.includes(req.role)) {
             return res.status(401).json({
                 msg: 'El usuario no contiene un rol válido para ejecutar esta acción',
             });

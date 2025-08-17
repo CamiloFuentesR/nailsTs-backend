@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import Appointment from '../models/appointment';
 import { AppointmentService, Service, ServicesCategory } from '../models';
 import { Op, fn, col } from 'sequelize';
@@ -43,6 +43,7 @@ import db from '../db/conection';
 export const createAppointment: RequestHandler = async (
   req: Request,
   res: Response,
+  next: NextFunction,
 ) => {
   const { servicesData, appointmentData } = req.body;
   console.log('Creating appointment with data:');

@@ -51,7 +51,7 @@ const conection_1 = __importDefault(require("../db/conection"));
 //     });
 //   }
 // };
-const createAppointment = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { servicesData, appointmentData } = req.body;
     console.log('Creating appointment with data:');
     console.log(req.body);
