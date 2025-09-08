@@ -63,6 +63,7 @@ class Server {
           'https://www.mozzafiato-manicure.cl',
           'http://localhost:5173',
           'http://localhost:4173',
+          'http://localhost:3000/',
         ],
         // origin: 'http://localhost:3000',
         methods: ['GET', 'POST', 'PUT'],

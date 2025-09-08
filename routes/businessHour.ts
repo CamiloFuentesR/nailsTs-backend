@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { validateJWT } from '../middleware';
+import { isAdminRole, validateJWT } from '../middleware';
 import {
   createBusinessHour,
   getAllBusinessHours,
@@ -10,10 +10,10 @@ import {
 
 const router = Router();
 
-router.post('/', validateJWT, createBusinessHour);
+router.post('/', validateJWT, isAdminRole, createBusinessHour);
 router.get('/', getAllBusinessHours);
 router.get('/bydata', getAllBusinessHoursByData);
-router.put('/:id', validateJWT, updateBusinessHour);
+router.put('/:id', validateJWT, isAdminRole, updateBusinessHour);
 router.get('/:id', validateJWT, getBusinessHourById);
 // router.get('/', validateJWT, getAllBusinessHours);
 export default router;

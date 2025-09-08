@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { validateFields, validateJWT } from '../middleware';
+import { haveRole, validateFields, validateJWT } from '../middleware';
 import {
   createAppointment,
   deleteAppointment,
@@ -24,6 +24,7 @@ router.post(
   '/',
   [
     validateJWT,
+    haveRole('ADMIN_ROLE', 'USER_ROLE'),
     check('appointmentData.role').custom(isValidRole),
     check('servicesData.*.service_id').custom(serviceByIdExist),
     check('appointmentData.client_id').custom(clientByIdExist),
@@ -41,11 +42,16 @@ router.get('/:id', validateJWT, getAppointmentById);
 router.put(
   '/:id',
   validateJWT,
+  haveRole('ADMIN_ROLE', 'USER_ROLE'),
   check('servicesData.*.service_id').custom(serviceByIdExist),
   check('appointmentData.client_id').custom(clientByIdExist),
   validateFields,
   updateAppointment,
 );
-router.delete('/:id', validateJWT, deleteAppointment);
+router.delete(
+  '/:id',
+  [validateJWT, haveRole('ADMIN_ROLE', 'USER_ROLE')],
+  deleteAppointment,
+);
 
 export default router;

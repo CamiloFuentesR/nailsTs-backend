@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from 'express';
+import { NextFunction, Request, RequestHandler, Response } from 'express';
 import Appointment from '../models/appointment';
 import { AppointmentService, Service, ServicesCategory } from '../models';
 import { Op, fn, col } from 'sequelize';
@@ -43,8 +43,11 @@ import db from '../db/conection';
 export const createAppointment: RequestHandler = async (
   req: Request,
   res: Response,
+  next: NextFunction,
 ) => {
   const { servicesData, appointmentData } = req.body;
+  console.log('Creating appointment with data:');
+  console.log(req.body);
   // console.log(servicesData);
   // console.log(appointmentData);
   // Inicia una transacción
@@ -155,10 +158,13 @@ export const getAllAppointmentByDate: RequestHandler = async (
     const endDate = new Date(end as string);
 
     const appointment = await Appointment.findAll({
+      // where: {
+      //   start: {
+      //     [Op.between]: [startDate, endDate],
+      //   },
+      // },
       where: {
-        start: {
-          [Op.between]: [startDate, endDate],
-        },
+        start: { [Op.gte]: new Date(start as string) },
         state: {
           [Op.notIn]: [-1, 4],
         },

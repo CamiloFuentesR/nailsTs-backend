@@ -76,10 +76,13 @@ export const getAllBusinessHoursByData: RequestHandler = async (
     const endDate = new Date(end as string);
 
     const businessHours = await BusinessHour.findAll({
+      // where: {
+      //   start: {
+      //     [Op.between]: [startDate, endDate],
+      //   },
+      // },
       where: {
-        start: {
-          [Op.between]: [startDate, endDate],
-        },
+        start: { [Op.gte]: new Date(start as string) },
       },
     });
 

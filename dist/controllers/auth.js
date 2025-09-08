@@ -17,16 +17,11 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const generateJWT_1 = __importDefault(require("../helpers/generateJWT"));
 const models_1 = require("../models");
 const google_verify_1 = __importDefault(require("../helpers/google-verify"));
-const firebase_admin_1 = require("../firebase/firebase-admin");
 // import { firebaseAdminAuth } from '../firebase/firebase-admin';
 // import { firebaseAdminAuth } from '../config/firebase-admin';
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     let { password, email } = req.body;
-    console.log('req body');
-    console.log(req.body);
-    console.log('email');
-    console.log(email);
     try {
         const user = yield models_1.User.findOne({
             where: { email },
@@ -138,55 +133,55 @@ const googleSignIn = (req, res) => __awaiter(void 0, void 0, void 0, function* (
 });
 exports.googleSignIn = googleSignIn;
 const googleSignInFirebase = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id_token } = req.body;
-    console.log(req.body);
+    var _a, _b;
+    const { email } = req.body;
     try {
-        const firebaseGoogleUser = yield firebase_admin_1.firebaseAdminAuth.verifyIdToken(id_token);
-        console.log('firebaseGoogleUser');
-        console.log(firebaseGoogleUser);
-        // if (email) {
-        //   //   const { email, name, picture } = firebaseGoogleUser;
-        //   if (!email) {
-        //     return res.status(400).json({
-        //       ok: false,
-        //       msg: 'Email no proporcionado por Google',
-        //     });
-        //   }
-        //   let user = await User.findOne({
-        //     where: { email },
-        //     include: [{ model: Role, attributes: ['name'] }],
-        //   });
-        //   if (!user) {
-        //     user = await User.create({
-        //       email,
-        //       password: ':p',
-        //       role_id: 3,
-        //       state: true,
-        //     });
-        //     const roleName = user.dataValues.Role?.name || 'INVITE_ROLE';
-        //     const token = await generateJWT(user.id, email, roleName);
-        //     return res.status(201).json({
-        //       ok: true,
-        //       msg: 'Usuario creado con éxito',
-        //       token,
-        //     });
-        //   }
-        //   if (!user.state) {
-        //     return res.status(401).json({
-        //       msg: 'Usuario inhabilitado',
-        //     });
-        //   }
-        //   const roleName = user.dataValues.Role?.name || 'unknown';
-        //   const token = await generateJWT(user.id, email, roleName);
-        //   return res.status(201).json({
-        //     ok: true,
-        //     token,
-        //   });
-        // }
-        // return res.status(400).json({
-        //   ok: false,
-        //   msg: 'No se pudo obtener el Token de firebase',
-        // });
+        // const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);
+        // console.log('firebaseGoogleUser');
+        // console.log(firebaseGoogleUser);
+        if (email) {
+            //   const { email, name, picture } = firebaseGoogleUser;
+            if (!email) {
+                return res.status(400).json({
+                    ok: false,
+                    msg: 'Email no proporcionado por Google',
+                });
+            }
+            let user = yield models_1.User.findOne({
+                where: { email },
+                include: [{ model: models_1.Role, attributes: ['name'] }],
+            });
+            if (!user) {
+                user = yield models_1.User.create({
+                    email,
+                    password: ':p',
+                    role_id: 3,
+                    state: true,
+                });
+                const roleName = ((_a = user.dataValues.Role) === null || _a === void 0 ? void 0 : _a.name) || 'INVITE_ROLE';
+                const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
+                return res.status(201).json({
+                    ok: true,
+                    msg: 'Usuario creado con éxito',
+                    token,
+                });
+            }
+            if (!user.state) {
+                return res.status(401).json({
+                    msg: 'Usuario inhabilitado',
+                });
+            }
+            const roleName = ((_b = user.dataValues.Role) === null || _b === void 0 ? void 0 : _b.name) || 'unknown';
+            const token = yield (0, generateJWT_1.default)(user.id, email, roleName);
+            return res.status(201).json({
+                ok: true,
+                token,
+            });
+        }
+        return res.status(400).json({
+            ok: false,
+            msg: 'No se pudo obtener el Token de firebase',
+        });
     }
     catch (error) {
         console.log(error);

@@ -82,10 +82,13 @@ const getAllBusinessHoursByData = (req, res) => __awaiter(void 0, void 0, void 0
         const startDate = new Date(start);
         const endDate = new Date(end);
         const businessHours = yield models_1.BusinessHour.findAll({
+            // where: {
+            //   start: {
+            //     [Op.between]: [startDate, endDate],
+            //   },
+            // },
             where: {
-                start: {
-                    [sequelize_1.Op.between]: [startDate, endDate],
-                },
+                start: { [sequelize_1.Op.gte]: new Date(start) },
             },
         });
         if (businessHours) {

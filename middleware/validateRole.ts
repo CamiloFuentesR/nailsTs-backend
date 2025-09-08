@@ -12,7 +12,6 @@ export const isAdminRole: RequestHandler = (
     });
   }
   const role = req.role;
-
   if (role !== 'ADMIN_ROLE') {
     return res.status(401).json({
       ok: false,
@@ -22,14 +21,14 @@ export const isAdminRole: RequestHandler = (
   next();
 };
 
-export const haveRole: RequestHandler = (...roles: any) => {
+export const haveRole = (...roles: any) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
       return res.status(500).json({
         msg: 'Se quiere verifcar el rol sin validar el token',
       });
     }
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.role)) {
       return res.status(401).json({
         msg: 'El usuario no contiene un rol válido para ejecutar esta acción',
       });
