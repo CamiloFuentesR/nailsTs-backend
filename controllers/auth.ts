@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import generateJWT from '../helpers/generateJWT';
 import { Role, User, UserInstance } from '../models';
 import googleVerify from '../helpers/google-verify';
+import { firebaseAdminAuth } from '../firebase/firebase-admin';
 // import { firebaseAdminAuth } from '../firebase/firebase-admin';
 // import { firebaseAdminAuth } from '../config/firebase-admin';
 
@@ -138,58 +139,59 @@ export const googleSignInFirebase: RequestHandler = async (
   req: Request,
   res: Response,
 ) => {
-  const { email } = req.body;
+  const { id_token } = req.body;
+  console.log(req.body);
   try {
-    // const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);
-    // console.log('firebaseGoogleUser');
-    // console.log(firebaseGoogleUser);
-    if (email) {
-      //   const { email, name, picture } = firebaseGoogleUser;
+    const firebaseGoogleUser = await firebaseAdminAuth.verifyIdToken(id_token);
+    console.log('firebaseGoogleUser');
+    console.log(firebaseGoogleUser);
+    // if (email) {
+    //   //   const { email, name, picture } = firebaseGoogleUser;
 
-      if (!email) {
-        return res.status(400).json({
-          ok: false,
-          msg: 'Email no proporcionado por Google',
-        });
-      }
+    //   if (!email) {
+    //     return res.status(400).json({
+    //       ok: false,
+    //       msg: 'Email no proporcionado por Google',
+    //     });
+    //   }
 
-      let user = await User.findOne({
-        where: { email },
-        include: [{ model: Role, attributes: ['name'] }],
-      });
+    //   let user = await User.findOne({
+    //     where: { email },
+    //     include: [{ model: Role, attributes: ['name'] }],
+    //   });
 
-      if (!user) {
-        user = await User.create({
-          email,
-          password: ':p',
-          role_id: 3,
-          state: true,
-        });
-        const roleName = user.dataValues.Role?.name || 'INVITE_ROLE';
-        const token = await generateJWT(user.id, email, roleName);
-        return res.status(201).json({
-          ok: true,
-          msg: 'Usuario creado con éxito',
-          token,
-        });
-      }
+    //   if (!user) {
+    //     user = await User.create({
+    //       email,
+    //       password: ':p',
+    //       role_id: 3,
+    //       state: true,
+    //     });
+    //     const roleName = user.dataValues.Role?.name || 'INVITE_ROLE';
+    //     const token = await generateJWT(user.id, email, roleName);
+    //     return res.status(201).json({
+    //       ok: true,
+    //       msg: 'Usuario creado con éxito',
+    //       token,
+    //     });
+    //   }
 
-      if (!user.state) {
-        return res.status(401).json({
-          msg: 'Usuario inhabilitado',
-        });
-      }
-      const roleName = user.dataValues.Role?.name || 'unknown';
-      const token = await generateJWT(user.id, email, roleName);
-      return res.status(201).json({
-        ok: true,
-        token,
-      });
-    }
-    return res.status(400).json({
-      ok: false,
-      msg: 'No se pudo obtener el Token de firebase',
-    });
+    //   if (!user.state) {
+    //     return res.status(401).json({
+    //       msg: 'Usuario inhabilitado',
+    //     });
+    //   }
+    //   const roleName = user.dataValues.Role?.name || 'unknown';
+    //   const token = await generateJWT(user.id, email, roleName);
+    //   return res.status(201).json({
+    //     ok: true,
+    //     token,
+    //   });
+    // }
+    // return res.status(400).json({
+    //   ok: false,
+    //   msg: 'No se pudo obtener el Token de firebase',
+    // });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
