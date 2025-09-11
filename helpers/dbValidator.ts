@@ -31,16 +31,23 @@ export const userByIdExist = async (id = '') => {
 
 export const clientByIdExist = async (id = '') => {
   console.log('id de cliente:', id);
-  if (!id) {
-    throw new Error('ID de cliente no proporcionado');
+
+  // Verificar si el id es nulo o el string 'null'
+  if (!id || id === 'null') {
+    throw new Error('ID de cliente no proporcionado o no válido');
   }
+
+  // Verificar si el id es un UUID válido
   if (!isUUID(id)) {
     throw new Error('ID de cliente no válido');
   }
+
+  // Buscar el cliente en la base de datos
   const client = await Client.findByPk(id);
   if (!client) {
     throw new Error(`El cliente con ID '${id}' no está registrado en la BD`);
   }
+
   return client;
 };
 

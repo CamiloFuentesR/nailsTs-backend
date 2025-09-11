@@ -34,7 +34,7 @@ const Appointment = db.define<AppointmentInstance>('Appointments', {
   },
   client_id: {
     type: DataTypes.UUID,
-    allowNull: true,
+    allowNull: false,
   },
   start: {
     type: DataTypes.DATE,
