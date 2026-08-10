@@ -13,7 +13,7 @@ const Appointment = conection_1.default.define('Appointments', {
     },
     client_id: {
         type: sequelize_1.DataTypes.UUID,
-        allowNull: true,
+        allowNull: false,
     },
     start: {
         type: sequelize_1.DataTypes.DATE,

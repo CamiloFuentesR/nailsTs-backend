@@ -20,9 +20,10 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBusinessHourById = exports.updateBusinessHour = exports.getAllBusinessHoursByData = exports.getAllBusinessHours = exports.createBusinessHour = void 0;
+exports.getBusinessHourById = exports.deleteBusinessHour = exports.updateBusinessHour = exports.getAllBusinessHoursByData = exports.getAllBusinessHours = exports.createBusinessHour = void 0;
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
+const scheduleValidation_1 = require("../helpers/scheduleValidation");
 const createBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const _a = req.body, { id } = _a, businessHourData = __rest(_a, ["id"]);
     try {
@@ -140,6 +141,33 @@ const updateBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.updateBusinessHour = updateBusinessHour;
+const deleteBusinessHour = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        if (!(0, scheduleValidation_1.esUuidValido)(id)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El identificador del horario no es válido',
+            });
+        }
+        const borradas = yield models_1.BusinessHour.destroy({ where: { id } });
+        if (borradas === 0) {
+            return res.status(404).json({ ok: false, msg: 'Horario no encontrado' });
+        }
+        return res
+            .status(200)
+            .json({ ok: true, msg: 'Horario eliminado con éxito', id });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            ok: false,
+            msg: 'Error al eliminar el horario',
+            details: error.message,
+        });
+    }
+});
+exports.deleteBusinessHour = deleteBusinessHour;
 const getBusinessHourById = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;

@@ -20,8 +20,11 @@ import {
   servicesSecondaryRoutes,
   fileUploadTo,
   googleAnalytics,
+  scheduleRuleRoutes,
+  scheduleExceptionRoutes,
 } from '../routes';
 import fileUpload from 'express-fileupload';
+import { ensureScheduleTables } from '../helpers/ensureScheduleTables';
 
 injectSpeedInsights();
 
@@ -45,6 +48,8 @@ class Server {
     appointmentServoce: '/api/appointmentService',
     fileUpload: '/api/upload',
     googleAnalisis: '/api/googleAnatytics',
+    scheduleRule: '/api/scheduleRule',
+    scheduleException: '/api/scheduleException',
   };
 
   constructor() {
@@ -65,7 +70,7 @@ class Server {
           'http://localhost:4173',
         ],
         // origin: 'http://localhost:3000',
-        methods: ['GET', 'POST', 'PUT'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
       },
     });
 
@@ -85,6 +90,18 @@ class Server {
     } catch (error: any) {
       console.error('Error connecting to the database:', error);
       throw new Error(error.message || 'Error connecting to the database');
+    }
+
+    // Crea las tablas de horarios si faltan. Koyeb corre un contenedor
+    // persistente, así que esto se ejecuta una vez por deploy, no por request.
+    // Va aparte del authenticate: si falla, el servidor igual debe levantar.
+    try {
+      await ensureScheduleTables();
+    } catch (error: any) {
+      console.error(
+        'No se pudieron verificar las tablas de horarios:',
+        error.message,
+      );
     }
   }
 
@@ -119,6 +136,8 @@ class Server {
     this.app.use(this.apiPaths.appointmentServoce, appointmentServiceRoute);
     this.app.use(this.apiPaths.fileUpload, fileUploadTo);
     this.app.use(this.apiPaths.googleAnalisis, googleAnalytics);
+    this.app.use(this.apiPaths.scheduleRule, scheduleRuleRoutes);
+    this.app.use(this.apiPaths.scheduleException, scheduleExceptionRoutes);
   }
   private sockets(): void {
     this.io.on('connection', socket => {
@@ -152,6 +171,26 @@ class Server {
       socket.on('updateBussines', businessHours => {
         console.log('Hora de negocio editada:', businessHours);
         socket.broadcast.emit('onUpdateBusiness', businessHours);
+      });
+
+      socket.on('deleteBussines', businessHourId => {
+        console.log('Horario eliminado:', businessHourId);
+        socket.broadcast.emit('onDeleteBusiness', businessHourId);
+      });
+
+      socket.on('saveScheduleRules', scheduleRules => {
+        console.log('Horario semanal actualizado');
+        socket.broadcast.emit('onScheduleRulesUpdated', scheduleRules);
+      });
+
+      socket.on('saveScheduleException', scheduleException => {
+        console.log('Cierre agregado:', scheduleException);
+        socket.broadcast.emit('onScheduleExceptionAdded', scheduleException);
+      });
+
+      socket.on('deleteScheduleException', scheduleExceptionId => {
+        console.log('Cierre eliminado:', scheduleExceptionId);
+        socket.broadcast.emit('onScheduleExceptionDeleted', scheduleExceptionId);
       });
 
       socket.on('disconnect', () => {

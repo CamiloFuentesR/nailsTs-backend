@@ -48,7 +48,7 @@ const uploadFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.uploadFile = uploadFile;
 const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _b;
+    var _a;
     const { id, collection } = req.params;
     let model;
     try {
@@ -84,7 +84,7 @@ const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 fs_1.default.unlinkSync(pathImg);
             }
         }
-        const file = (_b = req.files) === null || _b === void 0 ? void 0 : _b.file;
+        const file = (_a = req.files) === null || _a === void 0 ? void 0 : _a.file;
         const name = yield (0, uploadFiles_1.uploadFiles)(file, undefined, collection);
         model.img = name;
         yield model.save();
@@ -99,7 +99,7 @@ const updateFile = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
 });
 exports.updateFile = updateFile;
 const postFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c;
+    var _a;
     const { id, collection } = req.params;
     console.log(req.files);
     let model;
@@ -119,7 +119,7 @@ const postFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, funct
     //   const [public_id] = nombre.split('.');
     //   cloudinary.uploader.destroy(`${id}/${public_id}`);
     // }
-    const { tempFilePath } = (_c = req.files) === null || _c === void 0 ? void 0 : _c.file;
+    const { tempFilePath } = (_a = req.files) === null || _a === void 0 ? void 0 : _a.file;
     // Crear la carpeta dinámica según la colección
     const folderPath = `RestServer NodeJs/${id}`;
     const { secure_url } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {
@@ -135,7 +135,7 @@ const postFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.postFileClaudinary = postFileClaudinary;
 const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _d;
+    var _a;
     const { id, collection } = req.params;
     let model;
     try {
@@ -171,7 +171,7 @@ const updateFileClaudinary = (req, res) => __awaiter(void 0, void 0, void 0, fun
             const [public_id] = nombre.split('.');
             cloudinary_1.v2.uploader.destroy(`${collection}/${public_id}`);
         }
-        const { tempFilePath } = (_d = req.files) === null || _d === void 0 ? void 0 : _d.file;
+        const { tempFilePath } = (_a = req.files) === null || _a === void 0 ? void 0 : _a.file;
         // Crear la carpeta dinámica según la colección
         const folderPath = `RestServer NodeJs/${collection}`;
         const { secure_url } = yield cloudinary_1.v2.uploader.upload(tempFilePath, {

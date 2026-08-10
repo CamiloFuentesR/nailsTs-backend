@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.googleAnalytics = exports.fileUploadTo = exports.servicesSecondaryRoutes = exports.servicesCategorySecondaryRoutes = exports.userRoutes = exports.servicesCategory = exports.services = exports.roleRoutes = exports.clientRoutes = exports.businessHourRoutes = exports.authRoutes = exports.appointmentServiceRoute = exports.appointmentStateRoutes = exports.appointmentRoutes = void 0;
+exports.scheduleExceptionRoutes = exports.scheduleRuleRoutes = exports.googleAnalytics = exports.fileUploadTo = exports.servicesSecondaryRoutes = exports.servicesCategorySecondaryRoutes = exports.userRoutes = exports.servicesCategory = exports.services = exports.roleRoutes = exports.clientRoutes = exports.businessHourRoutes = exports.authRoutes = exports.appointmentServiceRoute = exports.appointmentStateRoutes = exports.appointmentRoutes = void 0;
 const appointment_1 = __importDefault(require("../routes/appointment"));
 exports.appointmentRoutes = appointment_1.default;
 const appointmentState_1 = __importDefault(require("../routes/appointmentState"));
@@ -32,4 +32,8 @@ const files_1 = __importDefault(require("../routes/files"));
 exports.fileUploadTo = files_1.default;
 const googleAnalytics_1 = __importDefault(require("../routes/googleAnalytics"));
 exports.googleAnalytics = googleAnalytics_1.default;
+const scheduleRule_1 = __importDefault(require("../routes/scheduleRule"));
+exports.scheduleRuleRoutes = scheduleRule_1.default;
+const scheduleException_1 = __importDefault(require("../routes/scheduleException"));
+exports.scheduleExceptionRoutes = scheduleException_1.default;
 //# sourceMappingURL=index.js.map

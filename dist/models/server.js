@@ -21,6 +21,7 @@ const errorHandler_1 = require("../middleware/errorHandler");
 const speed_insights_1 = require("@vercel/speed-insights");
 const routes_1 = require("../routes");
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
+const ensureScheduleTables_1 = require("../helpers/ensureScheduleTables");
 (0, speed_insights_1.injectSpeedInsights)();
 class Server {
     constructor() {
@@ -39,6 +40,8 @@ class Server {
             appointmentServoce: '/api/appointmentService',
             fileUpload: '/api/upload',
             googleAnalisis: '/api/googleAnatytics',
+            scheduleRule: '/api/scheduleRule',
+            scheduleException: '/api/scheduleException',
         };
         this.app = (0, express_1.default)();
         this.port = process.env.PORT || '8000';
@@ -55,7 +58,7 @@ class Server {
                     'http://localhost:4173',
                 ],
                 // origin: 'http://localhost:3000',
-                methods: ['GET', 'POST', 'PUT'],
+                methods: ['GET', 'POST', 'PUT', 'DELETE'],
             },
         });
         this.dBConection();
@@ -74,6 +77,15 @@ class Server {
             catch (error) {
                 console.error('Error connecting to the database:', error);
                 throw new Error(error.message || 'Error connecting to the database');
+            }
+            // Crea las tablas de horarios si faltan. Koyeb corre un contenedor
+            // persistente, así que esto se ejecuta una vez por deploy, no por request.
+            // Va aparte del authenticate: si falla, el servidor igual debe levantar.
+            try {
+                yield (0, ensureScheduleTables_1.ensureScheduleTables)();
+            }
+            catch (error) {
+                console.error('No se pudieron verificar las tablas de horarios:', error.message);
             }
         });
     }
@@ -102,6 +114,8 @@ class Server {
         this.app.use(this.apiPaths.appointmentServoce, routes_1.appointmentServiceRoute);
         this.app.use(this.apiPaths.fileUpload, routes_1.fileUploadTo);
         this.app.use(this.apiPaths.googleAnalisis, routes_1.googleAnalytics);
+        this.app.use(this.apiPaths.scheduleRule, routes_1.scheduleRuleRoutes);
+        this.app.use(this.apiPaths.scheduleException, routes_1.scheduleExceptionRoutes);
     }
     sockets() {
         this.io.on('connection', socket => {
@@ -129,6 +143,22 @@ class Server {
             socket.on('updateBussines', businessHours => {
                 console.log('Hora de negocio editada:', businessHours);
                 socket.broadcast.emit('onUpdateBusiness', businessHours);
+            });
+            socket.on('deleteBussines', businessHourId => {
+                console.log('Horario eliminado:', businessHourId);
+                socket.broadcast.emit('onDeleteBusiness', businessHourId);
+            });
+            socket.on('saveScheduleRules', scheduleRules => {
+                console.log('Horario semanal actualizado');
+                socket.broadcast.emit('onScheduleRulesUpdated', scheduleRules);
+            });
+            socket.on('saveScheduleException', scheduleException => {
+                console.log('Cierre agregado:', scheduleException);
+                socket.broadcast.emit('onScheduleExceptionAdded', scheduleException);
+            });
+            socket.on('deleteScheduleException', scheduleExceptionId => {
+                console.log('Cierre eliminado:', scheduleExceptionId);
+                socket.broadcast.emit('onScheduleExceptionDeleted', scheduleExceptionId);
             });
             socket.on('disconnect', () => {
                 console.log('Cliente desconectado');

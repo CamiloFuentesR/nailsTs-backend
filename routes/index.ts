@@ -12,6 +12,8 @@ import servicesSecondaryRoutes from '../routes/servicesSecondaries';
 import appointmentServiceRoute from '../routes/appointmentService';
 import fileUploadTo from '../routes/files';
 import googleAnalytics from '../routes/googleAnalytics';
+import scheduleRuleRoutes from '../routes/scheduleRule';
+import scheduleExceptionRoutes from '../routes/scheduleException';
 
 export {
   appointmentRoutes,
@@ -28,4 +30,6 @@ export {
   servicesSecondaryRoutes,
   fileUploadTo,
   googleAnalytics,
+  scheduleRuleRoutes,
+  scheduleExceptionRoutes,
 };

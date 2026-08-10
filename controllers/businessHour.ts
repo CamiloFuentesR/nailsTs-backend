@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
 import { BusinessHour } from '../models';
 import { Op } from 'sequelize';
+import { esUuidValido } from '../helpers/scheduleValidation';
 
 export const createBusinessHour: RequestHandler = async (
   req: Request,
@@ -138,6 +139,35 @@ export const updateBusinessHour: RequestHandler = async (
       ok: false,
       msg: 'Error interno del servidor al actualizar el horario',
       error: error.message,
+    });
+  }
+};
+
+export const deleteBusinessHour: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    if (!esUuidValido(id)) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'El identificador del horario no es válido',
+      });
+    }
+    const borradas = await BusinessHour.destroy({ where: { id } });
+    if (borradas === 0) {
+      return res.status(404).json({ ok: false, msg: 'Horario no encontrado' });
+    }
+    return res
+      .status(200)
+      .json({ ok: true, msg: 'Horario eliminado con éxito', id });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Error al eliminar el horario',
+      details: error.message,
     });
   }
 };
