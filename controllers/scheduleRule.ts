@@ -2,7 +2,11 @@ import { Request, RequestHandler, Response } from 'express';
 import { Op } from 'sequelize';
 import db from '../db/conection';
 import { ScheduleRule } from '../models';
-import { hayReglasSolapadas, validarRegla } from '../helpers/scheduleValidation';
+import {
+  esUuidValido,
+  hayReglasSolapadas,
+  validarRegla,
+} from '../helpers/scheduleValidation';
 
 /**
  * Resta un día a una fecha 'YYYY-MM-DD'. Aritmética de calendario pura, sin
@@ -218,6 +222,12 @@ export const deleteScheduleRule: RequestHandler = async (
 ) => {
   try {
     const { id } = req.params;
+    if (!esUuidValido(id)) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'El identificador de la regla no es válido',
+      });
+    }
     const borradas = await ScheduleRule.destroy({ where: { id } });
     if (borradas === 0) {
       return res

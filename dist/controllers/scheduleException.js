@@ -67,6 +67,12 @@ exports.createScheduleException = createScheduleException;
 const deleteScheduleException = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
+        if (!(0, scheduleValidation_1.esUuidValido)(id)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El identificador del cierre no es válido',
+            });
+        }
         const borradas = yield models_1.ScheduleException.destroy({ where: { id } });
         if (borradas === 0) {
             return res.status(404).json({ ok: false, msg: 'Cierre no encontrado' });

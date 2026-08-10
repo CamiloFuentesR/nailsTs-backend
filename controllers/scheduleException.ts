@@ -1,7 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
 import { Op } from 'sequelize';
 import { ScheduleException } from '../models';
-import { validarExcepcion } from '../helpers/scheduleValidation';
+import { esUuidValido, validarExcepcion } from '../helpers/scheduleValidation';
 
 export const getScheduleExceptions: RequestHandler = async (
   req: Request,
@@ -69,6 +69,12 @@ export const deleteScheduleException: RequestHandler = async (
 ) => {
   try {
     const { id } = req.params;
+    if (!esUuidValido(id)) {
+      return res.status(400).json({
+        ok: false,
+        msg: 'El identificador del cierre no es válido',
+      });
+    }
     const borradas = await ScheduleException.destroy({ where: { id } });
     if (borradas === 0) {
       return res.status(404).json({ ok: false, msg: 'Cierre no encontrado' });

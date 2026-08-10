@@ -199,6 +199,12 @@ exports.updateScheduleRule = updateScheduleRule;
 const deleteScheduleRule = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
+        if (!(0, scheduleValidation_1.esUuidValido)(id)) {
+            return res.status(400).json({
+                ok: false,
+                msg: 'El identificador de la regla no es válido',
+            });
+        }
         const borradas = yield models_1.ScheduleRule.destroy({ where: { id } });
         if (borradas === 0) {
             return res

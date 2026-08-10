@@ -5,9 +5,17 @@
  * Devuelven null si está todo bien, o el mensaje de error en español.
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validarExcepcion = exports.hayReglasSolapadas = exports.validarRegla = void 0;
+exports.validarExcepcion = exports.hayReglasSolapadas = exports.validarRegla = exports.esUuidValido = void 0;
 const FORMATO_HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
+const FORMATO_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/**
+ * Los ids de estas tablas son UUID. Si llega otra cosa, Postgres falla al
+ * castear y devuelve un 500 que parece un error del servidor cuando en
+ * realidad es una petición mal formada.
+ */
+const esUuidValido = (id) => FORMATO_UUID.test(id);
+exports.esUuidValido = esUuidValido;
 const validarRegla = (regla) => {
     if (!Number.isInteger(regla.dayOfWeek) ||
         regla.dayOfWeek < 0 ||

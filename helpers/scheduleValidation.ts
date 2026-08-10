@@ -21,6 +21,15 @@ interface ExcepcionValidable {
 
 const FORMATO_HORA = /^([01]\d|2[0-3]):[0-5]\d$/;
 const FORMATO_FECHA = /^\d{4}-\d{2}-\d{2}$/;
+const FORMATO_UUID =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Los ids de estas tablas son UUID. Si llega otra cosa, Postgres falla al
+ * castear y devuelve un 500 que parece un error del servidor cuando en
+ * realidad es una petición mal formada.
+ */
+export const esUuidValido = (id: string): boolean => FORMATO_UUID.test(id);
 
 export const validarRegla = (regla: ReglaValidable): string | null => {
   if (
