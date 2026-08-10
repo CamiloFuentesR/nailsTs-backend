@@ -11,6 +11,8 @@ import BusinessHour from './businessHour';
 import AppointmentService from './AppointmentService';
 import ServicesCategorySecondary from './serviceCategorySecondary';
 import ServicesSecondary from './serviceSecondary';
+import ScheduleRule from './scheduleRule';
+import ScheduleException from './scheduleException';
 
 export {
   Appointment,
@@ -26,6 +28,8 @@ export {
   AppointmentService,
   ServicesCategorySecondary,
   ServicesSecondary,
+  ScheduleRule,
+  ScheduleException,
 };
 
 import './initAssociations';

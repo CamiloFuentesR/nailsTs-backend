@@ -142,6 +142,29 @@ export const updateBusinessHour: RequestHandler = async (
   }
 };
 
+export const deleteBusinessHour: RequestHandler = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+    const borradas = await BusinessHour.destroy({ where: { id } });
+    if (borradas === 0) {
+      return res.status(404).json({ ok: false, msg: 'Horario no encontrado' });
+    }
+    return res
+      .status(200)
+      .json({ ok: true, msg: 'Horario eliminado con éxito', id });
+  } catch (error: any) {
+    console.log(error);
+    return res.status(500).json({
+      ok: false,
+      msg: 'Error al eliminar el horario',
+      details: error.message,
+    });
+  }
+};
+
 export const getBusinessHourById: RequestHandler = async (
   req: Request,
   res: Response,
