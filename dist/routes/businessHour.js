@@ -8,6 +8,7 @@ router.post('/', middleware_1.validateJWT, middleware_1.isAdminRole, businessHou
 router.get('/', businessHour_1.getAllBusinessHours);
 router.get('/bydata', businessHour_1.getAllBusinessHoursByData);
 router.put('/:id', middleware_1.validateJWT, middleware_1.isAdminRole, businessHour_1.updateBusinessHour);
+router.delete('/:id', middleware_1.validateJWT, middleware_1.isAdminRole, businessHour_1.deleteBusinessHour);
 router.get('/:id', middleware_1.validateJWT, businessHour_1.getBusinessHourById);
 // router.get('/', validateJWT, getAllBusinessHours);
 exports.default = router;
