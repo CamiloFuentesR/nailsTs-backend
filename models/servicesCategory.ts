@@ -8,11 +8,13 @@ export interface ServiceCategoryProps {
   state: boolean;
   information: string;
   img: string;
+  /** Lo que trae el servicio, un item por linea. null si todavia no se llena. */
+  incluye: string[] | null;
 }
 
 // Definición de las propiedades requeridas al crear una instancia (excluyendo `id` porque es autoincremental)
 export interface ServiceCategoryCreationAttributes
-  extends Optional<ServiceCategoryProps, 'id'> {}
+  extends Optional<ServiceCategoryProps, 'id' | 'incluye'> {}
 
 // Definición de la instancia del modelo, extendiendo `Model` con los tipos definidos
 export interface ServiceCategoryInstance
@@ -45,6 +47,17 @@ const ServicesCategory = db.define<ServiceCategoryInstance>(
     img: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    /*
+     * JSONB y no una tabla aparte: es una lista corta de texto que solo se lee
+     * completa, nunca se consulta ni se ordena por sus elementos. Una tabla
+     * hija seria mas peso del que resuelve.
+     * La columna la agrega helpers/ensureCategoryColumns al arrancar.
+     */
+    incluye: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+      defaultValue: null,
     },
   },
   {

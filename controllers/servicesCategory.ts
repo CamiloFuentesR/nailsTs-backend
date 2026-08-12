@@ -1,6 +1,26 @@
 import { Request, RequestHandler, Response } from 'express';
 import { ServicesCategory } from '../models';
 
+/**
+ * Deja `incluye` como arreglo de textos limpios, o null si no hay nada.
+ *
+ * Acepta tambien un string con saltos de linea porque es lo que manda un
+ * <textarea>, que es como se edita desde el panel.
+ */
+const normalizarIncluye = (valor: unknown): string[] | null => {
+  const lista = Array.isArray(valor)
+    ? valor
+    : typeof valor === 'string'
+      ? valor.split(/\r?\n/)
+      : [];
+
+  const limpia = lista
+    .map(item => String(item).trim())
+    .filter(item => item.length > 0);
+
+  return limpia.length > 0 ? limpia : null;
+};
+
 export const getServicesCategory: RequestHandler = async (
   req: Request,
   res: Response,
@@ -52,6 +72,9 @@ export const createServicesCategory: RequestHandler = async (req, res) => {
       state: req.body.state || 'active', // Valor predeterminado si no se envía
       information: req.body.information || null, // Campo opcional
       img: req.body.img.name || null, // Campo opcional
+      // Se normaliza a arreglo de texto: el formulario manda una linea por
+      // item y cualquier otra cosa se guarda como null antes que como basura.
+      incluye: normalizarIncluye(req.body.incluye),
     };
     console.log('data',data);
 
@@ -124,6 +147,12 @@ export const updateServicesCategory: RequestHandler = async (
 
   // Eliminar el ID del body para la actualización
   const { id: _, ...bodyWithoutId } = body;
+
+  // El update pasa el body tal cual, asi que `incluye` se normaliza aca igual
+  // que al crear. Si no viene en el body, no se toca lo que ya estaba.
+  if ('incluye' in bodyWithoutId) {
+    bodyWithoutId.incluye = normalizarIncluye(bodyWithoutId.incluye);
+  }
 
   // Actualizar la categoría del servicio
   const [updatedRowsCount, updatedServiceCategoryArray] =

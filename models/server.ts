@@ -25,6 +25,7 @@ import {
 } from '../routes';
 import fileUpload from 'express-fileupload';
 import { ensureScheduleTables } from '../helpers/ensureScheduleTables';
+import { ensureCategoryColumns } from '../helpers/ensureCategoryColumns';
 
 injectSpeedInsights();
 
@@ -100,6 +101,17 @@ class Server {
     } catch (error: any) {
       console.error(
         'No se pudieron verificar las tablas de horarios:',
+        error.message,
+      );
+    }
+
+    // Mismo criterio: si falla, el servidor igual levanta. Sin la columna, la
+    // ficha del servicio simplemente no muestra el bloque "Que incluye".
+    try {
+      await ensureCategoryColumns();
+    } catch (error: any) {
+      console.error(
+        'No se pudieron verificar las columnas de categorias:',
         error.message,
       );
     }
