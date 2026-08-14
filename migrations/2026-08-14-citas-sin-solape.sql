@@ -10,7 +10,7 @@
 -- NO es idempotente: correrlo dos veces falla con "constraint already exists",
 -- sin efecto sobre los datos. Postgres no soporta ADD CONSTRAINT IF NOT EXISTS.
 
--- Diagnóstico (correr ANTES; debe devolver cero filas):
+-- Diagnóstico 1, citas que se pisan (correr ANTES; debe devolver cero filas):
 --
 -- SELECT a.id, a."start", a."end", b.id, b."start", b."end"
 -- FROM "Appointments" a
@@ -18,6 +18,14 @@
 --   ON a.id < b.id
 --  AND a."start" < b."end" AND a."end" > b."start"
 -- WHERE a.state NOT IN (-1,4) AND b.state NOT IN (-1,4);
+--
+-- Diagnóstico 2, rangos al revés (también debe devolver cero filas):
+-- tstzrange() no acepta que el fin sea anterior al inicio y aborta el ALTER con
+-- "range lower bound must be less than or equal to range upper bound", que no
+-- dice qué fila lo provocó. Esta consulta sí.
+--
+-- SELECT id, "start", "end" FROM "Appointments"
+-- WHERE state NOT IN (-1,4) AND "end" < "start";
 
 BEGIN;
 
