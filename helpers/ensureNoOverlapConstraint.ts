@@ -1,4 +1,5 @@
 import db from '../db/conection';
+import { LOCK_TIMEOUT_AGENDA } from './haySolape';
 
 /**
  * Instala la restricción que hace imposible grabar dos citas encima, incluso
@@ -49,14 +50,33 @@ export const ensureNoOverlapConstraint = async (): Promise<void> => {
     `);
     if (filas.length > 0) return;
 
+    // El ALTER va con tope de espera y dentro de una transacción propia.
+    // ADD CONSTRAINT ... EXCLUDE toma ACCESS EXCLUSIVE sobre la tabla, y en
+    // Postgres un pedido de lock pendiente bloquea a todos los que llegan
+    // detrás: en un despliegue con la instancia vieja todavía atendiendo, eso
+    // congela la agenda entera mientras espera. Con el tope se rinde a los 3s y
+    // lo reintenta el siguiente arranque.
+    //
+    // Tiene que ser SET LOCAL dentro de transacción: un SET suelto se queda
+    // pegado a la conexión, y el pool de Sequelize la recicla para consultas
+    // ajenas. El DDL transaccional no es problema en Postgres.
+    //
     // La tabla lleva mayúscula inicial porque Sequelize pluraliza el nombre del
     // modelo, y "end" es palabra reservada: las dos van entre comillas. "start"
     // no es reservada, pero se cita igual para que el par se lea parejo.
-    await db.query(`
-      ALTER TABLE "Appointments" ADD CONSTRAINT citas_sin_solape
-        EXCLUDE USING gist (tstzrange("start", "end") WITH &&)
-        WHERE (state NOT IN (-1, 4))
-    `);
+    await db.transaction(async transaction => {
+      await db.query(`SET LOCAL lock_timeout = '${LOCK_TIMEOUT_AGENDA}'`, {
+        transaction,
+      });
+      await db.query(
+        `
+        ALTER TABLE "Appointments" ADD CONSTRAINT citas_sin_solape
+          EXCLUDE USING gist (tstzrange("start", "end") WITH &&)
+          WHERE (state NOT IN (-1, 4))
+        `,
+        { transaction },
+      );
+    });
     console.log('Restricción citas_sin_solape instalada');
   } catch (error: any) {
     console.warn(

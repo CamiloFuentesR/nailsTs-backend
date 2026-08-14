@@ -1,13 +1,30 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
 import Appointment from '../models/appointment';
 import { AppointmentService, Service, ServicesCategory } from '../models';
-import { Op, fn, col } from 'sequelize';
+import { Op, fn, col, ExclusionConstraintError } from 'sequelize';
 import db from '../db/conection';
-import { buscarCitaSolapada, rangoValido } from '../helpers/haySolape';
+import {
+  buscarCitaSolapada,
+  rangoValido,
+  tomarLockAgenda,
+} from '../helpers/haySolape';
 
-/** Clave del lock de agenda. Cualquier bigint fijo sirve; un segundo lock
- *  consultivo en el proyecto debe usar una clave distinta. */
-const LOCK_AGENDA = 918273645;
+/**
+ * ¿El error viene de la restricción de solape de la base?
+ *
+ * Es la última línea de defensa: la restricción citas_sin_solape saltó porque
+ * el horario se tomó entre la consulta de solape y el INSERT. Por la API no
+ * debería pasar nunca, porque el lock consultivo serializa las escrituras; el
+ * caso real es una escritura por fuera, o un endpoint futuro que no tome el
+ * lock. Sin esto responde 500 con el texto crudo de Postgres, que además filtra
+ * el nombre interno de la restricción al cliente.
+ */
+const esSolapeDeLaBase = (error: unknown): boolean =>
+  error instanceof ExclusionConstraintError &&
+  error.constraint === 'citas_sin_solape';
+
+/** Mismo texto que el 409 del chequeo previo: el frontend no distingue. */
+const MSG_HORARIO_TOMADO = 'Ese horario ya fue tomado. Elige otro, por favor.';
 
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
@@ -79,29 +96,16 @@ export const createAppointment: RequestHandler = async (
       });
     }
 
-    // SET LOCAL se revierte solo al cerrar la transacción. Sin tope, una
-    // transacción trabada encola a todas las siguientes con su conexión del
-    // pool tomada y se queda sin base de datos la API completa, no solo este
-    // endpoint.
-    await db.query("SET LOCAL lock_timeout = '3s'", { transaction });
-
-    // Serializa la creación de citas. Sin esto, dos peticiones simultáneas
-    // pueden leer las dos "libre" y grabar las dos: una consulta seguida de un
-    // insert no es atómica. El lock se suelta solo al cerrar la transacción.
-    //
-    // Asume READ COMMITTED (el default de Postgres): la consulta de solape ve
-    // lo que commiteó quien tenía el lock antes. Con REPEATABLE_READ dejaría de
-    // verlo y se grabarían dos citas encima sin ningún error.
-    await db.query(`SELECT pg_advisory_xact_lock(${LOCK_AGENDA})`, {
-      transaction,
-    });
+    // Serializa las escrituras de agenda y acota la espera por locks. El porqué
+    // de cada parte está en tomarLockAgenda.
+    await tomarLockAgenda(transaction);
 
     const solapada = await buscarCitaSolapada({ inicio, fin, transaction });
     if (solapada) {
       await transaction.rollback();
       return res.status(409).json({
         ok: false,
-        msg: 'Ese horario ya fue tomado. Elige otro, por favor.',
+        msg: MSG_HORARIO_TOMADO,
       });
     }
 
@@ -143,6 +147,14 @@ export const createAppointment: RequestHandler = async (
   } catch (error: any) {
     // Reversión de la transacción en caso de error
     await transaction.rollback();
+
+    if (esSolapeDeLaBase(error)) {
+      return res.status(409).json({
+        ok: false,
+        msg: MSG_HORARIO_TOMADO,
+      });
+    }
+
     console.log(error.message);
     res.status(500).json({
       ok: false,
@@ -423,14 +435,10 @@ export const updateAppointment: RequestHandler = async (
       });
     }
 
-    // Mismo tope y mismo lock que al crear, por los motivos explicados en
-    // createAppointment. Reprogramar tiene que tomar el mismo lock: si no lo
-    // hiciera, una creación y una reprogramación simultáneas podrían dejar dos
-    // citas en el mismo horario.
-    await db.query("SET LOCAL lock_timeout = '3s'", { transaction });
-    await db.query(`SELECT pg_advisory_xact_lock(${LOCK_AGENDA})`, {
-      transaction,
-    });
+    // Reprogramar tiene que tomar el mismo lock que crear: si no lo hiciera,
+    // una creación y una reprogramación simultáneas podrían dejar dos citas en
+    // el mismo horario.
+    await tomarLockAgenda(transaction);
 
     // Se ignora la propia cita: al moverla dentro de su mismo horario se
     // chocaría consigo misma y quedaría imposible de guardar.
@@ -444,7 +452,7 @@ export const updateAppointment: RequestHandler = async (
       await transaction.rollback();
       return res.status(409).json({
         ok: false,
-        msg: 'Ese horario ya fue tomado. Elige otro, por favor.',
+        msg: MSG_HORARIO_TOMADO,
       });
     }
 
@@ -493,6 +501,14 @@ export const updateAppointment: RequestHandler = async (
   } catch (error: any) {
     // Reversión de la transacción en caso de error
     await transaction.rollback();
+
+    if (esSolapeDeLaBase(error)) {
+      return res.status(409).json({
+        ok: false,
+        msg: MSG_HORARIO_TOMADO,
+      });
+    }
+
     console.log(error.message);
     res.status(500).json({
       ok: false,
@@ -512,8 +528,15 @@ export const deleteAppointment: RequestHandler = async (
   const transaction = await db.transaction();
 
   try {
+    // Con { transaction } se reutiliza la conexión que ya tomó la transacción.
+    // Sin eso pide una segunda al pool teniendo una ocupada, y con el pool por
+    // defecto en 5 unas pocas peticiones simultáneas se bloquean entre sí.
+    //
+    // No lleva lock ni validación de solape a propósito: cancelar libera un
+    // bloque de agenda, no lo toma.
     const appointment = await Appointment.findOne({
       where: { id: id },
+      transaction,
     });
 
     if (!appointment) {
