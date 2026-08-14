@@ -3,6 +3,7 @@ import Appointment from '../models/appointment';
 import { AppointmentService, Service, ServicesCategory } from '../models';
 import { Op, fn, col } from 'sequelize';
 import db from '../db/conection';
+import { buscarCitaSolapada, rangoValido } from '../helpers/haySolape';
 
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
@@ -60,6 +61,33 @@ export const createAppointment: RequestHandler = async (
       return res.status(500).json({
         ok: false,
         msg: 'Error al crear la cita, datos duplicados',
+      });
+    }
+
+    const inicio = new Date(appointmentData.start);
+    const fin = new Date(appointmentData.end);
+
+    if (!rangoValido(inicio, fin)) {
+      await transaction.rollback();
+      return res.status(400).json({
+        ok: false,
+        msg: 'El horario de la cita no es válido',
+      });
+    }
+
+    // Serializa la creación de citas. Sin esto, dos peticiones simultáneas
+    // pueden leer las dos "libre" y grabar las dos: una consulta seguida de un
+    // insert no es atómica. El lock se suelta solo al cerrar la transacción.
+    await db.query("SELECT pg_advisory_xact_lock(hashtext('agenda_citas'))", {
+      transaction,
+    });
+
+    const solapada = await buscarCitaSolapada({ inicio, fin, transaction });
+    if (solapada) {
+      await transaction.rollback();
+      return res.status(409).json({
+        ok: false,
+        msg: 'Ese horario ya fue tomado. Elige otro, por favor.',
       });
     }
 
