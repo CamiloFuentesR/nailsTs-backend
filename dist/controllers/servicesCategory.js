@@ -22,6 +22,23 @@ var __rest = (this && this.__rest) || function (s, e) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateServicesCategory = exports.showServiceCategoryById = exports.createServicesCategory = exports.getServicesCategory = void 0;
 const models_1 = require("../models");
+/**
+ * Deja `incluye` como arreglo de textos limpios, o null si no hay nada.
+ *
+ * Acepta tambien un string con saltos de linea porque es lo que manda un
+ * <textarea>, que es como se edita desde el panel.
+ */
+const normalizarIncluye = (valor) => {
+    const lista = Array.isArray(valor)
+        ? valor
+        : typeof valor === 'string'
+            ? valor.split(/\r?\n/)
+            : [];
+    const limpia = lista
+        .map(item => String(item).trim())
+        .filter(item => item.length > 0);
+    return limpia.length > 0 ? limpia : null;
+};
 const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const serCat = yield models_1.ServicesCategory.findAll();
@@ -68,6 +85,9 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
             state: req.body.state || 'active', // Valor predeterminado si no se envía
             information: req.body.information || null, // Campo opcional
             img: req.body.img.name || null, // Campo opcional
+            // Se normaliza a arreglo de texto: el formulario manda una linea por
+            // item y cualquier otra cosa se guarda como null antes que como basura.
+            incluye: normalizarIncluye(req.body.incluye),
         };
         console.log('data', data);
         const category = yield models_1.ServicesCategory.create(data);
@@ -132,6 +152,11 @@ const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     }
     // Eliminar el ID del body para la actualización
     const { id: _ } = body, bodyWithoutId = __rest(body, ["id"]);
+    // El update pasa el body tal cual, asi que `incluye` se normaliza aca igual
+    // que al crear. Si no viene en el body, no se toca lo que ya estaba.
+    if ('incluye' in bodyWithoutId) {
+        bodyWithoutId.incluye = normalizarIncluye(bodyWithoutId.incluye);
+    }
     // Actualizar la categoría del servicio
     const [updatedRowsCount, updatedServiceCategoryArray] = yield models_1.ServicesCategory.update(bodyWithoutId, {
         where: { id },
