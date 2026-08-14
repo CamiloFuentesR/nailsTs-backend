@@ -26,6 +26,7 @@ import {
 import fileUpload from 'express-fileupload';
 import { ensureScheduleTables } from '../helpers/ensureScheduleTables';
 import { ensureCategoryColumns } from '../helpers/ensureCategoryColumns';
+import { ensureNoOverlapConstraint } from '../helpers/ensureNoOverlapConstraint';
 
 injectSpeedInsights();
 
@@ -115,6 +116,12 @@ class Server {
         error.message,
       );
     }
+
+    // Refuerza en la base la validación de solape que ya hace el controlador.
+    // No lleva try/catch como los dos de arriba porque el helper maneja sus
+    // propios errores y nunca lanza: si la tabla ya trae citas solapadas, deja
+    // el motivo en el log y el servidor levanta igual.
+    await ensureNoOverlapConstraint();
   }
 
   private middlewares(): void {
