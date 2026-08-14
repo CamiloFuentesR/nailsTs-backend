@@ -44,11 +44,12 @@
 //       -H "Content-Type: application/json" \
 //       -d '{"email":"TU_EMAIL","password":"TU_PASSWORD"}'
 //
-//   CLIENT_ID — la lista de clientes activos no pide token:
+//   CLIENT_ID — la lista de clientes activos no pide token. Devuelve
+//   { ok: true, msg: "...", client: [ { id: "...", ... } ] }:
 //
 //     curl -s http://localhost:8000/api/clients/active
 //
-//   Toma el `id` de cualquier cliente de esa respuesta.
+//   Toma el `id` de cualquier cliente del arreglo `client`.
 //
 // QUÉ SALIDA ESPERAR
 //
