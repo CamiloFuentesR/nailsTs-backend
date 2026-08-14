@@ -396,8 +396,12 @@ export const updateAppointment: RequestHandler = async (
   const transaction = await db.transaction();
 
   try {
+    // Con { transaction } se reutiliza la conexión que ya tomó la transacción.
+    // Sin eso pide una segunda al pool teniendo una ocupada, y con el pool por
+    // defecto en 5 unas pocas peticiones simultáneas se bloquean entre sí.
     const appointment = await Appointment.findOne({
       where: { id: appointmentData.id },
+      transaction,
     });
 
     if (!appointment) {
@@ -405,6 +409,42 @@ export const updateAppointment: RequestHandler = async (
       return res.status(404).json({
         ok: false,
         msg: 'Cita no encontrada',
+      });
+    }
+
+    const inicio = new Date(appointmentData.start);
+    const fin = new Date(appointmentData.end);
+
+    if (!rangoValido(inicio, fin)) {
+      await transaction.rollback();
+      return res.status(400).json({
+        ok: false,
+        msg: 'El horario de la cita no es válido',
+      });
+    }
+
+    // Mismo tope y mismo lock que al crear, por los motivos explicados en
+    // createAppointment. Reprogramar tiene que tomar el mismo lock: si no lo
+    // hiciera, una creación y una reprogramación simultáneas podrían dejar dos
+    // citas en el mismo horario.
+    await db.query("SET LOCAL lock_timeout = '3s'", { transaction });
+    await db.query(`SELECT pg_advisory_xact_lock(${LOCK_AGENDA})`, {
+      transaction,
+    });
+
+    // Se ignora la propia cita: al moverla dentro de su mismo horario se
+    // chocaría consigo misma y quedaría imposible de guardar.
+    const solapada = await buscarCitaSolapada({
+      inicio,
+      fin,
+      ignorarId: appointmentData.id,
+      transaction,
+    });
+    if (solapada) {
+      await transaction.rollback();
+      return res.status(409).json({
+        ok: false,
+        msg: 'Ese horario ya fue tomado. Elige otro, por favor.',
       });
     }
 
