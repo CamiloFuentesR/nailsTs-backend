@@ -7,6 +7,7 @@ import {
   buscarCitaSolapada,
   rangoValido,
   tomarLockAgenda,
+  ESTADOS_QUE_NO_OCUPAN,
 } from '../helpers/haySolape';
 
 /**
@@ -440,14 +441,26 @@ export const updateAppointment: RequestHandler = async (
     // el mismo horario.
     await tomarLockAgenda(transaction);
 
+    // Cancelar libera el horario, no lo toma: una cancelación nunca debería
+    // poder ser rechazada por "ese horario ya está tomado". Hoy no la rechaza,
+    // pero solo porque ignorarId excluye la propia cita; eso es una coincidencia
+    // afortunada y no una garantía, y con datos sucios la administradora se
+    // quedaría sin la salida de emergencia. Los estados salen de haySolape para
+    // no mantener una segunda lista literal de lo mismo.
+    const liberaAgenda = ESTADOS_QUE_NO_OCUPAN.includes(
+      Number(appointmentData.state),
+    );
+
     // Se ignora la propia cita: al moverla dentro de su mismo horario se
     // chocaría consigo misma y quedaría imposible de guardar.
-    const solapada = await buscarCitaSolapada({
-      inicio,
-      fin,
-      ignorarId: appointmentData.id,
-      transaction,
-    });
+    const solapada = liberaAgenda
+      ? null
+      : await buscarCitaSolapada({
+          inicio,
+          fin,
+          ignorarId: appointmentData.id,
+          transaction,
+        });
     if (solapada) {
       await transaction.rollback();
       return res.status(409).json({

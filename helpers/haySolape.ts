@@ -7,7 +7,7 @@ import Appointment from '../models/appointment';
  * otro estado que `getAllAppointment` deja fuera. Se replica ese criterio para
  * que la validación vea exactamente las mismas citas que el calendario.
  */
-const ESTADOS_QUE_NO_OCUPAN = [-1, 4];
+export const ESTADOS_QUE_NO_OCUPAN = [-1, 4];
 
 /**
  * Tope de duración de una cita. Los servicios más largos del catálogo son de
