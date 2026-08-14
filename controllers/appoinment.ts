@@ -5,6 +5,10 @@ import { Op, fn, col } from 'sequelize';
 import db from '../db/conection';
 import { buscarCitaSolapada, rangoValido } from '../helpers/haySolape';
 
+/** Clave del lock de agenda. Cualquier bigint fijo sirve; un segundo lock
+ *  consultivo en el proyecto debe usar una clave distinta. */
+const LOCK_AGENDA = 918273645;
+
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
 //   res: Response,
@@ -55,7 +59,7 @@ export const createAppointment: RequestHandler = async (
   const transaction = await db.transaction();
 
   try {
-    const ap = await Appointment.findByPk(appointmentData.id);
+    const ap = await Appointment.findByPk(appointmentData.id, { transaction });
     if (ap) {
       await transaction.rollback();
       return res.status(500).json({
@@ -75,10 +79,20 @@ export const createAppointment: RequestHandler = async (
       });
     }
 
+    // SET LOCAL se revierte solo al cerrar la transacción. Sin tope, una
+    // transacción trabada encola a todas las siguientes con su conexión del
+    // pool tomada y se queda sin base de datos la API completa, no solo este
+    // endpoint.
+    await db.query("SET LOCAL lock_timeout = '3s'", { transaction });
+
     // Serializa la creación de citas. Sin esto, dos peticiones simultáneas
     // pueden leer las dos "libre" y grabar las dos: una consulta seguida de un
     // insert no es atómica. El lock se suelta solo al cerrar la transacción.
-    await db.query("SELECT pg_advisory_xact_lock(hashtext('agenda_citas'))", {
+    //
+    // Asume READ COMMITTED (el default de Postgres): la consulta de solape ve
+    // lo que commiteó quien tenía el lock antes. Con REPEATABLE_READ dejaría de
+    // verlo y se grabarían dos citas encima sin ningún error.
+    await db.query(`SELECT pg_advisory_xact_lock(${LOCK_AGENDA})`, {
       transaction,
     });
 

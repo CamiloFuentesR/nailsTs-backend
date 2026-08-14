@@ -28,6 +28,12 @@ router.post(
     check('appointmentData.role').custom(isValidRole),
     check('servicesData.*.service_id').custom(serviceByIdExist),
     check('appointmentData.client_id').custom(clientByIdExist),
+    check('appointmentData.start')
+      .isISO8601()
+      .withMessage('Fecha de inicio inválida'),
+    check('appointmentData.end')
+      .isISO8601()
+      .withMessage('Fecha de término inválida'),
     // check('category_id').custom(categoryByIdExist),
     validateFields,
   ],

@@ -1,4 +1,4 @@
-import { Op, Transaction } from 'sequelize';
+import { Op, Transaction, WhereOptions } from 'sequelize';
 import Appointment from '../models/appointment';
 
 /**
@@ -7,6 +7,14 @@ import Appointment from '../models/appointment';
  * que la validación vea exactamente las mismas citas que el calendario.
  */
 const ESTADOS_QUE_NO_OCUPAN = [-1, 4];
+
+/**
+ * Tope de duración de una cita. Los servicios más largos del catálogo son de
+ * 3 horas y una combinación grande no pasa de 5, así que 12 deja margen de
+ * sobra. Existe para que nadie pueda grabar una cita de años que haga que
+ * todas las creaciones posteriores encuentren solape.
+ */
+const DURACION_MAXIMA_MS = 12 * 60 * 60 * 1000;
 
 interface ArgsSolape {
   inicio: Date;
@@ -31,17 +39,19 @@ export const buscarCitaSolapada = async ({
   ignorarId,
   transaction,
 }: ArgsSolape) => {
-  const where: any = {
+  const where: WhereOptions = {
     state: { [Op.notIn]: ESTADOS_QUE_NO_OCUPAN },
     start: { [Op.lt]: fin },
     end: { [Op.gt]: inicio },
+    ...(ignorarId ? { id: { [Op.ne]: ignorarId } } : {}),
   };
-
-  if (ignorarId) where.id = { [Op.ne]: ignorarId };
 
   return Appointment.findOne({ where, transaction });
 };
 
-/** ¿El rango es utilizable? Fechas válidas y fin estrictamente posterior. */
+/** ¿El rango es utilizable? Fechas válidas, fin posterior y duración acotada. */
 export const rangoValido = (inicio: Date, fin: Date): boolean =>
-  !isNaN(inicio.getTime()) && !isNaN(fin.getTime()) && fin > inicio;
+  !isNaN(inicio.getTime()) &&
+  !isNaN(fin.getTime()) &&
+  fin > inicio &&
+  fin.getTime() - inicio.getTime() <= DURACION_MAXIMA_MS;
