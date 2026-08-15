@@ -41,6 +41,26 @@ const ServicesCategory = conection_1.default.define('services_category', {
         allowNull: true,
         defaultValue: null,
     },
+    /*
+     * Que categorias se pisan entre si. Dos categorias con el mismo grupo son
+     * excluyentes: se elige una. Sin grupo, o con grupos distintos, se pueden
+     * combinar.
+     *
+     * Es texto libre y no un enum ni una tabla aparte: los grupos los define la
+     * administradora desde el panel y son un puñado. Un enum obligaria a tocar
+     * codigo cada vez que aparece una linea nueva de servicios.
+     *
+     * Nullable y sin defaultValue: sin grupo es el caso normal (retiro,
+     * parafinoterapia, lifting de pestañas se combinan con todo) y solo las
+     * categorias que compiten por el mismo lugar llevan un valor.
+     *
+     * La columna la agrega helpers/ensureCategoryColumns al arrancar.
+     */
+    grupo: {
+        type: sequelize_1.DataTypes.STRING(40),
+        allowNull: true,
+        defaultValue: null,
+    },
 }, {
     timestamps: false, // Desactiva las marcas de tiempo automáticas
 });

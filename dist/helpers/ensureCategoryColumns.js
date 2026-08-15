@@ -36,9 +36,28 @@ const ensureCategoryColumns = () => __awaiter(void 0, void 0, void 0, function* 
     // caso, el template literal escribiría "[object Object]" y el ALTER fallaría.
     const nombre = servicesCategory_1.default.getTableName();
     const tabla = typeof nombre === 'string' ? nombre : nombre.tableName;
+    /*
+     * `grupo` es nullable a propósito, y la regla completa es esta:
+     *
+     *   Dos categorías con el mismo `grupo` son excluyentes: se elige una. Sin
+     *   grupo, o con grupos distintos, se pueden combinar.
+     *
+     * Sin grupo significa "se combina con todo", que es el caso del retiro, la
+     * parafinoterapia y el lifting de pestañas: el lifting no es complemento de
+     * nada, se pide solo, pero convive con una manicure porque va en otra parte
+     * del cuerpo. Lo que se pisa es lo que compite por el mismo lugar: esmaltado
+     * permanente, manicure rusa, extensión con polygel y recubrimiento van todos
+     * sobre la misma uña.
+     *
+     * No hace falta una matriz de compatibilidad servicio por servicio porque las
+     * combinaciones que sí valen ya existen como servicios propios: "polygel +
+     * esmaltado permanente" es una fila con su precio y su duración, no dos
+     * servicios sumados.
+     */
     yield conection_1.default.query(`
     ALTER TABLE "${tabla}"
-      ADD COLUMN IF NOT EXISTS incluye JSONB;
+      ADD COLUMN IF NOT EXISTS incluye JSONB,
+      ADD COLUMN IF NOT EXISTS grupo VARCHAR(40);
   `);
 });
 exports.ensureCategoryColumns = ensureCategoryColumns;

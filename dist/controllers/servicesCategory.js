@@ -39,6 +39,19 @@ const normalizarIncluye = (valor) => {
         .filter(item => item.length > 0);
     return limpia.length > 0 ? limpia : null;
 };
+/**
+ * Deja `grupo` como texto limpio, o null si viene vacio.
+ *
+ * El campo vacio se guarda siempre como null y nunca como '': "sin grupo" es un
+ * estado con significado (esta categoria se combina con todo) y tiene que
+ * quedar escrito de una sola forma para poder compararlo.
+ */
+const normalizarGrupo = (valor) => {
+    if (typeof valor !== 'string')
+        return null;
+    const limpio = valor.trim();
+    return limpio.length > 0 ? limpio : null;
+};
 const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const serCat = yield models_1.ServicesCategory.findAll();
@@ -88,6 +101,10 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
             // Se normaliza a arreglo de texto: el formulario manda una linea por
             // item y cualquier otra cosa se guarda como null antes que como basura.
             incluye: normalizarIncluye(req.body.incluye),
+            // Sin grupo es el caso normal: la categoria se combina con todo. Solo las
+            // que compiten por el mismo lugar (todo lo que va sobre la uña) llevan
+            // uno, y las que comparten valor son las que se pisan.
+            grupo: normalizarGrupo(req.body.grupo),
         };
         console.log('data', data);
         const category = yield models_1.ServicesCategory.create(data);
@@ -156,6 +173,12 @@ const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     // que al crear. Si no viene en el body, no se toca lo que ya estaba.
     if ('incluye' in bodyWithoutId) {
         bodyWithoutId.incluye = normalizarIncluye(bodyWithoutId.incluye);
+    }
+    // Mismo criterio con `grupo`: si no viene en el body no se toca, para que
+    // editar el nombre o la foto no deje sueltas categorias que si se pisan.
+    // Cuando si viene vacio, en cambio, la intencion es sacarle el grupo.
+    if ('grupo' in bodyWithoutId) {
+        bodyWithoutId.grupo = normalizarGrupo(bodyWithoutId.grupo);
     }
     // Actualizar la categoría del servicio
     const [updatedRowsCount, updatedServiceCategoryArray] = yield models_1.ServicesCategory.update(bodyWithoutId, {
