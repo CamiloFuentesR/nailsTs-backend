@@ -1,6 +1,24 @@
 import { Response, Request, RequestHandler } from 'express';
 import { Service, ServicesCategory } from '../models';
 
+/**
+ * Traduce a booleano lo que venga en el cuerpo para es_complemento.
+ *
+ * Devuelve undefined cuando el campo no viene o no se entiende, y ese undefined
+ * es la señal de "no lo toques": al crear deja que aplique el DEFAULT false de
+ * la columna, y al actualizar deja el valor que el servicio ya tenía.
+ *
+ * A propósito no acepta 1/2 como state, donde el 2 es false porque viene de un
+ * <select>. Mezclar las dos convenciones en el mismo cuerpo se presta para
+ * guardar true donde iba false; el panel manda un booleano de verdad.
+ */
+const leerEsComplemento = (valor: unknown): boolean | undefined => {
+  if (typeof valor === 'boolean') return valor;
+  if (valor === 'true') return true;
+  if (valor === 'false') return false;
+  return undefined;
+};
+
 export const getServices = async (req: Request, res: Response) => {
   try {
     const services = await Service.findAll({
@@ -87,7 +105,8 @@ export const getServicesById: RequestHandler = async (
 };
 
 export const createService = async (req: Request, res: Response) => {
-  const { name, price, services_category_id, duration } = req.body;
+  const { name, price, services_category_id, duration, es_complemento } =
+    req.body;
 
   if (name === '') {
     return res.status(401).json({
@@ -121,6 +140,9 @@ export const createService = async (req: Request, res: Response) => {
       price,
       duration,
       state: true,
+      // Si el cuerpo no lo trae queda undefined, y ahí Sequelize aplica el
+      // defaultValue del modelo: el servicio nace como principal.
+      es_complemento: leerEsComplemento(es_complemento),
       services_category_id,
     };
 
@@ -170,6 +192,19 @@ export const updateService: RequestHandler = async (
 
   // Crear una copia del cuerpo y excluir el campo `id`
   const { id: _, ...bodyWithoutId } = body;
+
+  // El campo que no viene tiene que quedar como está. Sequelize ya resuelve el
+  // undefined (Model.update descarta esas claves antes de armar el SET), pero
+  // un null o un '' sí llegarían a la consulta, y la columna es NOT NULL: la
+  // administradora que solo edita el precio desmarcaría el complemento sin
+  // darse cuenta, o se llevaría un 500. Por eso se saca la clave salvo que
+  // traiga un booleano legible.
+  const esComplemento = leerEsComplemento(bodyWithoutId.es_complemento);
+  if (esComplemento === undefined) {
+    delete bodyWithoutId.es_complemento;
+  } else {
+    bodyWithoutId.es_complemento = esComplemento;
+  }
 
   try {
     // Buscar el servicio por su id
