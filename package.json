@@ -30,7 +30,7 @@
     "@vercel/postgres": "^0.9.0",
     "@vercel/speed-insights": "^1.0.12",
     "bcrypt": "^5.1.1",
-    "cloudinary": "^2.5.1",
+    "cloudinary": "^2.7.0",
     "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
