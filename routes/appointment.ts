@@ -27,6 +27,20 @@ router.post(
     haveRole('ADMIN_ROLE', 'USER_ROLE'),
     check('appointmentData.role').custom(isValidRole),
     check('servicesData.*.service_id').custom(serviceByIdExist),
+    // La cantidad va con los demás chequeos por fila y no en el controlador
+    // porque acá se rechaza antes de abrir la transacción y de tomar el lock de
+    // agenda, que serializa a todos los que están reservando. Un 400 desde
+    // adentro haría esperar al resto para nada.
+    //
+    // optional({ values: 'null' }) y no el optional a secas: el campo ausente y
+    // el campo en null son los dos "no me lo mandaron" y valen 1. Lo que NO se
+    // deja pasar como ausente es el 0, que con 'falsy' se colaría y terminaría
+    // guardado como 1 tapando el error; y un 0 o un negativo dejan una fila que
+    // no cobra nada o que resta.
+    check('servicesData.*.cantidad')
+      .optional({ values: 'null' })
+      .isInt({ min: 1 })
+      .withMessage('La cantidad de cada servicio debe ser un entero de 1 o más'),
     check('appointmentData.client_id').custom(clientByIdExist),
     check('appointmentData.start')
       .isISO8601()
@@ -50,6 +64,12 @@ router.put(
   validateJWT,
   haveRole('ADMIN_ROLE', 'USER_ROLE'),
   check('servicesData.*.service_id').custom(serviceByIdExist),
+  // Mismo chequeo que al crear: editar una cita borra sus filas y las vuelve a
+  // insertar, así que la cantidad se manda otra vez y hay que validarla igual.
+  check('servicesData.*.cantidad')
+    .optional({ values: 'null' })
+    .isInt({ min: 1 })
+    .withMessage('La cantidad de cada servicio debe ser un entero de 1 o más'),
   check('appointmentData.client_id').custom(clientByIdExist),
   check('appointmentData.start')
     .isISO8601()
