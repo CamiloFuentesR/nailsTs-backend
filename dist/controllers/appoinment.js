@@ -32,6 +32,28 @@ const esSolapeDeLaBase = (error) => error instanceof sequelize_1.ExclusionConstr
     error.constraint === 'citas_sin_solape';
 /** Mismo texto que el 409 del chequeo previo: el frontend no distingue. */
 const MSG_HORARIO_TOMADO = 'Ese horario ya fue tomado. Elige otro, por favor.';
+/**
+ * Cuántas veces se hizo un servicio dentro de la cita.
+ *
+ * Solo pasa de 1 en los servicios marcados como `por_unidad`, como el parche de
+ * polygel, que se cobra por uña: tres parches son una fila con cantidad 3 y no
+ * tres filas.
+ *
+ * Cae en 1 cuando el campo no viene, que es el caso de todo lo que ya está
+ * guardado y de cualquier cliente que todavía no lo mande. Lo que llegue mal ya
+ * lo rechazó con 400 el validador de la ruta, antes de abrir la transacción y de
+ * tomar el lock de agenda; esto es la red de abajo para que un valor raro nunca
+ * se convierta en una fila que no cobra nada, y por eso no vuelve a devolver
+ * error acá.
+ */
+const normalizarCantidad = (valor) => {
+    if (typeof valor !== 'number' && typeof valor !== 'string')
+        return 1;
+    const numero = Number(valor);
+    if (!Number.isInteger(numero) || numero < 1)
+        return 1;
+    return numero;
+};
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
 //   res: Response,
@@ -122,6 +144,7 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             service_id: service.service_id,
             state: service.state,
             appointment_service_price: service.price,
+            cantidad: normalizarCantidad(service.cantidad),
         }));
         // Guarda los servicios relacionados
         yield models_1.AppointmentService.bulkCreate(appointmentServices, { transaction });
@@ -440,11 +463,16 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             where: { appointment_id: appointmentData.id },
             transaction,
         });
+        // La cantidad se guarda también acá, y no solo al crear: reprogramar o
+        // editar una cita borra sus filas y las vuelve a insertar, así que sin esto
+        // los tres parches de una cita ya guardada volverían a ser uno la primera
+        // vez que ella le mueve la hora, y en silencio.
         const appointmentServices = servicesData.map((service) => ({
             appointment_id: appointmentData.id,
             service_id: service.service_id,
             state: service.state,
             appointment_service_price: service.price,
+            cantidad: normalizarCantidad(service.cantidad),
         }));
         yield models_1.AppointmentService.bulkCreate(appointmentServices, { transaction });
         // Confirma la transacción
