@@ -4,6 +4,18 @@
 -- helpers/ensureServiceColumns.ts, que aplica exactamente estos ALTER. Este
 -- script queda por si hay que agregar las columnas sin levantar la aplicación.
 --
+-- CUÁNDO SÍ HAY QUE CORRERLO A MANO, que es el caso que a nadie se le ocurre
+-- hasta que pasa: si el usuario con el que la aplicación se conecta a la base
+-- NO tiene permiso de ALTER sobre estas tablas. Ahí el helper falla al arrancar,
+-- el servidor levanta igual (el error solo queda en el log, a propósito) pero
+-- los modelos declaran columnas que no existen, y entonces NO se cae solo lo
+-- nuevo: se cae TODO /api/services y todo lo que lea una cita con sus
+-- servicios, con un 500 por columna inexistente.
+--
+-- O sea: si después de desplegar el panel de servicios responde 500, mira el
+-- log del arranque antes que nada, y si dice que no se pudieron verificar las
+-- columnas, corre este script con un usuario que sí pueda hacer ALTER.
+--
 -- Idempotente: se puede correr más de una vez sin efecto.
 -- NO modifica ni borra nada existente.
 --

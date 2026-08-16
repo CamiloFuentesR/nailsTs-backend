@@ -9,6 +9,7 @@ import {
   tomarLockAgenda,
   ESTADOS_QUE_NO_OCUPAN,
 } from '../helpers/haySolape';
+import { resolverFilasDeLaCita } from '../helpers/calcularPreciosCita';
 
 /**
  * ¿El error viene de la restricción de solape de la base?
@@ -27,26 +28,11 @@ const esSolapeDeLaBase = (error: unknown): boolean =>
 /** Mismo texto que el 409 del chequeo previo: el frontend no distingue. */
 const MSG_HORARIO_TOMADO = 'Ese horario ya fue tomado. Elige otro, por favor.';
 
-/**
- * Cuántas veces se hizo un servicio dentro de la cita.
- *
- * Solo pasa de 1 en los servicios marcados como `por_unidad`, como el parche de
- * polygel, que se cobra por uña: tres parches son una fila con cantidad 3 y no
- * tres filas.
- *
- * Cae en 1 cuando el campo no viene, que es el caso de todo lo que ya está
- * guardado y de cualquier cliente que todavía no lo mande. Lo que llegue mal ya
- * lo rechazó con 400 el validador de la ruta, antes de abrir la transacción y de
- * tomar el lock de agenda; esto es la red de abajo para que un valor raro nunca
- * se convierta en una fila que no cobra nada, y por eso no vuelve a devolver
- * error acá.
- */
-const normalizarCantidad = (valor: unknown): number => {
-  if (typeof valor !== 'number' && typeof valor !== 'string') return 1;
-  const numero = Number(valor);
-  if (!Number.isInteger(numero) || numero < 1) return 1;
-  return numero;
-};
+// Qué se guarda en cada fila de servicios lo resuelve resolverFilasDeLaCita, en
+// helpers/calcularPreciosCita. HOY DEVUELVE EXACTAMENTE LO QUE MANDA EL
+// NAVEGADOR, igual que siempre: el cálculo del servidor está en modo sombra y
+// solo deja la diferencia en el log. El interruptor para activarlo está al
+// principio de ese archivo.
 
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
@@ -118,6 +104,17 @@ export const createAppointment: RequestHandler = async (
       });
     }
 
+    // Antes del lock a propósito: leer el catálogo no necesita la agenda quieta,
+    // y todo lo que se haga con el lock tomado hace esperar a los demás que
+    // están reservando.
+    const { filas, precioCita } = await resolverFilasDeLaCita({
+      servicesData,
+      descuento: appointmentData.discount,
+      precioDelNavegador: appointmentData.price,
+      idCita: appointmentData.id,
+      transaction,
+    });
+
     // Serializa las escrituras de agenda y acota la espera por locks. El porqué
     // de cada parte está en tomarLockAgenda.
     await tomarLockAgenda(transaction);
@@ -141,19 +138,16 @@ export const createAppointment: RequestHandler = async (
         backgroundColor: appointmentData.backgroundColor,
         discount: appointmentData.discount,
         state: appointmentData.state,
-        price: appointmentData.price,
+        price: precioCita,
         className: appointmentData.className,
         img: appointmentData.img,
       },
       { transaction },
     );
     // Prepara los datos de servicios relacionados con la cita
-    const appointmentServices = servicesData.map((service: any) => ({
+    const appointmentServices = filas.map(fila => ({
+      ...fila,
       appointment_id: appointment.id,
-      service_id: service.service_id,
-      state: service.state,
-      appointment_service_price: service.price,
-      cantidad: normalizarCantidad(service.cantidad),
     }));
 
     // Guarda los servicios relacionados
@@ -458,6 +452,19 @@ export const updateAppointment: RequestHandler = async (
       });
     }
 
+    // Igual que al crear: antes del lock, porque leer el catálogo no necesita
+    // la agenda quieta. Y también al actualizar, no solo al crear: hoy el
+    // formulario ya rellena los precios desde el catálogo actual cuando se
+    // reabre una cita, así que recalcular acá mantiene el comportamiento que ya
+    // existe en vez de cambiarlo.
+    const { filas, precioCita } = await resolverFilasDeLaCita({
+      servicesData,
+      descuento: appointmentData.discount,
+      precioDelNavegador: appointmentData.price,
+      idCita: appointmentData.id,
+      transaction,
+    });
+
     // Reprogramar tiene que tomar el mismo lock que crear: si no lo hiciera,
     // una creación y una reprogramación simultáneas podrían dejar dos citas en
     // el mismo horario.
@@ -501,7 +508,7 @@ export const updateAppointment: RequestHandler = async (
         backgroundColor: appointmentData.backgroundColor,
         state: appointmentData.state,
         discount: appointmentData.discount,
-        price: appointmentData.price,
+        price: precioCita,
         className: appointmentData.className,
         img: appointmentData.img,
       },
@@ -517,12 +524,9 @@ export const updateAppointment: RequestHandler = async (
     // editar una cita borra sus filas y las vuelve a insertar, así que sin esto
     // los tres parches de una cita ya guardada volverían a ser uno la primera
     // vez que ella le mueve la hora, y en silencio.
-    const appointmentServices = servicesData.map((service: any) => ({
+    const appointmentServices = filas.map(fila => ({
+      ...fila,
       appointment_id: appointmentData.id,
-      service_id: service.service_id,
-      state: service.state,
-      appointment_service_price: service.price,
-      cantidad: normalizarCantidad(service.cantidad),
     }));
 
     await AppointmentService.bulkCreate(appointmentServices, { transaction });
