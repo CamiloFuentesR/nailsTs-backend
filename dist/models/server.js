@@ -22,6 +22,8 @@ const speed_insights_1 = require("@vercel/speed-insights");
 const routes_1 = require("../routes");
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const ensureScheduleTables_1 = require("../helpers/ensureScheduleTables");
+const ensureCategoryColumns_1 = require("../helpers/ensureCategoryColumns");
+const ensureNoOverlapConstraint_1 = require("../helpers/ensureNoOverlapConstraint");
 (0, speed_insights_1.injectSpeedInsights)();
 class Server {
     constructor() {
@@ -87,6 +89,19 @@ class Server {
             catch (error) {
                 console.error('No se pudieron verificar las tablas de horarios:', error.message);
             }
+            // Mismo criterio: si falla, el servidor igual levanta. Sin la columna, la
+            // ficha del servicio simplemente no muestra el bloque "Que incluye".
+            try {
+                yield (0, ensureCategoryColumns_1.ensureCategoryColumns)();
+            }
+            catch (error) {
+                console.error('No se pudieron verificar las columnas de categorias:', error.message);
+            }
+            // Refuerza en la base la validación de solape que ya hace el controlador.
+            // No lleva try/catch como los dos de arriba porque el helper maneja sus
+            // propios errores y nunca lanza: si la tabla ya trae citas solapadas, deja
+            // el motivo en el log y el servidor levanta igual.
+            yield (0, ensureNoOverlapConstraint_1.ensureNoOverlapConstraint)();
         });
     }
     middlewares() {

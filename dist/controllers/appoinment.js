@@ -17,6 +17,21 @@ const appointment_1 = __importDefault(require("../models/appointment"));
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
 const conection_1 = __importDefault(require("../db/conection"));
+const haySolape_1 = require("../helpers/haySolape");
+/**
+ * ¿El error viene de la restricción de solape de la base?
+ *
+ * Es la última línea de defensa: la restricción citas_sin_solape saltó porque
+ * el horario se tomó entre la consulta de solape y el INSERT. Por la API no
+ * debería pasar nunca, porque el lock consultivo serializa las escrituras; el
+ * caso real es una escritura por fuera, o un endpoint futuro que no tome el
+ * lock. Sin esto responde 500 con el texto crudo de Postgres, que además filtra
+ * el nombre interno de la restricción al cliente.
+ */
+const esSolapeDeLaBase = (error) => error instanceof sequelize_1.ExclusionConstraintError &&
+    error.constraint === 'citas_sin_solape';
+/** Mismo texto que el 409 del chequeo previo: el frontend no distingue. */
+const MSG_HORARIO_TOMADO = 'Ese horario ya fue tomado. Elige otro, por favor.';
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
 //   res: Response,
@@ -60,12 +75,32 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {
-        const ap = yield appointment_1.default.findByPk(appointmentData.id);
+        const ap = yield appointment_1.default.findByPk(appointmentData.id, { transaction });
         if (ap) {
             yield transaction.rollback();
             return res.status(500).json({
                 ok: false,
                 msg: 'Error al crear la cita, datos duplicados',
+            });
+        }
+        const inicio = new Date(appointmentData.start);
+        const fin = new Date(appointmentData.end);
+        if (!(0, haySolape_1.rangoValido)(inicio, fin)) {
+            yield transaction.rollback();
+            return res.status(400).json({
+                ok: false,
+                msg: 'El horario de la cita no es válido',
+            });
+        }
+        // Serializa las escrituras de agenda y acota la espera por locks. El porqué
+        // de cada parte está en tomarLockAgenda.
+        yield (0, haySolape_1.tomarLockAgenda)(transaction);
+        const solapada = yield (0, haySolape_1.buscarCitaSolapada)({ inicio, fin, transaction });
+        if (solapada) {
+            yield transaction.rollback();
+            return res.status(409).json({
+                ok: false,
+                msg: MSG_HORARIO_TOMADO,
             });
         }
         const appointment = yield appointment_1.default.create({
@@ -101,6 +136,12 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
     catch (error) {
         // Reversión de la transacción en caso de error
         yield transaction.rollback();
+        if (esSolapeDeLaBase(error)) {
+            return res.status(409).json({
+                ok: false,
+                msg: MSG_HORARIO_TOMADO,
+            });
+        }
         console.log(error.message);
         res.status(500).json({
             ok: false,
@@ -331,14 +372,55 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {
+        // Con { transaction } se reutiliza la conexión que ya tomó la transacción.
+        // Sin eso pide una segunda al pool teniendo una ocupada, y con el pool por
+        // defecto en 5 unas pocas peticiones simultáneas se bloquean entre sí.
         const appointment = yield appointment_1.default.findOne({
             where: { id: appointmentData.id },
+            transaction,
         });
         if (!appointment) {
             yield transaction.rollback();
             return res.status(404).json({
                 ok: false,
                 msg: 'Cita no encontrada',
+            });
+        }
+        const inicio = new Date(appointmentData.start);
+        const fin = new Date(appointmentData.end);
+        if (!(0, haySolape_1.rangoValido)(inicio, fin)) {
+            yield transaction.rollback();
+            return res.status(400).json({
+                ok: false,
+                msg: 'El horario de la cita no es válido',
+            });
+        }
+        // Reprogramar tiene que tomar el mismo lock que crear: si no lo hiciera,
+        // una creación y una reprogramación simultáneas podrían dejar dos citas en
+        // el mismo horario.
+        yield (0, haySolape_1.tomarLockAgenda)(transaction);
+        // Cancelar libera el horario, no lo toma: una cancelación nunca debería
+        // poder ser rechazada por "ese horario ya está tomado". Hoy no la rechaza,
+        // pero solo porque ignorarId excluye la propia cita; eso es una coincidencia
+        // afortunada y no una garantía, y con datos sucios la administradora se
+        // quedaría sin la salida de emergencia. Los estados salen de haySolape para
+        // no mantener una segunda lista literal de lo mismo.
+        const liberaAgenda = haySolape_1.ESTADOS_QUE_NO_OCUPAN.includes(Number(appointmentData.state));
+        // Se ignora la propia cita: al moverla dentro de su mismo horario se
+        // chocaría consigo misma y quedaría imposible de guardar.
+        const solapada = liberaAgenda
+            ? null
+            : yield (0, haySolape_1.buscarCitaSolapada)({
+                inicio,
+                fin,
+                ignorarId: appointmentData.id,
+                transaction,
+            });
+        if (solapada) {
+            yield transaction.rollback();
+            return res.status(409).json({
+                ok: false,
+                msg: MSG_HORARIO_TOMADO,
             });
         }
         // Actualiza la cita
@@ -378,6 +460,12 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     catch (error) {
         // Reversión de la transacción en caso de error
         yield transaction.rollback();
+        if (esSolapeDeLaBase(error)) {
+            return res.status(409).json({
+                ok: false,
+                msg: MSG_HORARIO_TOMADO,
+            });
+        }
         console.log(error.message);
         res.status(500).json({
             ok: false,
@@ -392,8 +480,15 @@ const deleteAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
     // Inicia una transacción
     const transaction = yield conection_1.default.transaction();
     try {
+        // Con { transaction } se reutiliza la conexión que ya tomó la transacción.
+        // Sin eso pide una segunda al pool teniendo una ocupada, y con el pool por
+        // defecto en 5 unas pocas peticiones simultáneas se bloquean entre sí.
+        //
+        // No lleva lock ni validación de solape a propósito: cancelar libera un
+        // bloque de agenda, no lo toma.
         const appointment = yield appointment_1.default.findOne({
             where: { id: id },
+            transaction,
         });
         if (!appointment) {
             yield transaction.rollback();

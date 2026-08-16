@@ -30,6 +30,17 @@ const ServicesCategory = conection_1.default.define('services_category', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: true,
     },
+    /*
+     * JSONB y no una tabla aparte: es una lista corta de texto que solo se lee
+     * completa, nunca se consulta ni se ordena por sus elementos. Una tabla
+     * hija seria mas peso del que resuelve.
+     * La columna la agrega helpers/ensureCategoryColumns al arrancar.
+     */
+    incluye: {
+        type: sequelize_1.DataTypes.JSONB,
+        allowNull: true,
+        defaultValue: null,
+    },
 }, {
     timestamps: false, // Desactiva las marcas de tiempo automáticas
 });
