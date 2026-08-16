@@ -67,12 +67,17 @@ const getAppointmentService = (req, res) => __awaiter(void 0, void 0, void 0, fu
             include: [
                 {
                     model: models_1.Service,
+                    // por_unidad y unidad viajan para que el historial pueda escribir
+                    // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+                    // cita, pero el sustantivo es del servicio.
                     attributes: [
                         'id',
                         'name',
                         'services_category_id',
                         'price',
                         'duration',
+                        'por_unidad',
+                        'unidad',
                     ],
                     include: [
                         {
@@ -107,12 +112,17 @@ const getAppointmentServiceReportByGroup = (req, res) => __awaiter(void 0, void 
             include: [
                 {
                     model: models_1.Service,
+                    // por_unidad y unidad viajan para que el historial pueda escribir
+                    // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+                    // cita, pero el sustantivo es del servicio.
                     attributes: [
                         'id',
                         'name',
                         'services_category_id',
                         'price',
                         'duration',
+                        'por_unidad',
+                        'unidad',
                     ],
                     include: [
                         {
@@ -172,12 +182,17 @@ const getAppointmentServiceByAppointment = (req, res) => __awaiter(void 0, void 
             include: [
                 {
                     model: models_1.Service,
+                    // por_unidad y unidad viajan para que el historial pueda escribir
+                    // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+                    // cita, pero el sustantivo es del servicio.
                     attributes: [
                         'id',
                         'name',
                         'services_category_id',
                         'price',
                         'duration',
+                        'por_unidad',
+                        'unidad',
                     ],
                     include: [
                         {
@@ -226,12 +241,17 @@ const getAppointmentServiceByClient = (req, res) => __awaiter(void 0, void 0, vo
             include: [
                 {
                     model: models_1.Service,
+                    // por_unidad y unidad viajan para que el historial pueda escribir
+                    // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+                    // cita, pero el sustantivo es del servicio.
                     attributes: [
                         'id',
                         'name',
                         'services_category_id',
                         'price',
                         'duration',
+                        'por_unidad',
+                        'unidad',
                     ],
                     include: [
                         {
@@ -306,12 +326,17 @@ const getAppointmentServiceOneByClient = (req, res) => __awaiter(void 0, void 0,
             include: [
                 {
                     model: models_1.Service,
+                    // por_unidad y unidad viajan para que el historial pueda escribir
+                    // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+                    // cita, pero el sustantivo es del servicio.
                     attributes: [
                         'id',
                         'name',
                         'services_category_id',
                         'price',
                         'duration',
+                        'por_unidad',
+                        'unidad',
                     ],
                     include: [
                         {

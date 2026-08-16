@@ -10,6 +10,12 @@ router.post('/', [
     middleware_1.validateJWT,
     (0, middleware_1.haveRole)('ADMIN_ROLE', 'USER_ROLE'),
     (0, express_validator_1.check)('appointmentData.role').custom(dbValidator_1.isValidRole),
+    // Sin esto, un cuerpo sin servicesData revienta el .map del controlador y
+    // sale como un 500 que parece una caída del servidor. Es una petición mal
+    // formada y corresponde un 400: una cita sin servicios no es una cita.
+    (0, express_validator_1.check)('servicesData')
+        .isArray({ min: 1 })
+        .withMessage('La cita tiene que llevar al menos un servicio'),
     (0, express_validator_1.check)('servicesData.*.service_id').custom(dbValidator_1.serviceByIdExist),
     // La cantidad va con los demás chequeos por fila y no en el controlador
     // porque acá se rechaza antes de abrir la transacción y de tomar el lock de
@@ -40,7 +46,11 @@ router.get('/ByData', appoinment_1.getAllAppointmentByDate);
 router.get('/reportByMonth', middleware_1.validateJWT, appoinment_1.getAppointmentByMonth);
 router.get('/reportAccept', middleware_1.validateJWT, appoinment_1.getAcceptedAppointment);
 router.get('/:id', middleware_1.validateJWT, appoinment_1.getAppointmentById);
-router.put('/:id', middleware_1.validateJWT, (0, middleware_1.haveRole)('ADMIN_ROLE', 'USER_ROLE'), (0, express_validator_1.check)('servicesData.*.service_id').custom(dbValidator_1.serviceByIdExist), 
+router.put('/:id', middleware_1.validateJWT, (0, middleware_1.haveRole)('ADMIN_ROLE', 'USER_ROLE'), 
+// Mismo motivo que al crear: updateAppointment también recorre servicesData.
+(0, express_validator_1.check)('servicesData')
+    .isArray({ min: 1 })
+    .withMessage('La cita tiene que llevar al menos un servicio'), (0, express_validator_1.check)('servicesData.*.service_id').custom(dbValidator_1.serviceByIdExist), 
 // Mismo chequeo que al crear: editar una cita borra sus filas y las vuelve a
 // insertar, así que la cantidad se manda otra vez y hay que validarla igual.
 (0, express_validator_1.check)('servicesData.*.cantidad')
