@@ -9,6 +9,7 @@ import {
   tomarLockAgenda,
   ESTADOS_QUE_NO_OCUPAN,
 } from '../helpers/haySolape';
+import { resolverFilasDeLaCita } from '../helpers/calcularPreciosCita';
 
 /**
  * ¿El error viene de la restricción de solape de la base?
@@ -26,6 +27,12 @@ const esSolapeDeLaBase = (error: unknown): boolean =>
 
 /** Mismo texto que el 409 del chequeo previo: el frontend no distingue. */
 const MSG_HORARIO_TOMADO = 'Ese horario ya fue tomado. Elige otro, por favor.';
+
+// Qué se guarda en cada fila de servicios lo resuelve resolverFilasDeLaCita, en
+// helpers/calcularPreciosCita. HOY DEVUELVE EXACTAMENTE LO QUE MANDA EL
+// NAVEGADOR, igual que siempre: el cálculo del servidor está en modo sombra y
+// solo deja la diferencia en el log. El interruptor para activarlo está al
+// principio de ese archivo.
 
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
@@ -97,6 +104,17 @@ export const createAppointment: RequestHandler = async (
       });
     }
 
+    // Antes del lock a propósito: leer el catálogo no necesita la agenda quieta,
+    // y todo lo que se haga con el lock tomado hace esperar a los demás que
+    // están reservando.
+    const { filas, precioCita } = await resolverFilasDeLaCita({
+      servicesData,
+      descuento: appointmentData.discount,
+      precioDelNavegador: appointmentData.price,
+      idCita: appointmentData.id,
+      transaction,
+    });
+
     // Serializa las escrituras de agenda y acota la espera por locks. El porqué
     // de cada parte está en tomarLockAgenda.
     await tomarLockAgenda(transaction);
@@ -120,18 +138,16 @@ export const createAppointment: RequestHandler = async (
         backgroundColor: appointmentData.backgroundColor,
         discount: appointmentData.discount,
         state: appointmentData.state,
-        price: appointmentData.price,
+        price: precioCita,
         className: appointmentData.className,
         img: appointmentData.img,
       },
       { transaction },
     );
     // Prepara los datos de servicios relacionados con la cita
-    const appointmentServices = servicesData.map((service: any) => ({
+    const appointmentServices = filas.map(fila => ({
+      ...fila,
       appointment_id: appointment.id,
-      service_id: service.service_id,
-      state: service.state,
-      appointment_service_price: service.price,
     }));
 
     // Guarda los servicios relacionados
@@ -436,6 +452,19 @@ export const updateAppointment: RequestHandler = async (
       });
     }
 
+    // Igual que al crear: antes del lock, porque leer el catálogo no necesita
+    // la agenda quieta. Y también al actualizar, no solo al crear: hoy el
+    // formulario ya rellena los precios desde el catálogo actual cuando se
+    // reabre una cita, así que recalcular acá mantiene el comportamiento que ya
+    // existe en vez de cambiarlo.
+    const { filas, precioCita } = await resolverFilasDeLaCita({
+      servicesData,
+      descuento: appointmentData.discount,
+      precioDelNavegador: appointmentData.price,
+      idCita: appointmentData.id,
+      transaction,
+    });
+
     // Reprogramar tiene que tomar el mismo lock que crear: si no lo hiciera,
     // una creación y una reprogramación simultáneas podrían dejar dos citas en
     // el mismo horario.
@@ -479,7 +508,7 @@ export const updateAppointment: RequestHandler = async (
         backgroundColor: appointmentData.backgroundColor,
         state: appointmentData.state,
         discount: appointmentData.discount,
-        price: appointmentData.price,
+        price: precioCita,
         className: appointmentData.className,
         img: appointmentData.img,
       },
@@ -491,11 +520,13 @@ export const updateAppointment: RequestHandler = async (
       transaction,
     });
 
-    const appointmentServices = servicesData.map((service: any) => ({
+    // La cantidad se guarda también acá, y no solo al crear: reprogramar o
+    // editar una cita borra sus filas y las vuelve a insertar, así que sin esto
+    // los tres parches de una cita ya guardada volverían a ser uno la primera
+    // vez que ella le mueve la hora, y en silencio.
+    const appointmentServices = filas.map(fila => ({
+      ...fila,
       appointment_id: appointmentData.id,
-      service_id: service.service_id,
-      state: service.state,
-      appointment_service_price: service.price,
     }));
 
     await AppointmentService.bulkCreate(appointmentServices, { transaction });

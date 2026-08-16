@@ -26,6 +26,7 @@ import {
 import fileUpload from 'express-fileupload';
 import { ensureScheduleTables } from '../helpers/ensureScheduleTables';
 import { ensureCategoryColumns } from '../helpers/ensureCategoryColumns';
+import { ensureServiceColumns } from '../helpers/ensureServiceColumns';
 import { ensureNoOverlapConstraint } from '../helpers/ensureNoOverlapConstraint';
 
 injectSpeedInsights();
@@ -113,6 +114,18 @@ class Server {
     } catch (error: any) {
       console.error(
         'No se pudieron verificar las columnas de categorias:',
+        error.message,
+      );
+    }
+
+    // Igual que los de arriba: si falla, el servidor levanta lo mismo. Sin la
+    // columna, todos los servicios se siguen ofreciendo como principales, que
+    // es el comportamiento de siempre.
+    try {
+      await ensureServiceColumns();
+    } catch (error: any) {
+      console.error(
+        'No se pudieron verificar las columnas de servicios:',
         error.message,
       );
     }

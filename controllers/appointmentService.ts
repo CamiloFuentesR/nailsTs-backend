@@ -57,12 +57,17 @@ export const getAppointmentService = async (req: Request, res: Response) => {
       include: [
         {
           model: Service,
+          // por_unidad y unidad viajan para que el historial pueda escribir
+          // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+          // cita, pero el sustantivo es del servicio.
           attributes: [
             'id',
             'name',
             'services_category_id',
             'price',
             'duration',
+            'por_unidad',
+            'unidad',
           ],
           include: [
             {
@@ -108,12 +113,17 @@ export const getAppointmentServiceReportByGroup = async (
       include: [
         {
           model: Service,
+          // por_unidad y unidad viajan para que el historial pueda escribir
+          // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+          // cita, pero el sustantivo es del servicio.
           attributes: [
             'id',
             'name',
             'services_category_id',
             'price',
             'duration',
+            'por_unidad',
+            'unidad',
           ],
           include: [
             {
@@ -184,12 +194,17 @@ export const getAppointmentServiceByAppointment: RequestHandler = async (
       include: [
         {
           model: Service,
+          // por_unidad y unidad viajan para que el historial pueda escribir
+          // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+          // cita, pero el sustantivo es del servicio.
           attributes: [
             'id',
             'name',
             'services_category_id',
             'price',
             'duration',
+            'por_unidad',
+            'unidad',
           ],
           include: [
             {
@@ -240,12 +255,17 @@ export const getAppointmentServiceByClient: RequestHandler = async (
       include: [
         {
           model: Service,
+          // por_unidad y unidad viajan para que el historial pueda escribir
+          // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+          // cita, pero el sustantivo es del servicio.
           attributes: [
             'id',
             'name',
             'services_category_id',
             'price',
             'duration',
+            'por_unidad',
+            'unidad',
           ],
           include: [
             {
@@ -336,12 +356,17 @@ export const getAppointmentServiceOneByClient: RequestHandler = async (
       include: [
         {
           model: Service,
+          // por_unidad y unidad viajan para que el historial pueda escribir
+          // "3 uñas" al lado del servicio: la cantidad sale de la fila de la
+          // cita, pero el sustantivo es del servicio.
           attributes: [
             'id',
             'name',
             'services_category_id',
             'price',
             'duration',
+            'por_unidad',
+            'unidad',
           ],
           include: [
             {

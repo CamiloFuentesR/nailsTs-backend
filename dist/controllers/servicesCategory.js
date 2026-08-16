@@ -39,6 +39,33 @@ const normalizarIncluye = (valor) => {
         .filter(item => item.length > 0);
     return limpia.length > 0 ? limpia : null;
 };
+/**
+ * Deja `grupo` en su forma canonica: minusculas y sin espacios en los bordes, o
+ * null si viene vacio.
+ *
+ * El grupo se compara por igualdad de texto para decidir que dos categorias no
+ * se pueden pedir juntas. Asi que `Uñas`, `uñas ` y `uñas` escritos en momentos
+ * distintos serian TRES grupos y la exclusividad dejaria de aplicarse sin que
+ * nada lo avise: se descubre recien cuando alguien reserva dos manicures que
+ * van sobre la misma uña. Por eso se normaliza aca y no solo en el panel: esta
+ * es la puerta que cierra de verdad, porque cubre a cualquier otro cliente y a
+ * una edicion hecha a mano contra la API.
+ *
+ * Bajar la caja es seguro porque el grupo es una llave interna y no un texto
+ * que vea la clienta: donde se dibuja —el rotulo del bloque en la pantalla de
+ * reserva— va con la clase `.lbl`, que lo pone en versalitas
+ * (`text-transform: uppercase`), asi que `uñas` se sigue viendo `UÑAS`.
+ *
+ * El campo vacio se guarda siempre como null y nunca como '': "sin grupo" es un
+ * estado con significado (esta categoria se combina con todo) y el codigo que
+ * lo consume pregunta por null para decidirlo.
+ */
+const normalizarGrupo = (valor) => {
+    if (typeof valor !== 'string')
+        return null;
+    const limpio = valor.trim().toLowerCase();
+    return limpio.length > 0 ? limpio : null;
+};
 const getServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const serCat = yield models_1.ServicesCategory.findAll();
@@ -88,6 +115,10 @@ const createServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
             // Se normaliza a arreglo de texto: el formulario manda una linea por
             // item y cualquier otra cosa se guarda como null antes que como basura.
             incluye: normalizarIncluye(req.body.incluye),
+            // Sin grupo es el caso normal: la categoria se combina con todo. Solo las
+            // que compiten por el mismo lugar (todo lo que va sobre la uña) llevan
+            // uno, y las que comparten valor son las que se pisan.
+            grupo: normalizarGrupo(req.body.grupo),
         };
         console.log('data', data);
         const category = yield models_1.ServicesCategory.create(data);
@@ -156,6 +187,12 @@ const updateServicesCategory = (req, res) => __awaiter(void 0, void 0, void 0, f
     // que al crear. Si no viene en el body, no se toca lo que ya estaba.
     if ('incluye' in bodyWithoutId) {
         bodyWithoutId.incluye = normalizarIncluye(bodyWithoutId.incluye);
+    }
+    // Mismo criterio con `grupo`: si no viene en el body no se toca, para que
+    // editar el nombre o la foto no deje sueltas categorias que si se pisan.
+    // Cuando si viene vacio, en cambio, la intencion es sacarle el grupo.
+    if ('grupo' in bodyWithoutId) {
+        bodyWithoutId.grupo = normalizarGrupo(bodyWithoutId.grupo);
     }
     // Actualizar la categoría del servicio
     const [updatedRowsCount, updatedServiceCategoryArray] = yield models_1.ServicesCategory.update(bodyWithoutId, {

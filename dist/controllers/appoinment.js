@@ -18,6 +18,7 @@ const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
 const conection_1 = __importDefault(require("../db/conection"));
 const haySolape_1 = require("../helpers/haySolape");
+const calcularPreciosCita_1 = require("../helpers/calcularPreciosCita");
 /**
  * ¿El error viene de la restricción de solape de la base?
  *
@@ -32,6 +33,11 @@ const esSolapeDeLaBase = (error) => error instanceof sequelize_1.ExclusionConstr
     error.constraint === 'citas_sin_solape';
 /** Mismo texto que el 409 del chequeo previo: el frontend no distingue. */
 const MSG_HORARIO_TOMADO = 'Ese horario ya fue tomado. Elige otro, por favor.';
+// Qué se guarda en cada fila de servicios lo resuelve resolverFilasDeLaCita, en
+// helpers/calcularPreciosCita. HOY DEVUELVE EXACTAMENTE LO QUE MANDA EL
+// NAVEGADOR, igual que siempre: el cálculo del servidor está en modo sombra y
+// solo deja la diferencia en el log. El interruptor para activarlo está al
+// principio de ese archivo.
 // export const createAppointment: RequestHandler = async (
 //   req: Request,
 //   res: Response,
@@ -92,6 +98,16 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
                 msg: 'El horario de la cita no es válido',
             });
         }
+        // Antes del lock a propósito: leer el catálogo no necesita la agenda quieta,
+        // y todo lo que se haga con el lock tomado hace esperar a los demás que
+        // están reservando.
+        const { filas, precioCita } = yield (0, calcularPreciosCita_1.resolverFilasDeLaCita)({
+            servicesData,
+            descuento: appointmentData.discount,
+            precioDelNavegador: appointmentData.price,
+            idCita: appointmentData.id,
+            transaction,
+        });
         // Serializa las escrituras de agenda y acota la espera por locks. El porqué
         // de cada parte está en tomarLockAgenda.
         yield (0, haySolape_1.tomarLockAgenda)(transaction);
@@ -112,17 +128,12 @@ const createAppointment = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             backgroundColor: appointmentData.backgroundColor,
             discount: appointmentData.discount,
             state: appointmentData.state,
-            price: appointmentData.price,
+            price: precioCita,
             className: appointmentData.className,
             img: appointmentData.img,
         }, { transaction });
         // Prepara los datos de servicios relacionados con la cita
-        const appointmentServices = servicesData.map((service) => ({
-            appointment_id: appointment.id,
-            service_id: service.service_id,
-            state: service.state,
-            appointment_service_price: service.price,
-        }));
+        const appointmentServices = filas.map(fila => (Object.assign(Object.assign({}, fila), { appointment_id: appointment.id })));
         // Guarda los servicios relacionados
         yield models_1.AppointmentService.bulkCreate(appointmentServices, { transaction });
         // Confirma la transacción
@@ -395,6 +406,18 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 msg: 'El horario de la cita no es válido',
             });
         }
+        // Igual que al crear: antes del lock, porque leer el catálogo no necesita
+        // la agenda quieta. Y también al actualizar, no solo al crear: hoy el
+        // formulario ya rellena los precios desde el catálogo actual cuando se
+        // reabre una cita, así que recalcular acá mantiene el comportamiento que ya
+        // existe en vez de cambiarlo.
+        const { filas, precioCita } = yield (0, calcularPreciosCita_1.resolverFilasDeLaCita)({
+            servicesData,
+            descuento: appointmentData.discount,
+            precioDelNavegador: appointmentData.price,
+            idCita: appointmentData.id,
+            transaction,
+        });
         // Reprogramar tiene que tomar el mismo lock que crear: si no lo hiciera,
         // una creación y una reprogramación simultáneas podrían dejar dos citas en
         // el mismo horario.
@@ -432,7 +455,7 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             backgroundColor: appointmentData.backgroundColor,
             state: appointmentData.state,
             discount: appointmentData.discount,
-            price: appointmentData.price,
+            price: precioCita,
             className: appointmentData.className,
             img: appointmentData.img,
         }, { transaction });
@@ -440,12 +463,11 @@ const updateAppointment = (req, res) => __awaiter(void 0, void 0, void 0, functi
             where: { appointment_id: appointmentData.id },
             transaction,
         });
-        const appointmentServices = servicesData.map((service) => ({
-            appointment_id: appointmentData.id,
-            service_id: service.service_id,
-            state: service.state,
-            appointment_service_price: service.price,
-        }));
+        // La cantidad se guarda también acá, y no solo al crear: reprogramar o
+        // editar una cita borra sus filas y las vuelve a insertar, así que sin esto
+        // los tres parches de una cita ya guardada volverían a ser uno la primera
+        // vez que ella le mueve la hora, y en silencio.
+        const appointmentServices = filas.map(fila => (Object.assign(Object.assign({}, fila), { appointment_id: appointmentData.id })));
         yield models_1.AppointmentService.bulkCreate(appointmentServices, { transaction });
         // Confirma la transacción
         yield transaction.commit();

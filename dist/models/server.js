@@ -23,6 +23,7 @@ const routes_1 = require("../routes");
 const express_fileupload_1 = __importDefault(require("express-fileupload"));
 const ensureScheduleTables_1 = require("../helpers/ensureScheduleTables");
 const ensureCategoryColumns_1 = require("../helpers/ensureCategoryColumns");
+const ensureServiceColumns_1 = require("../helpers/ensureServiceColumns");
 const ensureNoOverlapConstraint_1 = require("../helpers/ensureNoOverlapConstraint");
 (0, speed_insights_1.injectSpeedInsights)();
 class Server {
@@ -96,6 +97,15 @@ class Server {
             }
             catch (error) {
                 console.error('No se pudieron verificar las columnas de categorias:', error.message);
+            }
+            // Igual que los de arriba: si falla, el servidor levanta lo mismo. Sin la
+            // columna, todos los servicios se siguen ofreciendo como principales, que
+            // es el comportamiento de siempre.
+            try {
+                yield (0, ensureServiceColumns_1.ensureServiceColumns)();
+            }
+            catch (error) {
+                console.error('No se pudieron verificar las columnas de servicios:', error.message);
             }
             // Refuerza en la base la validación de solape que ya hace el controlador.
             // No lleva try/catch como los dos de arriba porque el helper maneja sus
