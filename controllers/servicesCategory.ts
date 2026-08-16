@@ -22,15 +22,29 @@ const normalizarIncluye = (valor: unknown): string[] | null => {
 };
 
 /**
- * Deja `grupo` como texto limpio, o null si viene vacio.
+ * Deja `grupo` en su forma canonica: minusculas y sin espacios en los bordes, o
+ * null si viene vacio.
+ *
+ * El grupo se compara por igualdad de texto para decidir que dos categorias no
+ * se pueden pedir juntas. Asi que `Uñas`, `uñas ` y `uñas` escritos en momentos
+ * distintos serian TRES grupos y la exclusividad dejaria de aplicarse sin que
+ * nada lo avise: se descubre recien cuando alguien reserva dos manicures que
+ * van sobre la misma uña. Por eso se normaliza aca y no solo en el panel: esta
+ * es la puerta que cierra de verdad, porque cubre a cualquier otro cliente y a
+ * una edicion hecha a mano contra la API.
+ *
+ * Bajar la caja es seguro porque el grupo es una llave interna y no un texto
+ * que vea la clienta: donde se dibuja —el rotulo del bloque en la pantalla de
+ * reserva— va con la clase `.lbl`, que lo pone en versalitas
+ * (`text-transform: uppercase`), asi que `uñas` se sigue viendo `UÑAS`.
  *
  * El campo vacio se guarda siempre como null y nunca como '': "sin grupo" es un
- * estado con significado (esta categoria se combina con todo) y tiene que
- * quedar escrito de una sola forma para poder compararlo.
+ * estado con significado (esta categoria se combina con todo) y el codigo que
+ * lo consume pregunta por null para decidirlo.
  */
 const normalizarGrupo = (valor: unknown): string | null => {
   if (typeof valor !== 'string') return null;
-  const limpio = valor.trim();
+  const limpio = valor.trim().toLowerCase();
   return limpio.length > 0 ? limpio : null;
 };
 
